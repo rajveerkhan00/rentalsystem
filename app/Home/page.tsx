@@ -619,6 +619,52 @@ export default function RentCalculatorPage() {
               )}
             </div>
           </div>
+
+          {/* Action buttons */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+            >
+              🔄 Refresh Page
+            </button>
+            <button
+              onClick={async () => {
+                const cleanedDomain = cleanDomain(currentDomain);
+                console.log('🔄 Manually fetching domain data for:', cleanedDomain);
+                setIsLoading(true);
+                try {
+                  const data = await fetchDomainPricing(cleanedDomain);
+                  setDomainData(data);
+                  console.log('📦 Manual fetch result:', data);
+                  if (data?.domain) {
+                    console.log('✅ Domain found:', data.domain.domainName);
+                    console.log('💰 Pricing:', data.pricing);
+                  } else {
+                    console.log('❌ No domain found, using defaults');
+                  }
+                } catch (err) {
+                  console.error('💥 Manual fetch error:', err);
+                  setError('Failed to fetch domain data');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
+            >
+              🧪 Test API Call
+            </button>
+            <button
+              onClick={() => {
+                console.log('📊 Current domain data:', domainData);
+                console.log('💵 Current pricing:', domainData?.pricing);
+                console.log('🌍 Current location:', domainData?.location);
+              }}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm"
+            >
+              📊 Log State
+            </button>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
