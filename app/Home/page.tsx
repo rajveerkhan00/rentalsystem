@@ -50,6 +50,17 @@ interface DomainData {
   isDefault?: boolean;
 }
 
+// Helper function to clean domain
+const cleanDomain = (domain: string): string => {
+  if (!domain) return '';
+  let cleaned = domain.trim().toLowerCase();
+  cleaned = cleaned.replace(/^https?:\/\//i, '');
+  cleaned = cleaned.replace(/^www\./i, '');
+  cleaned = cleaned.replace(/\/$/, '');
+  cleaned = cleaned.split(':')[0];
+  return cleaned;
+};
+
 export default function RentCalculatorPage() {
   const [formData, setFormData] = useState<FormData>({
     pickup: '',
@@ -84,26 +95,41 @@ export default function RentCalculatorPage() {
   
   // Get current domain
   const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  
+  // Debug current domain
+  useEffect(() => {
+    console.log('🌐 Current domain detected:', currentDomain);
+    console.log('🔧 Cleaned domain:', cleanDomain(currentDomain));
+  }, [currentDomain]);
 
   // Load domain data on component mount
   useEffect(() => {
     async function loadDomainData() {
       setIsLoading(true);
       try {
-        console.log('Fetching domain data for:', currentDomain);
-        const data = await fetchDomainPricing(currentDomain);
-        console.log('Domain data received:', data);
+        // Clean the current domain for comparison
+        const cleanedCurrentDomain = cleanDomain(currentDomain);
+        console.log('🚀 Fetching domain pricing for:', cleanedCurrentDomain);
+        
+        const data = await fetchDomainPricing(cleanedCurrentDomain);
+        console.log('📦 Domain data response:', data);
         
         if (data) {
           setDomainData(data);
+          console.log('✅ Domain pricing loaded successfully');
+          console.log('💵 Using pricing:', data.pricing);
+          console.log('📍 Using location:', data.location);
+          
           if (data.location?.coordinates) {
             initializeMap(data.location.coordinates);
           } else {
             initializeMap({ lat: 31.5656822, lng: 74.3141829 });
           }
+        } else {
+          console.log('❌ No domain data received');
         }
       } catch (err) {
-        console.error('Error loading domain data:', err);
+        console.error('💥 Error loading domain data:', err);
         setError('Failed to load domain pricing information');
         initializeMap({ lat: 31.5656822, lng: 74.3141829 });
       } finally {
@@ -373,7 +399,7 @@ export default function RentCalculatorPage() {
     
     // Calculate midpoint for distance label
     const midpoint = {
-      lat: (pickupCoords.lat + dropoffCoords.lng) / 2,
+      lat: (pickupCoords.lat + dropoffCoords.lat) / 2,
       lng: (pickupCoords.lng + dropoffCoords.lng) / 2
     };
     
@@ -460,6 +486,14 @@ export default function RentCalculatorPage() {
       currency: 0, 
       conversionRate: 1 
     };
+    
+    console.log('🧮 Calculating rent with:', {
+      distance: calculatedDistance,
+      unit: formData.unit,
+      pricing: pricing,
+      rentPerKm: pricing.rentPerKm,
+      rentPerMile: pricing.rentPerMile
+    });
     
     const calculatedRent = calculateRent(calculatedDistance, pricing, formData.unit);
     setRent(calculatedRent);
@@ -551,16 +585,39 @@ export default function RentCalculatorPage() {
               Calculate transportation costs based on {currentDomain} pricing
             </p>
             
-            {domainData?.domain && (
+            {domainData?.domain ? (
               <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
                 <span className="font-medium">Active Domain:</span> {domainData.domain.domainName}
+                <div className="text-sm mt-1">
+                  Using: {getCurrencySymbolById(domainData.pricing?.currency || 0)}
+                  {domainData.pricing?.rentPerKm}/km • 
+                  {getCurrencySymbolById(domainData.pricing?.currency || 0)}
+                  {domainData.pricing?.rentPerMile}/mile
+                </div>
               </div>
-            )}
-            {domainData?.isDefault && (
+            ) : domainData?.isDefault ? (
               <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg">
                 <span className="font-medium">Using Default Pricing</span>
+                <div className="text-sm mt-1">$1/km • $1.6/mile</div>
               </div>
-            )}
+            ) : null}
+          </div>
+          
+          {/* Debug info */}
+          <div className="mt-4 p-3 bg-gray-100 rounded-lg text-sm">
+            <div className="font-medium text-gray-700">Debug Information:</div>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <div>Current Domain: <span className="font-mono">{currentDomain}</span></div>
+              <div>Domain Status: <span className={`font-medium ${domainData?.domain ? 'text-green-600' : 'text-yellow-600'}`}>
+                {domainData?.domain ? 'FOUND' : 'DEFAULT'}
+              </span></div>
+              {domainData?.pricing && (
+                <>
+                  <div>Rate per KM: <span className="font-mono">{getCurrencySymbolById(domainData.pricing.currency)}{domainData.pricing.rentPerKm}</span></div>
+                  <div>Rate per Mile: <span className="font-mono">{getCurrencySymbolById(domainData.pricing.currency)}{domainData.pricing.rentPerMile}</span></div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
@@ -817,6 +874,12 @@ export default function RentCalculatorPage() {
                       <p className="text-sm text-gray-600">Status</p>
                       <p className="font-medium text-black capitalize">{domainData.domain.status}</p>
                     </div>
+                    {domainData.domain.expiryDate && (
+                      <div>
+                        <p className="text-sm text-gray-600">Expiry Date</p>
+                        <p className="font-medium text-black">{domainData.domain.expiryDate}</p>
+                      </div>
+                    )}
                     {domainData.location && (
                       <div>
                         <p className="text-sm text-gray-600">Service Location</p>
