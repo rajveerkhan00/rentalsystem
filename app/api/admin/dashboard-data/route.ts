@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { ObjectId } from 'mongodb';
+import { getCurrencyIdByCode, getCurrencyCodeById } from '@/lib/currency-mapping';
 
 // Type definitions
 interface DashboardData {
@@ -19,7 +20,7 @@ interface DashboardData {
   pricing: {
     rentPerMile: number;
     rentPerKm: number;
-    currency: string;
+    currency: number; // CHANGED FROM string TO number
     conversionRate: number;
   };
   domains: Array<{
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         pricing: {
           rentPerMile: 0,
           rentPerKm: 0,
-          currency: 'USD',
+          currency: 0, // Default to 0 (USD)
           conversionRate: 1
         },
         domains: [],
@@ -87,8 +88,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(defaultData);
     }
     
-    // Remove _id from response
-    const { _id, ...responseData } = dashboardData;
+    // Convert currency from number to string for frontend display (backward compatibility)
+    const responseData = {
+      ...dashboardData,
+      _id: undefined, // Remove _id
+      pricing: {
+        ...dashboardData.pricing,
+        currency: dashboardData.pricing?.currency || 0
+      }
+    };
     
     return NextResponse.json(responseData);
     
@@ -129,6 +137,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
+    
+    // Ensure currency is stored as number
+    const pricingData = {
+      ...data.pricing,
+      currency: typeof data.pricing.currency === 'string' 
+        ? getCurrencyIdByCode(data.pricing.currency) 
+        : data.pricing.currency
+    };
     
     const { db, client } = await connectToDatabase();
     const dashboardCollection = db.collection('admindashboard');
@@ -186,7 +202,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       await mongoSession.withTransaction(async () => {
         // 1. Update or insert dashboard data
         const updateData = {
-          ...data,
+          location: data.location,
+          pricing: pricingData, // Use the processed pricing data
+          domains: data.domains,
           adminId: userId,
           lastUpdated: new Date()
         };
@@ -244,7 +262,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ 
       message: 'Data saved successfully',
       success: true,
-      domainsCount: data.domains.length
+      domainsCount: data.domains.length,
+      currency: pricingData.currency // Return the numeric currency ID
     });
     
   } catch (error: any) {

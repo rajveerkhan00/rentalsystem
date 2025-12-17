@@ -28,6 +28,9 @@ import RentalPricing from '@/app/components/admin/RentalPricing';
 import DomainManagement from '@/app/components/admin/DomainManagement';
 import InfoPanel from '@/app/components/admin/InfoPanel';
 
+// Import the shared currency mapping
+import { currencies, getCurrencyById, getCurrencyCodeById } from '@/lib/currency-mapping';
+
 // Type definitions
 interface SessionUser {
   id?: string;
@@ -50,7 +53,7 @@ interface LocationData {
 interface RentalPricing {
   rentPerMile: number;
   rentPerKm: number;
-  currency: string;
+  currency: number; // CHANGED FROM string TO number
   conversionRate: number;
 }
 
@@ -65,12 +68,6 @@ interface DashboardData {
   pricing: RentalPricing;
   domains: DomainData[];
   lastUpdated: Date;
-}
-
-interface Currency {
-  code: string;
-  name: string;
-  symbol: string;
 }
 
 export default function AdminDashboard() {
@@ -96,7 +93,7 @@ export default function AdminDashboard() {
     pricing: {
       rentPerMile: 1.6,
       rentPerKm: 1.0,
-      currency: 'USD',
+      currency: 0, // CHANGED: Default to 0 (USD) instead of 'USD'
       conversionRate: 1
     },
     domains: [],
@@ -105,85 +102,6 @@ export default function AdminDashboard() {
   
   // New domain state
   const [newDomain, setNewDomain] = useState<string>('');
-  
-  // Currency options
- const currencies: Currency[] = [
-  { code: 'USD', name: 'United States Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound Sterling', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
-
-  // Asia
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
-  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
-  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
-  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
-  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
-  { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
-  { code: 'LKR', name: 'Sri Lankan Rupee', symbol: 'Rs' },
-  { code: 'NPR', name: 'Nepalese Rupee', symbol: '₨' },
-  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
-
-  // Middle East
-  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
-  { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
-  { code: 'QAR', name: 'Qatari Riyal', symbol: '﷼' },
-  { code: 'KWD', name: 'Kuwaiti Dinar', symbol: 'د.ك' },
-  { code: 'BHD', name: 'Bahraini Dinar', symbol: '.د.ب' },
-  { code: 'OMR', name: 'Omani Rial', symbol: '﷼' },
-  { code: 'ILS', name: 'Israeli New Shekel', symbol: '₪' },
-  { code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
-
-  // Africa
-  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
-  { code: 'EGP', name: 'Egyptian Pound', symbol: '£' },
-  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
-  { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
-  { code: 'MAD', name: 'Moroccan Dirham', symbol: 'د.م.' },
-  { code: 'TND', name: 'Tunisian Dinar', symbol: 'د.ت' },
-
-  // Europe (non-euro)
-  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
-  { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
-  { code: 'DKK', name: 'Danish Krone', symbol: 'kr' },
-  { code: 'PLN', name: 'Polish Zloty', symbol: 'zł' },
-  { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč' },
-  { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft' },
-  { code: 'RON', name: 'Romanian Leu', symbol: 'lei' },
-  { code: 'BGN', name: 'Bulgarian Lev', symbol: 'лв' },
-  { code: 'RUB', name: 'Russian Ruble', symbol: '₽' },
-  { code: 'UAH', name: 'Ukrainian Hryvnia', symbol: '₴' },
-
-  // Americas
-  { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-  { code: 'ARS', name: 'Argentine Peso', symbol: '$' },
-  { code: 'CLP', name: 'Chilean Peso', symbol: '$' },
-  { code: 'COP', name: 'Colombian Peso', symbol: '$' },
-  { code: 'PEN', name: 'Peruvian Sol', symbol: 'S/' },
-  { code: 'UYU', name: 'Uruguayan Peso', symbol: '$U' },
-  { code: 'BOB', name: 'Bolivian Boliviano', symbol: 'Bs.' },
-
-  // Others
-  { code: 'IRR', name: 'Iranian Rial', symbol: '﷼' },
-  { code: 'IQD', name: 'Iraqi Dinar', symbol: 'ع.د' },
-  { code: 'AFN', name: 'Afghan Afghani', symbol: '؋' },
-  { code: 'MMK', name: 'Myanmar Kyat', symbol: 'Ks' },
-  { code: 'KHR', name: 'Cambodian Riel', symbol: '៛' },
-  { code: 'LAK', name: 'Lao Kip', symbol: '₭' },
-  { code: 'MNT', name: 'Mongolian Tugrik', symbol: '₮' },
-];
-
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -217,9 +135,33 @@ export default function AdminDashboard() {
             
             if (response.ok) {
               const data = await response.json();
+              
+              // Convert currency from string to number if needed (for backward compatibility)
+              const pricingData = data.pricing || {};
+              let currencyValue = pricingData.currency || 0;
+              
+              // If currency is a string (from old data), convert it to number ID
+              if (typeof currencyValue === 'string') {
+                const currencyObj = currencies.find(c => c.code === currencyValue);
+                currencyValue = currencyObj ? currencyObj.id : 0;
+              }
+              
               setDashboardData({
-                ...data,
-                lastUpdated: new Date(data.lastUpdated)
+                location: data.location || {
+                  country: '',
+                  province: '',
+                  city: '',
+                  address: '',
+                  coordinates: { lat: 30.67, lng: 69.36 }
+                },
+                pricing: {
+                  rentPerMile: pricingData.rentPerMile || 1.6,
+                  rentPerKm: pricingData.rentPerKm || 1.0,
+                  currency: currencyValue,
+                  conversionRate: pricingData.conversionRate || 1
+                },
+                domains: data.domains || [],
+                lastUpdated: new Date(data.lastUpdated || new Date())
               });
             }
             setIsInitialized(true); // Mark as initialized
@@ -286,13 +228,20 @@ export default function AdminDashboard() {
   };
 
   const handlePricingChange = (field: keyof RentalPricing, value: string | number): void => {
-    const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    let processedValue: any = value;
+    
+    // Handle currency field specifically
+    if (field === 'currency') {
+      processedValue = typeof value === 'string' ? parseInt(value) || 0 : value;
+    } else {
+      processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    }
     
     setDashboardData(prev => ({
       ...prev,
       pricing: {
         ...prev.pricing,
-        [field]: numValue
+        [field]: processedValue
       }
     }));
     
@@ -300,7 +249,7 @@ export default function AdminDashboard() {
     if (field === 'rentPerMile') {
       // Convert mile to km: 1 mile = 1.60934 km
       // If rent per mile is $1.6, then rent per km should be $1
-      const kmValue = numValue / 1.6;
+      const kmValue = processedValue / 1.6;
       setDashboardData(prev => ({
         ...prev,
         pricing: {
@@ -311,7 +260,7 @@ export default function AdminDashboard() {
     } else if (field === 'rentPerKm') {
       // Convert km to mile: 1 km = 0.621371 mile
       // If rent per km is $1, then rent per mile should be $1.6
-      const mileValue = numValue * 1.6;
+      const mileValue = processedValue * 1.6;
       setDashboardData(prev => ({
         ...prev,
         pricing: {
@@ -423,13 +372,16 @@ export default function AdminDashboard() {
       setSuccess('');
       setDomainError('');
       
+      // Prepare data for saving
+      const dataToSave = {
+        ...dashboardData,
+        lastUpdated: new Date()
+      };
+      
       const response = await fetch('/api/admin/dashboard-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...dashboardData,
-          lastUpdated: new Date()
-        })
+        body: JSON.stringify(dataToSave)
       });
       
       const data = await response.json();
@@ -539,7 +491,7 @@ export default function AdminDashboard() {
           />
         </div>
 
-        <InfoPanel pricing={dashboardData.pricing} />
+        <InfoPanel pricing={dashboardData.pricing} currencies={currencies} />
       </main>
     </div>
   );

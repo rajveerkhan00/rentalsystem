@@ -10,7 +10,18 @@ interface RentalPricingProps {
 }
 
 export default function RentalPricingComponent({ pricing, currencies, onPricingChange }: RentalPricingProps) {
-  const selectedCurrency = currencies.find(c => c.code === pricing.currency);
+  // Find the selected currency by ID instead of code
+  const selectedCurrency = currencies.find(c => c.id === pricing.currency) || currencies[0];
+
+  const handleCurrencyChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const currencyId = parseInt(e.target.value);
+    onPricingChange('currency', currencyId);
+  };
+
+  const handleInputChange = (field: keyof Omit<RentalPricing, 'currency'>, e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    onPricingChange(field, field === 'conversionRate' ? parseFloat(value) || 0 : value);
+  };
 
   return (
     <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-6 border border-gray-200">
@@ -27,15 +38,18 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
             </label>
             <select
               value={pricing.currency}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => onPricingChange('currency', e.target.value)}
+              onChange={handleCurrencyChange}
               className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               {currencies.map((currency: Currency) => (
-                <option key={currency.code} value={currency.code}>
+                <option key={currency.id} value={currency.id}>
                   {currency.code} - {currency.name} ({currency.symbol})
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Selected: {selectedCurrency.code} ({selectedCurrency.symbol})
+            </p>
           </div>
           
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -46,12 +60,12 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
               type="number"
               step="0.0001"
               value={pricing.conversionRate}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onPricingChange('conversionRate', e.target.value)}
+              onChange={(e) => handleInputChange('conversionRate', e)}
               className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="1.0"
             />
             <p className="text-xs text-gray-500 mt-1">
-              1 {pricing.currency} = {pricing.conversionRate} USD
+              1 {selectedCurrency.code} = {pricing.conversionRate} USD
             </p>
           </div>
         </div>
@@ -60,7 +74,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                Rent Per Mile ({selectedCurrency?.symbol})
+                Rent Per Mile ({selectedCurrency.symbol})
               </label>
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Imperial</span>
             </div>
@@ -69,7 +83,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
               step="0.01"
               min="0"
               value={pricing.rentPerMile}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onPricingChange('rentPerMile', e.target.value)}
+              onChange={(e) => handleInputChange('rentPerMile', e)}
               className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="0.00"
             />
@@ -84,7 +98,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                Rent Per Kilometer ({selectedCurrency?.symbol})
+                Rent Per Kilometer ({selectedCurrency.symbol})
               </label>
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Metric</span>
             </div>
@@ -93,7 +107,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
               step="0.01"
               min="0"
               value={pricing.rentPerKm}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onPricingChange('rentPerKm', e.target.value)}
+              onChange={(e) => handleInputChange('rentPerKm', e)}
               className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="0.00"
             />
@@ -112,7 +126,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
             <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
               <div className="text-gray-600 mb-1">1 Kilometer</div>
               <div className="text-green-600 font-medium">
-                {pricing.rentPerKm.toFixed(2)} {pricing.currency}
+                {pricing.rentPerKm.toFixed(2)} {selectedCurrency.symbol}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 ${(pricing.rentPerKm * pricing.conversionRate).toFixed(2)} USD
@@ -121,7 +135,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
             <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
               <div className="text-gray-600 mb-1">1 Mile</div>
               <div className="text-green-600 font-medium">
-                {pricing.rentPerMile.toFixed(2)} {pricing.currency}
+                {pricing.rentPerMile.toFixed(2)} {selectedCurrency.symbol}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 ${(pricing.rentPerMile * pricing.conversionRate).toFixed(2)} USD
@@ -133,7 +147,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
             <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
               <div className="text-gray-600 mb-1">10 Kilometers</div>
               <div className="text-green-600 font-medium">
-                {(pricing.rentPerKm * 10).toFixed(2)} {pricing.currency}
+                {(pricing.rentPerKm * 10).toFixed(2)} {selectedCurrency.symbol}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 ${(pricing.rentPerKm * 10 * pricing.conversionRate).toFixed(2)} USD
@@ -142,7 +156,7 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
             <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
               <div className="text-gray-600 mb-1">10 Miles</div>
               <div className="text-green-600 font-medium">
-                {(pricing.rentPerMile * 10).toFixed(2)} {pricing.currency}
+                {(pricing.rentPerMile * 10).toFixed(2)} {selectedCurrency.symbol}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 ${(pricing.rentPerMile * 10 * pricing.conversionRate).toFixed(2)} USD

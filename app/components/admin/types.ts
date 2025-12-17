@@ -19,7 +19,7 @@ export interface LocationData {
 export interface RentalPricing {
   rentPerMile: number;
   rentPerKm: number;
-  currency: string;
+  currency: number; // CHANGED FROM string TO number
   conversionRate: number;
 }
 
@@ -37,6 +37,7 @@ export interface DashboardData {
 }
 
 export interface Currency {
+  id: number; // ADDED: This is needed now
   code: string;
   name: string;
   symbol: string;
