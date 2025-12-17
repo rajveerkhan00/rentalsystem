@@ -5,8 +5,12 @@ import {
   calculateDistance, 
   calculateRent, 
   geocodeAddress,
-  getCurrencySymbol,
-  fetchDomainPricing
+  getCurrencySymbolById,
+  getCurrencyById,
+  searchLocationSuggestions,
+  fetchDomainPricing,
+  debounce,
+  currencies
 } from '@/lib/db.utils';
 
 interface Coordinates {
@@ -26,6 +30,26 @@ interface LocationSuggestion {
   lon: string;
 }
 
+interface DomainData {
+  domain?: {
+    domainName: string;
+    status: string;
+    expiryDate: string;
+  };
+  location?: {
+    coordinates: Coordinates;
+    city: string;
+    country: string;
+  };
+  pricing?: {
+    rentPerKm: number;
+    rentPerMile: number;
+    currency: number;
+    conversionRate: number;
+  };
+  isDefault?: boolean;
+}
+
 export default function RentCalculatorPage() {
   const [formData, setFormData] = useState<FormData>({
     pickup: '',
@@ -37,7 +61,7 @@ export default function RentCalculatorPage() {
   const [dropoffCoords, setDropoffCoords] = useState<Coordinates | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [rent, setRent] = useState<number | null>(null);
-  const [domainData, setDomainData] = useState<any>(null);
+  const [domainData, setDomainData] = useState<DomainData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,63 +72,75 @@ export default function RentCalculatorPage() {
   const [dropoffSuggestions, setDropoffSuggestions] = useState<LocationSuggestion[]>([]);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
   const [showDropoffSuggestions, setShowDropoffSuggestions] = useState(false);
+  const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const routeLineRef = useRef<any>(null);
+  const distanceLabelRef = useRef<any>(null);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
   
   // Get current domain
   const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 
-  // Debounced search for location suggestions
-  const debounce = (func: Function, delay: number) => {
-    let timer: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-  };
-
-  // Search for location suggestions
-  const searchLocationSuggestions = async (query: string, type: 'pickup' | 'dropoff') => {
-    if (query.length < 3) {
-      if (type === 'pickup') setPickupSuggestions([]);
-      else setDropoffSuggestions([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'RentCalculator/1.0'
+  // Load domain data on component mount
+  useEffect(() => {
+    async function loadDomainData() {
+      setIsLoading(true);
+      try {
+        console.log('Fetching domain data for:', currentDomain);
+        const data = await fetchDomainPricing(currentDomain);
+        console.log('Domain data received:', data);
+        
+        if (data) {
+          setDomainData(data);
+          if (data.location?.coordinates) {
+            initializeMap(data.location.coordinates);
+          } else {
+            initializeMap({ lat: 31.5656822, lng: 74.3141829 });
           }
         }
-      );
-      
-      const data = await response.json();
-      
-      if (type === 'pickup') {
-        setPickupSuggestions(data || []);
-      } else {
-        setDropoffSuggestions(data || []);
+      } catch (err) {
+        console.error('Error loading domain data:', err);
+        setError('Failed to load domain pricing information');
+        initializeMap({ lat: 31.5656822, lng: 74.3141829 });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
     }
-  };
+    
+    loadDomainData();
+  }, [currentDomain]);
 
-  // Debounced version of search function
+  // Debounced search for suggestions
   const debouncedSearch = useCallback(
-    debounce(searchLocationSuggestions, 300),
+    debounce(async (query: string, type: 'pickup' | 'dropoff') => {
+      if (query.length < 3) {
+        if (type === 'pickup') setPickupSuggestions([]);
+        else setDropoffSuggestions([]);
+        return;
+      }
+
+      setFetchingSuggestions(true);
+      try {
+        const suggestions = await searchLocationSuggestions(query);
+        if (type === 'pickup') {
+          setPickupSuggestions(suggestions);
+        } else {
+          setDropoffSuggestions(suggestions);
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      } finally {
+        setFetchingSuggestions(false);
+      }
+    }, 500),
     []
   );
 
-  // Handle input change with suggestions
+  // Handle input change
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -144,40 +180,7 @@ export default function RentCalculatorPage() {
       setShowDropoffSuggestions(false);
       addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444');
     }
-
-    // Focus on other input
-    if (type === 'pickup' && dropoffInputRef.current) {
-      dropoffInputRef.current.focus();
-    } else if (type === 'dropoff' && pickupInputRef.current) {
-      pickupInputRef.current.focus();
-    }
   };
-
-  // Load domain data on component mount
-  useEffect(() => {
-    async function loadDomainData() {
-      setIsLoading(true);
-      try {
-        const data = await fetchDomainPricing(currentDomain);
-        if (data) {
-          setDomainData(data);
-          if (data.location?.coordinates) {
-            initializeMap(data.location.coordinates);
-          } else {
-            initializeMap({ lat: 31.5656822, lng: 74.3141829 });
-          }
-        }
-      } catch (err) {
-        console.error('Error loading domain data:', err);
-        setError('Failed to load domain pricing information');
-        initializeMap({ lat: 31.5656822, lng: 74.3141829 });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    loadDomainData();
-  }, [currentDomain]);
 
   // Initialize OpenStreetMap
   const initializeMap = (center: Coordinates) => {
@@ -318,14 +321,14 @@ export default function RentCalculatorPage() {
       // Add new marker
       const marker = L.marker([lat, lng], { title })
         .addTo(mapInstanceRef.current)
-        .bindPopup(`<b>${title}</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`);
+        .bindPopup(`<b>${title}</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`);
       
-      // Create custom icon for better visibility
+      // Create custom icon
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${title === 'Pickup' ? 'P' : 'D'}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
       });
       
       marker.setIcon(icon);
@@ -334,7 +337,7 @@ export default function RentCalculatorPage() {
       // Fit map bounds to show all markers
       if (markersRef.current.length > 0) {
         const bounds = L.latLngBounds(markersRef.current.map(m => m.getLatLng()));
-        mapInstanceRef.current.fitBounds(bounds.pad(0.1));
+        mapInstanceRef.current.fitBounds(bounds.pad(0.2));
       }
     } catch (error) {
       console.error('Error adding marker:', error);
@@ -343,21 +346,24 @@ export default function RentCalculatorPage() {
 
   // Draw route line between pickup and dropoff
   const drawRouteLine = () => {
-    if (!mapInstanceRef.current || !pickupCoords || !dropoffCoords) return;
+    if (!mapInstanceRef.current || !pickupCoords || !dropoffCoords || !distance) return;
     
     const L = (window as any).L;
     if (!L) return;
     
-    // Remove existing route line
+    // Remove existing route line and label
     if (routeLineRef.current) {
       mapInstanceRef.current.removeLayer(routeLineRef.current);
+    }
+    if (distanceLabelRef.current) {
+      mapInstanceRef.current.removeLayer(distanceLabelRef.current);
     }
     
     // Create a polyline between the two points
     const routeLine = L.polyline(
       [[pickupCoords.lat, pickupCoords.lng], [dropoffCoords.lat, dropoffCoords.lng]],
       {
-        color: '#8B5CF6', // Purple color
+        color: '#8B5CF6',
         weight: 4,
         opacity: 0.8,
         dashArray: '10, 10',
@@ -365,29 +371,32 @@ export default function RentCalculatorPage() {
       }
     ).addTo(mapInstanceRef.current);
     
-    // Add distance label in the middle of the line
+    // Calculate midpoint for distance label
     const midpoint = {
-      lat: (pickupCoords.lat + dropoffCoords.lat) / 2,
+      lat: (pickupCoords.lat + dropoffCoords.lng) / 2,
       lng: (pickupCoords.lng + dropoffCoords.lng) / 2
     };
     
-    L.marker([midpoint.lat, midpoint.lng], {
+    // Add distance label
+    const distanceLabel = L.marker([midpoint.lat, midpoint.lng], {
       icon: L.divIcon({
         className: 'distance-label',
-        html: `<div style="background: white; padding: 4px 8px; border-radius: 12px; border: 2px solid #8B5CF6; font-weight: bold; color: #374151;">${distance} ${formData.unit}</div>`,
-        iconSize: [100, 30],
-        iconAnchor: [50, 15]
-      })
+        html: `<div style="background: white; padding: 6px 12px; border-radius: 20px; border: 2px solid #8B5CF6; font-weight: bold; color: #1F2937; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px;">${distance} ${formData.unit}</div>`,
+        iconSize: [100, 40],
+        iconAnchor: [50, 20]
+      }),
+      zIndexOffset: 1000
     }).addTo(mapInstanceRef.current);
     
     routeLineRef.current = routeLine;
+    distanceLabelRef.current = distanceLabel;
     
     // Fit map to show both markers and the route
     const bounds = L.latLngBounds([
       [pickupCoords.lat, pickupCoords.lng],
       [dropoffCoords.lat, dropoffCoords.lng]
     ]);
-    mapInstanceRef.current.fitBounds(bounds.pad(0.2));
+    mapInstanceRef.current.fitBounds(bounds.pad(0.25));
   };
 
   // Handle geocode button click
@@ -445,7 +454,13 @@ export default function RentCalculatorPage() {
     setError(null);
 
     // Calculate rent based on domain pricing or default
-    const pricing = domainData?.pricing || { rentPerKm: 1, rentPerMile: 1.6 };
+    const pricing = domainData?.pricing || { 
+      rentPerKm: 1, 
+      rentPerMile: 1.6, 
+      currency: 0, 
+      conversionRate: 1 
+    };
+    
     const calculatedRent = calculateRent(calculatedDistance, pricing, formData.unit);
     setRent(calculatedRent);
 
@@ -464,6 +479,19 @@ export default function RentCalculatorPage() {
     if (distance && domainData?.pricing) {
       const newRent = calculateRent(distance, domainData.pricing, unit);
       setRent(newRent);
+      
+      // Update route line with new distance
+      if (pickupCoords && dropoffCoords) {
+        const newDistance = calculateDistance(
+          pickupCoords.lat,
+          pickupCoords.lng,
+          dropoffCoords.lat,
+          dropoffCoords.lng,
+          unit
+        );
+        setDistance(newDistance);
+        drawRouteLine();
+      }
     }
   };
 
@@ -495,7 +523,19 @@ export default function RentCalculatorPage() {
         mapInstanceRef.current.removeLayer(routeLineRef.current);
         routeLineRef.current = null;
       }
+      
+      // Clear distance label
+      if (distanceLabelRef.current) {
+        mapInstanceRef.current.removeLayer(distanceLabelRef.current);
+        distanceLabelRef.current = null;
+      }
     }
+  };
+
+  // Get current currency info
+  const getCurrentCurrency = () => {
+    const currencyId = domainData?.pricing?.currency ?? 0;
+    return getCurrencyById(currencyId);
   };
 
   return (
@@ -556,20 +596,36 @@ export default function RentCalculatorPage() {
                   </button>
                   
                   {/* Suggestions dropdown */}
-                  {showPickupSuggestions && pickupSuggestions.length > 0 && (
+                  {showPickupSuggestions && (pickupSuggestions.length > 0 || fetchingSuggestions) && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {pickupSuggestions.map((suggestion, index) => (
-                        <div
-                          key={index}
-                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                          onMouseDown={() => handleSuggestionSelect(suggestion, 'pickup')}
-                        >
-                          <div className="font-medium text-black">{suggestion.display_name.split(',')[0]}</div>
-                          <div className="text-sm text-gray-600 truncate">
-                            {suggestion.display_name}
-                          </div>
+                      {fetchingSuggestions ? (
+                        <div className="px-4 py-3 text-center text-gray-500">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
+                          <p className="mt-1 text-sm">Searching...</p>
                         </div>
-                      ))}
+                      ) : pickupSuggestions.length === 0 ? (
+                        <div className="px-4 py-3 text-center text-gray-500">
+                          No locations found
+                        </div>
+                      ) : (
+                        pickupSuggestions.map((suggestion, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSuggestionSelect(suggestion, 'pickup');
+                            }}
+                          >
+                            <div className="font-medium text-black">
+                              {suggestion.display_name.split(',')[0]}
+                            </div>
+                            <div className="text-sm text-gray-600 truncate">
+                              {suggestion.display_name}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>
@@ -601,20 +657,36 @@ export default function RentCalculatorPage() {
                   </button>
                   
                   {/* Suggestions dropdown */}
-                  {showDropoffSuggestions && dropoffSuggestions.length > 0 && (
+                  {showDropoffSuggestions && (dropoffSuggestions.length > 0 || fetchingSuggestions) && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {dropoffSuggestions.map((suggestion, index) => (
-                        <div
-                          key={index}
-                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                          onMouseDown={() => handleSuggestionSelect(suggestion, 'dropoff')}
-                        >
-                          <div className="font-medium text-black">{suggestion.display_name.split(',')[0]}</div>
-                          <div className="text-sm text-gray-600 truncate">
-                            {suggestion.display_name}
-                          </div>
+                      {fetchingSuggestions ? (
+                        <div className="px-4 py-3 text-center text-gray-500">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
+                          <p className="mt-1 text-sm">Searching...</p>
                         </div>
-                      ))}
+                      ) : dropoffSuggestions.length === 0 ? (
+                        <div className="px-4 py-3 text-center text-gray-500">
+                          No locations found
+                        </div>
+                      ) : (
+                        dropoffSuggestions.map((suggestion, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSuggestionSelect(suggestion, 'dropoff');
+                            }}
+                          >
+                            <div className="font-medium text-black">
+                              {suggestion.display_name.split(',')[0]}
+                            </div>
+                            <div className="text-sm text-gray-600 truncate">
+                              {suggestion.display_name}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>
@@ -690,7 +762,7 @@ export default function RentCalculatorPage() {
                   <div className="p-4 bg-green-50 rounded-lg">
                     <p className="text-sm text-gray-600 mb-1">Estimated Rent</p>
                     <p className="text-3xl font-bold text-green-600">
-                      {getCurrencySymbol(domainData?.pricing?.currency || 0)}{rent}
+                      {getCurrencySymbolById(domainData?.pricing?.currency ?? 0)}{rent?.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -702,15 +774,21 @@ export default function RentCalculatorPage() {
                       <div>
                         <p className="text-gray-600">Rate per Kilometer</p>
                         <p className="font-semibold text-black">
-                          {getCurrencySymbol(domainData.pricing.currency)}{domainData.pricing.rentPerKm}
+                          {getCurrencySymbolById(domainData.pricing.currency)}{domainData.pricing.rentPerKm.toFixed(2)}
                         </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Rate per Mile</p>
                         <p className="font-semibold text-black">
-                          {getCurrencySymbol(domainData.pricing.currency)}{domainData.pricing.rentPerMile}
+                          {getCurrencySymbolById(domainData.pricing.currency)}{domainData.pricing.rentPerMile.toFixed(2)}
                         </p>
                       </div>
+                    </div>
+                    <div className="mt-3 text-sm">
+                      <p className="text-gray-600">Currency</p>
+                      <p className="font-medium text-black">
+                        {getCurrentCurrency().name} ({getCurrentCurrency().code})
+                      </p>
                     </div>
                     {domainData.pricing.conversionRate !== 1 && (
                       <p className="text-sm text-gray-500 mt-2">
@@ -739,12 +817,22 @@ export default function RentCalculatorPage() {
                       <p className="text-sm text-gray-600">Status</p>
                       <p className="font-medium text-black capitalize">{domainData.domain.status}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Service Location</p>
-                      <p className="font-medium text-black">
-                        {domainData.location.city}, {domainData.location.country}
-                      </p>
-                    </div>
+                    {domainData.location && (
+                      <div>
+                        <p className="text-sm text-gray-600">Service Location</p>
+                        <p className="font-medium text-black">
+                          {domainData.location.city}, {domainData.location.country}
+                        </p>
+                      </div>
+                    )}
+                    {domainData.pricing && (
+                      <div>
+                        <p className="text-sm text-gray-600">Currency</p>
+                        <p className="font-medium text-black">
+                          {getCurrentCurrency().name} ({getCurrentCurrency().code})
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -759,6 +847,10 @@ export default function RentCalculatorPage() {
                     <div>
                       <p className="text-sm text-gray-600">Rate per Mile</p>
                       <p className="font-medium text-black">$1.60</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Currency</p>
+                      <p className="font-medium text-black">US Dollar (USD)</p>
                     </div>
                   </div>
                 )}
