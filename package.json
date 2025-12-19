@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.0.2",
+    "@tomtom-international/web-sdk-maps": "^6.25.0",
+    "@tomtom-international/web-sdk-services": "^6.25.0",
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3",
     "leaflet": "^1.9.4",

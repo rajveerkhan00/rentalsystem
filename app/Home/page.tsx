@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { 
   calculateDistance, 
   calculateRent, 
@@ -10,8 +11,19 @@ import {
   searchLocationSuggestions,
   fetchDomainPricing,
   debounce,
-  currencies
+  currencies,
+  getCountryCodeFromIP
 } from '@/lib/db.utils';
+
+const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto"></div>
+      <p className="mt-2 text-gray-300 text-sm">Loading map...</p>
+    </div>
+  ),
+});
 
 interface Coordinates {
   lat: number;
@@ -28,6 +40,9 @@ interface LocationSuggestion {
   display_name: string;
   lat: string;
   lon: string;
+  address?: {
+    country_code?: string;
+  };
 }
 
 interface DomainData {
@@ -40,6 +55,7 @@ interface DomainData {
     coordinates: Coordinates;
     city: string;
     country: string;
+    country_code: string;
   };
   pricing?: {
     rentPerKm: number;
@@ -49,6 +65,36 @@ interface DomainData {
   };
   isDefault?: boolean;
 }
+
+// Country-specific default coordinates
+const COUNTRY_DEFAULTS: Record<string, { lat: number; lng: number; zoom: number }> = {
+  'PK': { lat: 30.3753, lng: 69.3451, zoom: 6 }, // Pakistan
+  'IN': { lat: 20.5937, lng: 78.9629, zoom: 5 }, // India
+  'US': { lat: 37.0902, lng: -95.7129, zoom: 4 }, // USA
+  'GB': { lat: 55.3781, lng: -3.4360, zoom: 6 }, // UK
+  'CA': { lat: 56.1304, lng: -106.3468, zoom: 4 }, // Canada
+  'AU': { lat: -25.2744, lng: 133.7751, zoom: 4 }, // Australia
+  'CN': { lat: 35.8617, lng: 104.1954, zoom: 4 }, // China
+  'BR': { lat: -14.2350, lng: -51.9253, zoom: 4 }, // Brazil
+  'RU': { lat: 61.5240, lng: 105.3188, zoom: 3 }, // Russia
+  'ZA': { lat: -30.5595, lng: 22.9375, zoom: 5 }, // South Africa
+  'NG': { lat: 9.0820, lng: 8.6753, zoom: 6 }, // Nigeria
+  'EG': { lat: 26.8206, lng: 30.8025, zoom: 6 }, // Egypt
+  'SA': { lat: 23.8859, lng: 45.0792, zoom: 5 }, // Saudi Arabia
+  'AE': { lat: 23.4241, lng: 53.8478, zoom: 7 }, // UAE
+  'TR': { lat: 38.9637, lng: 35.2433, zoom: 6 }, // Turkey
+  'FR': { lat: 46.6034, lng: 1.8883, zoom: 6 }, // France
+  'DE': { lat: 51.1657, lng: 10.4515, zoom: 6 }, // Germany
+  'JP': { lat: 36.2048, lng: 138.2529, zoom: 6 }, // Japan
+  'KR': { lat: 35.9078, lng: 127.7669, zoom: 7 }, // South Korea
+  'MX': { lat: 23.6345, lng: -102.5528, zoom: 5 }, // Mexico
+  'AR': { lat: -38.4161, lng: -63.6167, zoom: 4 }, // Argentina
+  'ID': { lat: -0.7893, lng: 113.9213, zoom: 5 }, // Indonesia
+  'BD': { lat: 23.6850, lng: 90.3563, zoom: 7 }, // Bangladesh
+  'LK': { lat: 7.8731, lng: 80.7718, zoom: 7 }, // Sri Lanka
+  'NP': { lat: 28.3949, lng: 84.1240, zoom: 7 }, // Nepal
+  'default': { lat: 31.5656822, lng: 74.3141829, zoom: 6 } // Default fallback
+};
 
 // Helper function to clean domain
 const cleanDomain = (domain: string): string => {
@@ -76,7 +122,7 @@ export default function RentCalculatorPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const [hasTraffic, setHasTraffic] = useState<boolean>(false);
   
   // New states for suggestions
   const [pickupSuggestions, setPickupSuggestions] = useState<LocationSuggestion[]>([]);
@@ -84,18 +130,66 @@ export default function RentCalculatorPage() {
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
   const [showDropoffSuggestions, setShowDropoffSuggestions] = useState(false);
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
+  const [mapMarkers, setMapMarkers] = useState<Array<{ position: { lat: number; lng: number }; title: string; color: string; icon?: string }>>([]);
+  const [mapRoute, setMapRoute] = useState<{ 
+    start: { lat: number; lng: number }; 
+    end: { lat: number; lng: number };
+    waypoints?: Coordinates[];
+    hasTraffic?: boolean;
+  } | null>(null);
+  const [mapCenter, setMapCenter] = useState<Coordinates>({ lat: 31.5656822, lng: 74.3141829 });
+  const [mapZoom, setMapZoom] = useState<number>(6);
+  const [userCountry, setUserCountry] = useState<string>('PK');
+  const [routeInstructions, setRouteInstructions] = useState<Array<{
+    instruction: string;
+    distance: number;
+  }>>([]);
   
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-  const routeLineRef = useRef<any>(null);
-  const distanceLabelRef = useRef<any>(null);
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Get current domain
   const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   
+  // Detect user country on mount
+  useEffect(() => {
+    const detectUserCountry = async () => {
+      try {
+        // Try to get country from IP
+        const countryCode = await getCountryCodeFromIP();
+        if (countryCode) {
+          setUserCountry(countryCode.toUpperCase());
+          const countryDefault = COUNTRY_DEFAULTS[countryCode.toUpperCase()] || COUNTRY_DEFAULTS['default'];
+          setMapCenter(countryDefault);
+          setMapZoom(countryDefault.zoom);
+        }
+      } catch (error) {
+        console.error('Failed to detect country:', error);
+        // Fallback to default country based on browser language or IP
+        const fallbackCountry = getFallbackCountry();
+        const countryDefault = COUNTRY_DEFAULTS[fallbackCountry] || COUNTRY_DEFAULTS['default'];
+        setMapCenter(countryDefault);
+        setMapZoom(countryDefault.zoom);
+        setUserCountry(fallbackCountry);
+      }
+    };
+
+    detectUserCountry();
+  }, []);
+
+  // Helper to get fallback country
+  const getFallbackCountry = () => {
+    if (typeof navigator !== 'undefined') {
+      const language = navigator.language || 'en-US';
+      if (language.includes('ur') || language.includes('PK')) return 'PK';
+      if (language.includes('en-IN') || language.includes('hi')) return 'IN';
+      if (language.includes('en-US') || language.includes('en-CA')) return 'US';
+      if (language.includes('en-GB')) return 'GB';
+    }
+    return 'PK'; // Default to Pakistan
+  };
+
   // Debug current domain
   useEffect(() => {
     console.log('🌐 Current domain detected:', currentDomain);
@@ -121,9 +215,14 @@ export default function RentCalculatorPage() {
           console.log('📍 Using location:', data.location);
           
           if (data.location?.coordinates) {
-            initializeMap(data.location.coordinates);
-          } else {
-            initializeMap({ lat: 31.5656822, lng: 74.3141829 });
+            setMapCenter(data.location.coordinates);
+            setMapZoom(13);
+          } else if (data.location?.country_code) {
+            const countryCode = data.location.country_code.toUpperCase();
+            const countryDefault = COUNTRY_DEFAULTS[countryCode] || COUNTRY_DEFAULTS['default'];
+            setMapCenter(countryDefault);
+            setMapZoom(countryDefault.zoom);
+            setUserCountry(countryCode);
           }
         } else {
           console.log('❌ No domain data received');
@@ -131,19 +230,36 @@ export default function RentCalculatorPage() {
       } catch (err) {
         console.error('💥 Error loading domain data:', err);
         setError('Failed to load domain pricing information');
-        initializeMap({ lat: 31.5656822, lng: 74.3141829 });
+        // Use user's country default
+        const countryDefault = COUNTRY_DEFAULTS[userCountry] || COUNTRY_DEFAULTS['default'];
+        setMapCenter(countryDefault);
+        setMapZoom(countryDefault.zoom);
       } finally {
         setIsLoading(false);
       }
     }
     
     loadDomainData();
-  }, [currentDomain]);
+  }, [currentDomain, userCountry]);
 
-  // Debounced search for suggestions
+  // Automatically draw route when both locations are selected
+  useEffect(() => {
+    if (pickupCoords && dropoffCoords) {
+      console.log('📍 Both locations selected, drawing route...');
+      // Clear previous route instructions
+      setRouteInstructions([]);
+      drawRouteLine();
+    } else {
+      // Clear route when locations are not both set
+      setMapRoute(null);
+      setRouteInstructions([]);
+    }
+  }, [pickupCoords, dropoffCoords]);
+
+  // Enhanced debounced search with country filtering
   const debouncedSearch = useCallback(
     debounce(async (query: string, type: 'pickup' | 'dropoff') => {
-      if (query.length < 3) {
+      if (query.length < 2) {
         if (type === 'pickup') setPickupSuggestions([]);
         else setDropoffSuggestions([]);
         return;
@@ -151,19 +267,31 @@ export default function RentCalculatorPage() {
 
       setFetchingSuggestions(true);
       try {
-        const suggestions = await searchLocationSuggestions(query);
+        // Pass country code to get location-specific suggestions
+        const countryFilter = domainData?.location?.country_code || userCountry;
+        const suggestions = await searchLocationSuggestions(query, countryFilter);
+        
+        // Filter suggestions by country if available
+        const filteredSuggestions = suggestions.filter((suggestion: any) => {
+          // If we have country code in suggestion, filter by it
+          if (suggestion.address?.country_code) {
+            return suggestion.address.country_code.toLowerCase() === countryFilter.toLowerCase();
+          }
+          return true;
+        });
+        
         if (type === 'pickup') {
-          setPickupSuggestions(suggestions);
+          setPickupSuggestions(filteredSuggestions);
         } else {
-          setDropoffSuggestions(suggestions);
+          setDropoffSuggestions(filteredSuggestions);
         }
       } catch (error) {
         console.error('Error fetching suggestions:', error);
       } finally {
         setFetchingSuggestions(false);
       }
-    }, 500),
-    []
+    }, 300),
+    [domainData?.location?.country_code, userCountry]
   );
 
   // Handle input change
@@ -198,231 +326,114 @@ export default function RentCalculatorPage() {
       setPickupCoords(coords);
       setPickupSuggestions([]);
       setShowPickupSuggestions(false);
-      addMarker(coords.lat, coords.lng, 'Pickup', '#3B82F6');
+      addMarker(coords.lat, coords.lng, 'Pickup', '#3B82F6', '📍');
     } else {
       setFormData(prev => ({ ...prev, dropoff: suggestion.display_name }));
       setDropoffCoords(coords);
       setDropoffSuggestions([]);
       setShowDropoffSuggestions(false);
-      addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444');
-    }
-  };
-
-  // Initialize OpenStreetMap
-  const initializeMap = (center: Coordinates) => {
-    if (typeof window === 'undefined' || !mapRef.current) return;
-
-    // Check if Leaflet is already loaded
-    if ((window as any).L) {
-      createMap(center);
-      return;
-    }
-
-    // Load Leaflet CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    link.crossOrigin = '';
-    document.head.appendChild(link);
-
-    // Load Leaflet JS
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.crossOrigin = '';
-    script.onload = () => {
-      createMap(center);
-    };
-    script.onerror = () => {
-      console.error('Failed to load Leaflet');
-      setError('Failed to load map. Please refresh the page.');
-    };
-    
-    document.body.appendChild(script);
-  };
-
-  const createMap = (center: Coordinates) => {
-    const L = (window as any).L;
-    if (!L || !mapRef.current) return;
-    
-    try {
-      // Initialize map
-      mapInstanceRef.current = L.map(mapRef.current).setView([center.lat, center.lng], 13);
-      
-      // Add OpenStreetMap tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapInstanceRef.current);
-      
-      // Add click event to map
-      mapInstanceRef.current.on('click', async (e: any) => {
-        const { lat, lng } = e.latlng;
-        
-        // Determine which location to set based on which field was last focused
-        const activeElement = document.activeElement as HTMLInputElement;
-        const isPickup = activeElement?.name === 'pickup';
-        const isDropoff = activeElement?.name === 'dropoff';
-        
-        if (!isPickup && !isDropoff) return;
-        
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
-            { headers: { 'User-Agent': 'RentCalculator/1.0' } }
-          );
-          const data = await response.json();
-          const address = data.display_name || `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
-          
-          if (isPickup) {
-            setPickupCoords({ lat, lng });
-            setFormData(prev => ({ ...prev, pickup: address }));
-            addMarker(lat, lng, 'Pickup', '#3B82F6');
-          } else if (isDropoff) {
-            setDropoffCoords({ lat, lng });
-            setFormData(prev => ({ ...prev, dropoff: address }));
-            addMarker(lat, lng, 'Dropoff', '#EF4444');
-          }
-        } catch (error) {
-          console.error('Reverse geocoding failed:', error);
-          const address = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
-          
-          if (isPickup) {
-            setPickupCoords({ lat, lng });
-            setFormData(prev => ({ ...prev, pickup: address }));
-            addMarker(lat, lng, 'Pickup', '#3B82F6');
-          } else if (isDropoff) {
-            setDropoffCoords({ lat, lng });
-            setFormData(prev => ({ ...prev, dropoff: address }));
-            addMarker(lat, lng, 'Dropoff', '#EF4444');
-          }
-        }
-      });
-      
-      setMapLoaded(true);
-      
-      // Add domain area bounds if available and not default
-      if (domainData && !domainData.isDefault && domainData.location?.coordinates) {
-        const { lat, lng } = domainData.location.coordinates;
-        
-        // Add a circle to show the service area
-        L.circle([lat, lng], {
-          color: '#10B981',
-          fillColor: '#10B981',
-          fillOpacity: 0.1,
-          radius: 5000 // 5km radius
-        }).addTo(mapInstanceRef.current);
-        
-        // Set view to the service area
-        mapInstanceRef.current.setView([lat, lng], 13);
-      }
-    } catch (error) {
-      console.error('Error creating map:', error);
-      setError('Failed to initialize map');
+      addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444', '🏁');
     }
   };
 
   // Add marker to map
-  const addMarker = (lat: number, lng: number, title: string, color: string) => {
-    if (!mapInstanceRef.current) return;
-    
-    const L = (window as any).L;
-    if (!L) return;
+  const addMarker = (lat: number, lng: number, title: string, color: string, icon?: string) => {
+    setMapMarkers(prev => {
+      // Remove existing marker of the same type
+      const filtered = prev.filter(marker => marker.title !== title);
+      // Add new marker
+      return [...filtered, { position: { lat, lng }, title, color, icon }];
+    });
+  };
+
+  // Draw route line between pickup and dropoff with waypoints
+  const drawRouteLine = async () => {
+    if (!pickupCoords || !dropoffCoords) return;
     
     try {
-      // Clear previous markers of the same type
-      if (title === 'Pickup') {
-        markersRef.current = markersRef.current.filter(marker => 
-          marker.options.title !== 'Pickup'
-        );
-      } else if (title === 'Dropoff') {
-        markersRef.current = markersRef.current.filter(marker => 
-          marker.options.title !== 'Dropoff'
-        );
-      }
+      // Fetch route from TomTom Routing API
+      const response = await fetch(
+        `https://api.tomtom.com/routing/1/calculateRoute/${pickupCoords.lat},${pickupCoords.lng}:${dropoffCoords.lat},${dropoffCoords.lng}/json?key=YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6&routeType=fast&traffic=true&travelMode=car`
+      );
       
-      // Clear existing markers from map
-      markersRef.current.forEach(marker => {
-        mapInstanceRef.current.removeLayer(marker);
-      });
-      
-      // Add new marker
-      const marker = L.marker([lat, lng], { title })
-        .addTo(mapInstanceRef.current)
-        .bindPopup(`<b>${title}</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-      
-      // Create custom icon
-      const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${title === 'Pickup' ? 'P' : 'D'}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
-      
-      marker.setIcon(icon);
-      markersRef.current.push(marker);
-      
-      // Fit map bounds to show all markers
-      if (markersRef.current.length > 0) {
-        const bounds = L.latLngBounds(markersRef.current.map(m => m.getLatLng()));
-        mapInstanceRef.current.fitBounds(bounds.pad(0.2));
+      if (response.ok) {
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          const legs = route.legs[0];
+          
+          // Extract waypoints for curved route
+          const waypoints = legs.points.map((point: any) => ({
+            lat: point.latitude,
+            lng: point.longitude
+          }));
+          console.log('🛣️ Route waypoints extracted:', waypoints.length, 'points');
+          
+          // Extract route instructions
+          if (route.guidance && route.guidance.instructions) {
+            const instructions = route.guidance.instructions.map((inst: any) => ({
+              instruction: inst.message,
+              distance: inst.routeOffsetInMeters
+            }));
+            setRouteInstructions(instructions);
+          }
+          
+          // Check for traffic delays
+          const hasTraffic = legs.summary.trafficDelayInSeconds > 0;
+          setHasTraffic(hasTraffic);
+          
+          setMapRoute({
+            start: pickupCoords,
+            end: dropoffCoords,
+            waypoints: waypoints,
+            hasTraffic: hasTraffic
+          });
+          
+          // Center map on route
+          const bounds = calculateBounds(pickupCoords, dropoffCoords);
+          setMapCenter({
+            lat: (bounds.minLat + bounds.maxLat) / 2,
+            lng: (bounds.minLng + bounds.maxLng) / 2
+          });
+          setMapZoom(calculateZoomLevel(bounds));
+        }
       }
     } catch (error) {
-      console.error('Error adding marker:', error);
+      console.error('Error fetching route:', error);
+      // Fallback to straight line
+      setMapRoute({
+        start: pickupCoords,
+        end: dropoffCoords,
+        hasTraffic: false
+      });
     }
   };
 
-  // Draw route line between pickup and dropoff
-  const drawRouteLine = () => {
-    if (!mapInstanceRef.current || !pickupCoords || !dropoffCoords || !distance) return;
-    
-    const L = (window as any).L;
-    if (!L) return;
-    
-    // Remove existing route line and label
-    if (routeLineRef.current) {
-      mapInstanceRef.current.removeLayer(routeLineRef.current);
-    }
-    if (distanceLabelRef.current) {
-      mapInstanceRef.current.removeLayer(distanceLabelRef.current);
-    }
-    
-    // Create a polyline between the two points
-    const routeLine = L.polyline(
-      [[pickupCoords.lat, pickupCoords.lng], [dropoffCoords.lat, dropoffCoords.lng]],
-      {
-        color: '#8B5CF6',
-        weight: 4,
-        opacity: 0.8,
-        dashArray: '10, 10',
-        lineJoin: 'round'
-      }
-    ).addTo(mapInstanceRef.current);
-    
-    // Calculate midpoint for distance label
-    const midpoint = {
-      lat: (pickupCoords.lat + dropoffCoords.lat) / 2,
-      lng: (pickupCoords.lng + dropoffCoords.lng) / 2
+  // Calculate bounds for zoom level
+  const calculateBounds = (start: Coordinates, end: Coordinates) => {
+    return {
+      minLat: Math.min(start.lat, end.lat),
+      maxLat: Math.max(start.lat, end.lat),
+      minLng: Math.min(start.lng, end.lng),
+      maxLng: Math.max(start.lng, end.lng)
     };
+  };
+
+  // Calculate zoom level based on bounds
+  const calculateZoomLevel = (bounds: any) => {
+    const latDiff = bounds.maxLat - bounds.minLat;
+    const lngDiff = bounds.maxLng - bounds.minLng;
+    const maxDiff = Math.max(latDiff, lngDiff);
     
-    // Add distance label
-    const distanceLabel = L.marker([midpoint.lat, midpoint.lng], {
-      icon: L.divIcon({
-        className: 'distance-label',
-        html: `<div style="background: white; padding: 6px 12px; border-radius: 20px; border: 2px solid #8B5CF6; font-weight: bold; color: #1F2937; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px;">${distance} ${formData.unit}</div>`,
-        iconSize: [100, 40],
-        iconAnchor: [50, 20]
-      }),
-      zIndexOffset: 1000
-    }).addTo(mapInstanceRef.current);
-    
-    routeLineRef.current = routeLine;
-    distanceLabelRef.current = distanceLabel;
-    
-    // Fit map to show both markers and the route
-    const bounds = L.latLngBounds([
-      [pickupCoords.lat, pickupCoords.lng],
-      [dropoffCoords.lat, dropoffCoords.lng]
-    ]);
-    mapInstanceRef.current.fitBounds(bounds.pad(0.25));
+    if (maxDiff > 10) return 5;
+    if (maxDiff > 5) return 6;
+    if (maxDiff > 2) return 7;
+    if (maxDiff > 1) return 8;
+    if (maxDiff > 0.5) return 9;
+    if (maxDiff > 0.2) return 10;
+    if (maxDiff > 0.1) return 11;
+    if (maxDiff > 0.05) return 12;
+    return 13;
   };
 
   // Handle geocode button click
@@ -437,15 +448,17 @@ export default function RentCalculatorPage() {
     setError(null);
     
     try {
-      const result = await geocodeAddress(address);
+      // Pass country code for better geocoding results
+      const countryFilter = domainData?.location?.country_code || userCountry;
+      const result = await geocodeAddress(address, countryFilter);
       if (result) {
         const coords = { lat: result.lat, lng: result.lng };
         if (type === 'pickup') {
           setPickupCoords(coords);
-          addMarker(coords.lat, coords.lng, 'Pickup', '#3B82F6');
+          addMarker(coords.lat, coords.lng, 'Pickup', '#3B82F6', '📍');
         } else {
           setDropoffCoords(coords);
-          addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444');
+          addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444', '🏁');
         }
         setFormData(prev => ({
           ...prev,
@@ -461,13 +474,46 @@ export default function RentCalculatorPage() {
     }
   };
 
+  // Check for traffic incidents on the route
+  const checkTrafficIncidents = async (start: Coordinates, end: Coordinates): Promise<boolean> => {
+    try {
+      // Create a bounding box around the route
+      const minLng = Math.min(start.lng, end.lng) - 0.1;
+      const maxLng = Math.max(start.lng, end.lng) + 0.1;
+      const minLat = Math.min(start.lat, end.lat) - 0.1;
+      const maxLat = Math.max(start.lat, end.lat) + 0.1;
+      const bbox = `${minLng},${minLat},${maxLng},${maxLat}`;
+
+      const response = await fetch(
+        `https://api.tomtom.com/traffic/services/5/incidentDetails?key=YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6&bbox=${bbox}&fields={incidents{type,geometry{type,coordinates}}}&language=en-GB`
+      );
+
+      if (!response.ok) {
+        console.error('Traffic API error:', response.status);
+        return false;
+      }
+
+      const data = await response.json();
+      console.log('Traffic incidents:', data);
+
+      // Check if there are any incidents
+      return data.incidents && data.incidents.length > 0;
+    } catch (error) {
+      console.error('Error checking traffic:', error);
+      return false;
+    }
+  };
+
   // Calculate rent
-  const calculateRentHandler = () => {
+  const calculateRentHandler = async () => {
     if (!pickupCoords || !dropoffCoords) {
       setError('Please select both pickup and dropoff locations');
       return;
     }
 
+    // First draw the route to get accurate distance
+    await drawRouteLine();
+    
     const calculatedDistance = calculateDistance(
       pickupCoords.lat,
       pickupCoords.lng,
@@ -478,6 +524,10 @@ export default function RentCalculatorPage() {
     
     setDistance(calculatedDistance);
     setError(null);
+
+    // Check for traffic incidents on the route
+    const hasTrafficIncidents = await checkTrafficIncidents(pickupCoords, dropoffCoords);
+    const trafficMultiplier = hasTrafficIncidents ? 1.02 : 1.0; // 2% increase if traffic
 
     // Calculate rent based on domain pricing or default
     const pricing = domainData?.pricing || { 
@@ -492,40 +542,43 @@ export default function RentCalculatorPage() {
       unit: formData.unit,
       pricing: pricing,
       rentPerKm: pricing.rentPerKm,
-      rentPerMile: pricing.rentPerMile
+      rentPerMile: pricing.rentPerMile,
+      hasTraffic: hasTrafficIncidents,
+      trafficMultiplier
     });
     
-    const calculatedRent = calculateRent(calculatedDistance, pricing, formData.unit);
+    const baseRent = calculateRent(calculatedDistance, pricing, formData.unit);
+    const calculatedRent = baseRent * trafficMultiplier;
     setRent(calculatedRent);
-
-    // Draw route line on map
-    drawRouteLine();
+    setHasTraffic(hasTrafficIncidents);
   };
 
   // Handle unit change
-  const handleUnitChange = (unit: 'km' | 'mile') => {
+  const handleUnitChange = async (unit: 'km' | 'mile') => {
     setFormData(prev => ({
       ...prev,
       unit
     }));
     
     // Recalculate rent if distance exists
-    if (distance && domainData?.pricing) {
-      const newRent = calculateRent(distance, domainData.pricing, unit);
+    if (distance && domainData?.pricing && pickupCoords && dropoffCoords) {
+      const hasTrafficIncidents = await checkTrafficIncidents(pickupCoords, dropoffCoords);
+      const trafficMultiplier = hasTrafficIncidents ? 1.02 : 1.0;
+      
+      const newRent = calculateRent(distance, domainData.pricing, unit) * trafficMultiplier;
       setRent(newRent);
+      setHasTraffic(hasTrafficIncidents);
       
       // Update route line with new distance
-      if (pickupCoords && dropoffCoords) {
-        const newDistance = calculateDistance(
-          pickupCoords.lat,
-          pickupCoords.lng,
-          dropoffCoords.lat,
-          dropoffCoords.lng,
-          unit
-        );
-        setDistance(newDistance);
-        drawRouteLine();
-      }
+      const newDistance = calculateDistance(
+        pickupCoords.lat,
+        pickupCoords.lng,
+        dropoffCoords.lat,
+        dropoffCoords.lng,
+        unit
+      );
+      setDistance(newDistance);
+      drawRouteLine();
     }
   };
 
@@ -543,27 +596,15 @@ export default function RentCalculatorPage() {
     setError(null);
     setPickupSuggestions([]);
     setDropoffSuggestions([]);
+    setMapMarkers([]);
+    setMapRoute(null);
+    setHasTraffic(false);
+    setRouteInstructions([]);
     
-    // Clear markers and route line
-    if (mapInstanceRef.current) {
-      // Clear markers
-      markersRef.current.forEach(marker => {
-        mapInstanceRef.current.removeLayer(marker);
-      });
-      markersRef.current = [];
-      
-      // Clear route line
-      if (routeLineRef.current) {
-        mapInstanceRef.current.removeLayer(routeLineRef.current);
-        routeLineRef.current = null;
-      }
-      
-      // Clear distance label
-      if (distanceLabelRef.current) {
-        mapInstanceRef.current.removeLayer(distanceLabelRef.current);
-        distanceLabelRef.current = null;
-      }
-    }
+    // Reset to country default view
+    const countryDefault = COUNTRY_DEFAULTS[userCountry] || COUNTRY_DEFAULTS['default'];
+    setMapCenter(countryDefault);
+    setMapZoom(countryDefault.zoom);
   };
 
   // Get current currency info
@@ -572,44 +613,88 @@ export default function RentCalculatorPage() {
     return getCurrencyById(currencyId);
   };
 
+  // Get current country name
+  const getCurrentCountryName = () => {
+    const countryCodes: Record<string, string> = {
+      'PK': 'Pakistan',
+      'IN': 'India',
+      'US': 'United States',
+      'GB': 'United Kingdom',
+      'CA': 'Canada',
+      'AU': 'Australia',
+      'CN': 'China',
+      'BR': 'Brazil',
+      'RU': 'Russia',
+      'ZA': 'South Africa',
+      'NG': 'Nigeria',
+      'EG': 'Egypt',
+      'SA': 'Saudi Arabia',
+      'AE': 'United Arab Emirates',
+      'TR': 'Turkey',
+      'FR': 'France',
+      'DE': 'Germany',
+      'JP': 'Japan',
+      'KR': 'South Korea',
+      'MX': 'Mexico',
+      'AR': 'Argentina',
+      'ID': 'Indonesia',
+      'BD': 'Bangladesh',
+      'LK': 'Sri Lanka',
+      'NP': 'Nepal'
+    };
+    return countryCodes[userCountry] || userCountry;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            Rent Calculator
-          </h1>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <p className="text-gray-600">
-              Calculate transportation costs based on {currentDomain} pricing
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                Rent Calculator
+              </h1>
+              <p className="text-gray-600">
+                Calculate transportation costs based on {currentDomain} pricing
+              </p>
+            </div>
             
-            {domainData?.domain ? (
-              <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg">
-                <span className="font-medium">Active Domain:</span> {domainData.domain.domainName}
-                <div className="text-sm mt-1">
-                  Using: {getCurrencySymbolById(domainData.pricing?.currency || 0)}
-                  {domainData.pricing?.rentPerKm}/km • 
-                  {getCurrencySymbolById(domainData.pricing?.currency || 0)}
-                  {domainData.pricing?.rentPerMile}/mile
+            <div className="flex flex-col items-end">
+              <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg mb-2">
+                <span className="font-medium">Map View:</span> {getCurrentCountryName()}
+              </div>
+              
+              {domainData?.domain ? (
+                <div className="px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                  <span className="font-medium">Active Domain:</span> {domainData.domain.domainName}
+                  <div className="text-sm mt-1">
+                    Using: {getCurrencySymbolById(domainData.pricing?.currency || 0)}
+                    {domainData.pricing?.rentPerKm}/km • 
+                    {getCurrencySymbolById(domainData.pricing?.currency || 0)}
+                    {domainData.pricing?.rentPerMile}/mile
+                  </div>
                 </div>
-              </div>
-            ) : domainData?.isDefault ? (
-              <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg">
-                <span className="font-medium">Using Default Pricing</span>
-                <div className="text-sm mt-1">$1/km • $1.6/mile</div>
-              </div>
-            ) : null}
+              ) : domainData?.isDefault ? (
+                <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg">
+                  <span className="font-medium">Using Default Pricing</span>
+                  <div className="text-sm mt-1">$1/km • $1.6/mile</div>
+                </div>
+              ) : null}
+            </div>
           </div>
           
           {/* Debug info */}
           <div className="mt-4 p-3 bg-gray-100 rounded-lg text-sm">
             <div className="font-medium text-gray-700">Debug Information:</div>
-            <div className="grid grid-cols-2 gap-2 mt-1">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
               <div>Current Domain: <span className="font-mono">{currentDomain}</span></div>
+              <div>User Country: <span className="font-medium">{userCountry} ({getCurrentCountryName()})</span></div>
               <div>Domain Status: <span className={`font-medium ${domainData?.domain ? 'text-green-600' : 'text-yellow-600'}`}>
                 {domainData?.domain ? 'FOUND' : 'DEFAULT'}
+              </span></div>
+              <div>Traffic Detected: <span className={`font-medium ${hasTraffic ? 'text-red-600' : 'text-green-600'}`}>
+                {hasTraffic ? 'YES (+2%)' : 'NO'}
               </span></div>
               {domainData?.pricing && (
                 <>
@@ -659,6 +744,7 @@ export default function RentCalculatorPage() {
                 console.log('📊 Current domain data:', domainData);
                 console.log('💵 Current pricing:', domainData?.pricing);
                 console.log('🌍 Current location:', domainData?.location);
+                console.log('🚦 Traffic status:', hasTraffic);
               }}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm"
             >
@@ -687,7 +773,7 @@ export default function RentCalculatorPage() {
                     onChange={handleInputChange}
                     onFocus={() => setShowPickupSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
-                    placeholder="Start typing address..."
+                    placeholder={`Enter address in ${getCurrentCountryName()}...`}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-black placeholder-gray-500"
                   />
                   <button
@@ -695,7 +781,7 @@ export default function RentCalculatorPage() {
                     disabled={isGeocoding || !formData.pickup.trim()}
                     className="absolute right-2 top-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    {isGeocoding ? '...' : 'Locate'}
+                    {isGeocoding ? '...' : '📍'}
                   </button>
                   
                   {/* Suggestions dropdown */}
@@ -704,11 +790,11 @@ export default function RentCalculatorPage() {
                       {fetchingSuggestions ? (
                         <div className="px-4 py-3 text-center text-gray-500">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
-                          <p className="mt-1 text-sm">Searching...</p>
+                          <p className="mt-1 text-sm">Searching in {getCurrentCountryName()}...</p>
                         </div>
                       ) : pickupSuggestions.length === 0 ? (
                         <div className="px-4 py-3 text-center text-gray-500">
-                          No locations found
+                          No locations found in {getCurrentCountryName()}
                         </div>
                       ) : (
                         pickupSuggestions.map((suggestion, index) => (
@@ -720,10 +806,11 @@ export default function RentCalculatorPage() {
                               handleSuggestionSelect(suggestion, 'pickup');
                             }}
                           >
-                            <div className="font-medium text-black">
+                            <div className="font-medium text-black flex items-center gap-2">
+                              <span>📍</span>
                               {suggestion.display_name.split(',')[0]}
                             </div>
-                            <div className="text-sm text-gray-600 truncate">
+                            <div className="text-sm text-gray-600 truncate pl-6">
                               {suggestion.display_name}
                             </div>
                           </div>
@@ -748,7 +835,7 @@ export default function RentCalculatorPage() {
                     onChange={handleInputChange}
                     onFocus={() => setShowDropoffSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowDropoffSuggestions(false), 200)}
-                    placeholder="Start typing address..."
+                    placeholder={`Enter address in ${getCurrentCountryName()}...`}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-black placeholder-gray-500"
                   />
                   <button
@@ -756,7 +843,7 @@ export default function RentCalculatorPage() {
                     disabled={isGeocoding || !formData.dropoff.trim()}
                     className="absolute right-2 top-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    {isGeocoding ? '...' : 'Locate'}
+                    {isGeocoding ? '...' : '🏁'}
                   </button>
                   
                   {/* Suggestions dropdown */}
@@ -765,11 +852,11 @@ export default function RentCalculatorPage() {
                       {fetchingSuggestions ? (
                         <div className="px-4 py-3 text-center text-gray-500">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
-                          <p className="mt-1 text-sm">Searching...</p>
+                          <p className="mt-1 text-sm">Searching in {getCurrentCountryName()}...</p>
                         </div>
                       ) : dropoffSuggestions.length === 0 ? (
                         <div className="px-4 py-3 text-center text-gray-500">
-                          No locations found
+                          No locations found in {getCurrentCountryName()}
                         </div>
                       ) : (
                         dropoffSuggestions.map((suggestion, index) => (
@@ -781,10 +868,11 @@ export default function RentCalculatorPage() {
                               handleSuggestionSelect(suggestion, 'dropoff');
                             }}
                           >
-                            <div className="font-medium text-black">
+                            <div className="font-medium text-black flex items-center gap-2">
+                              <span>🏁</span>
                               {suggestion.display_name.split(',')[0]}
                             </div>
-                            <div className="text-sm text-gray-600 truncate">
+                            <div className="text-sm text-gray-600 truncate pl-6">
                               {suggestion.display_name}
                             </div>
                           </div>
@@ -829,15 +917,22 @@ export default function RentCalculatorPage() {
                 <button
                   onClick={calculateRentHandler}
                   disabled={isLoading || !pickupCoords || !dropoffCoords}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Calculating...' : 'Calculate Rent'}
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      Calculating...
+                    </>
+                  ) : (
+                    '🚗 Calculate Rent'
+                  )}
                 </button>
                 <button
                   onClick={resetForm}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2"
                 >
-                  Reset
+                  🔄 Reset
                 </button>
               </div>
 
@@ -858,7 +953,7 @@ export default function RentCalculatorPage() {
                   <div className="p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-gray-600 mb-1">Distance</p>
                     <p className="text-2xl font-bold text-gray-800">
-                      {distance} {formData.unit}
+                      {distance?.toFixed(2)} {formData.unit}
                     </p>
                   </div>
                   
@@ -866,9 +961,23 @@ export default function RentCalculatorPage() {
                     <p className="text-sm text-gray-600 mb-1">Estimated Rent</p>
                     <p className="text-3xl font-bold text-green-600">
                       {getCurrencySymbolById(domainData?.pricing?.currency ?? 0)}{rent?.toFixed(2)}
+                      {hasTraffic && (
+                        <span className="text-sm text-red-600 ml-2">(+2% traffic)</span>
+                      )}
                     </p>
                   </div>
                 </div>
+                
+                {hasTraffic && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-yellow-600">⚠️</span>
+                      <p className="text-yellow-700 text-sm">
+                        Traffic detected on route! Additional 2% added to rent for delays.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 
                 {domainData?.pricing && (
                   <div className="mt-6 p-4 bg-gray-50 rounded-lg">
@@ -900,78 +1009,38 @@ export default function RentCalculatorPage() {
                     )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Domain Information */}
-            {domainData && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  {domainData.isDefault ? 'Default Pricing' : 'Domain Information'}
-                </h3>
-                
-                {domainData.domain ? (
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-gray-600">Domain Name</p>
-                      <p className="font-medium text-black">{domainData.domain.domainName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Status</p>
-                      <p className="font-medium text-black capitalize">{domainData.domain.status}</p>
-                    </div>
-                    {domainData.domain.expiryDate && (
-                      <div>
-                        <p className="text-sm text-gray-600">Expiry Date</p>
-                        <p className="font-medium text-black">{domainData.domain.expiryDate}</p>
-                      </div>
-                    )}
-                    {domainData.location && (
-                      <div>
-                        <p className="text-sm text-gray-600">Service Location</p>
-                        <p className="font-medium text-black">
-                          {domainData.location.city}, {domainData.location.country}
-                        </p>
-                      </div>
-                    )}
-                    {domainData.pricing && (
-                      <div>
-                        <p className="text-sm text-gray-600">Currency</p>
-                        <p className="font-medium text-black">
-                          {getCurrentCurrency().name} ({getCurrentCurrency().code})
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-gray-600">Pricing Type</p>
-                      <p className="font-medium text-black">Default System Pricing</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Rate per Kilometer</p>
-                      <p className="font-medium text-black">$1.00</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Rate per Mile</p>
-                      <p className="font-medium text-black">$1.60</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Currency</p>
-                      <p className="font-medium text-black">US Dollar (USD)</p>
+                {routeInstructions.length > 0 && (
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-gray-700 mb-3">Route Instructions</h4>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {routeInstructions.slice(0, 5).map((instruction, index) => (
+                        <div key={index} className="flex items-start gap-2 text-sm">
+                          <span className="text-blue-600 mt-0.5">•</span>
+                          <div>
+                            <p className="text-gray-800">{instruction.instruction}</p>
+                            <p className="text-gray-500 text-xs">
+                              {(instruction.distance / 1000).toFixed(1)} km
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
               </div>
             )}
+
+            {/* Domain Information commented out - removed broken code */}
           </div>
 
           {/* Map */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-gray-800">OpenStreetMap</h3>
+                <h3 className="font-semibold text-gray-800">
+                  {getCurrentCountryName()} Map
+                </h3>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
@@ -987,30 +1056,82 @@ export default function RentCalculatorPage() {
                       <span className="text-sm text-gray-600">Route</span>
                     </div>
                   )}
+                  {hasTraffic && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-sm text-gray-600">Traffic</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <p className="text-sm text-gray-600 mt-1">
                 {distance 
-                  ? `Route distance: ${distance} ${formData.unit}`
-                  : 'Click on the map to set locations or type addresses above.'}
+                  ? `Route distance: ${distance?.toFixed(2)} ${formData.unit}${hasTraffic ? ' • Traffic detected (+2%)' : ''}`
+                  : `Viewing ${getCurrentCountryName()}. Click on the map to set locations or type addresses above.`}
                 {domainData?.location?.city && !distance && ` Service area: ${domainData.location.city}`}
               </p>
             </div>
             
-            <div 
-              ref={mapRef} 
-              className="h-[500px] w-full"
-              style={{ minHeight: '500px' }}
-            />
+            <div className="h-[500px] w-full" style={{ minHeight: '500px' }}>
+              <TomTomMap
+                center={mapCenter}
+                zoom={mapZoom}
+                onLocationSelect={(lat, lng) => {
+                  // Handle map click for setting pickup/dropoff
+                  const activeElement = document.activeElement as HTMLInputElement;
+                  const isPickup = activeElement?.name === 'pickup';
+                  const isDropoff = activeElement?.name === 'dropoff';
+                  
+                  if (isPickup) {
+                    setPickupCoords({ lat, lng });
+                    setFormData(prev => ({ ...prev, pickup: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}` }));
+                    addMarker(lat, lng, 'Pickup', '#3B82F6', '📍');
+                  } else if (isDropoff) {
+                    setDropoffCoords({ lat, lng });
+                    setFormData(prev => ({ ...prev, dropoff: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}` }));
+                    addMarker(lat, lng, 'Dropoff', '#EF4444', '🏁');
+                  }
+                }}
+                markers={mapMarkers}
+                route={mapRoute}
+                apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
+                showTraffic={true}
+                countryCode={userCountry}
+                onZoomChange={(zoom) => setMapZoom(zoom)}
+                onCenterChange={(center) => setMapCenter(center)}
+              />
+            </div>
             
-            {!mapLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">Loading map...</p>
-                </div>
-              </div>
-            )}
+            {/* Map Controls */}
+            <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  if (pickupCoords && dropoffCoords) {
+                    const bounds = calculateBounds(pickupCoords, dropoffCoords);
+                    setMapCenter({
+                      lat: (bounds.minLat + bounds.maxLat) / 2,
+                      lng: (bounds.minLng + bounds.maxLng) / 2
+                    });
+                    setMapZoom(calculateZoomLevel(bounds));
+                  }
+                }}
+                className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition"
+                title="Fit route to view"
+              >
+                🎯
+              </button>
+              <button
+                onClick={() => {
+                  const countryDefault = COUNTRY_DEFAULTS[userCountry] || COUNTRY_DEFAULTS['default'];
+                  setMapCenter(countryDefault);
+                  setMapZoom(countryDefault.zoom);
+                }}
+                className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition"
+                title="Reset to country view"
+              >
+                🌍
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1021,17 +1142,17 @@ export default function RentCalculatorPage() {
             <div className="p-4 bg-blue-50 rounded-lg">
               <div className="text-blue-600 font-bold text-lg mb-2">1</div>
               <p className="font-medium text-black mb-1">Select Locations</p>
-              <p className="text-sm text-gray-600">Type addresses to see suggestions or click on the map</p>
+              <p className="text-sm text-gray-600">Type addresses to see country-specific suggestions or click on the map</p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg">
               <div className="text-green-600 font-bold text-lg mb-2">2</div>
               <p className="font-medium text-black mb-1">Calculate</p>
-              <p className="text-sm text-gray-600">Click "Calculate Rent" to see distance, route, and cost</p>
+              <p className="text-sm text-gray-600">Click "Calculate Rent" to see distance, route, and cost with traffic adjustments</p>
             </div>
             <div className="p-4 bg-purple-50 rounded-lg">
               <div className="text-purple-600 font-bold text-lg mb-2">3</div>
               <p className="font-medium text-black mb-1">View Details</p>
-              <p className="text-sm text-gray-600">See route line on map with distance label in the middle</p>
+              <p className="text-sm text-gray-600">See route line on map with distance label and traffic alerts</p>
             </div>
           </div>
         </div>
@@ -1063,6 +1184,14 @@ export default function RentCalculatorPage() {
         }
         input::placeholder {
           color: #6b7280 !important;
+        }
+        .traffic-icon {
+          animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
         }
       `}</style>
     </div>

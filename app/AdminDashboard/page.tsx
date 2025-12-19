@@ -6,8 +6,8 @@ import { useSession, signOut } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
-// Dynamically import the OSM map
-const OSMMap = dynamic(() => import('@/app/components/OSMMap'), {
+// Dynamically import the TomTom map
+const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-900 rounded-lg flex items-center justify-center">
@@ -470,6 +470,7 @@ export default function AdminDashboard() {
             onSearch={handleLocationSearch}
             onLocationChange={handleLocationChange}
             onMapClick={handleMapClick}
+            apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
           />
 
           <RentalPricing

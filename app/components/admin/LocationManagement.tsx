@@ -4,7 +4,7 @@ import { ChangeEvent, KeyboardEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { LocationData } from './types';
 
-const OSMMap = dynamic(() => import('@/app/components/OSMMap'), {
+const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-900 rounded-lg flex items-center justify-center">
@@ -24,6 +24,7 @@ interface LocationManagementProps {
   onSearch: () => void;
   onLocationChange: (field: keyof Omit<LocationData, 'coordinates'>, value: string) => void;
   onMapClick: (lat: number, lng: number) => void;
+  apiKey: string;
 }
 
 export default function LocationManagement({
@@ -33,7 +34,8 @@ export default function LocationManagement({
   onSearchQueryChange,
   onSearch,
   onLocationChange,
-  onMapClick
+  onMapClick,
+  apiKey
 }: LocationManagementProps) {
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -139,12 +141,13 @@ export default function LocationManagement({
             Map (Click to set location)
           </label>
           <div className="h-64">
-            <OSMMap
+            <TomTomMap
               center={location.coordinates}
               zoom={location.coordinates.lat === 30.67 ? 6 : 12}
               onLocationSelect={onMapClick}
               currentPosition={location.coordinates}
               address={location.address}
+              apiKey={apiKey}
             />
           </div>
           <div className="mt-2 text-xs text-gray-500 flex justify-between">
