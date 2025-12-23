@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
 // Dynamically import the TomTom map
-const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
+const TomTomMap = dynamic(() => import('@/app/components/mainwebsite/TomTomMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-900 rounded-lg flex items-center justify-center">

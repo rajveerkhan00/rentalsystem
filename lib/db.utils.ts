@@ -4,6 +4,27 @@ import { currencies, getCurrencyById, getCurrencySymbolById } from './currency-m
 // Re-export currency functions
 export { currencies, getCurrencyById, getCurrencySymbolById };
 
+// Clean domain name utility
+export function cleanDomain(domain: string): string {
+  if (!domain) return '';
+  
+  let cleaned = domain.trim();
+  
+  // Remove protocol (http://, https://)
+  cleaned = cleaned.replace(/^https?:\/\//i, '');
+  
+  // Remove www. prefix
+  cleaned = cleaned.replace(/^www\./i, '');
+  
+  // Remove trailing slash
+  cleaned = cleaned.replace(/\/$/, '');
+  
+  // Remove port if present
+  cleaned = cleaned.split(':')[0];
+  
+  return cleaned.toLowerCase();
+}
+
 // Calculate distance between two coordinates
 export function calculateDistance(
   lat1: number,

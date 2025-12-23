@@ -4,7 +4,7 @@ import { ChangeEvent, KeyboardEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { LocationData } from './types';
 
-const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
+const TomTomMap = dynamic(() => import('@/app/components/mainwebsite/TomTomMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-900 rounded-lg flex items-center justify-center">
