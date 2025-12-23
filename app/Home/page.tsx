@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, ComponentType } from 'react';
 import dynamic from 'next/dynamic';
 import { 
   calculateDistance, 
@@ -15,15 +15,18 @@ import {
   getCountryCodeFromIP
 } from '@/lib/db.utils';
 
-const TomTomMap = dynamic(() => import('@/app/components/TomTomMap'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto"></div>
-      <p className="mt-2 text-gray-300 text-sm">Loading map...</p>
-    </div>
-  ),
-});
+const TomTomMap = dynamic(
+  () => import('../components/TomTomMap') as Promise<{ default: ComponentType<any> }>,
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto"></div>
+        <p className="mt-2 text-gray-300 text-sm">Loading map...</p>
+      </div>
+    ),
+  }
+);
 
 interface Coordinates {
   lat: number;
@@ -246,11 +249,14 @@ export default function RentCalculatorPage() {
   useEffect(() => {
     if (pickupCoords && dropoffCoords) {
       console.log('📍 Both locations selected, drawing route...');
+      console.log('📍 Pickup coords:', pickupCoords);
+      console.log('📍 Dropoff coords:', dropoffCoords);
       // Clear previous route instructions
       setRouteInstructions([]);
       drawRouteLine();
     } else {
       // Clear route when locations are not both set
+      console.log('🗑️ Clearing route - missing coordinates');
       setMapRoute(null);
       setRouteInstructions([]);
     }
@@ -347,68 +353,137 @@ export default function RentCalculatorPage() {
   };
 
   // Draw route line between pickup and dropoff with waypoints
-  const drawRouteLine = async () => {
-    if (!pickupCoords || !dropoffCoords) return;
+ // Enhanced drawRouteLine function
+const drawRouteLine = async () => {
+  if (!pickupCoords || !dropoffCoords) return;
+  
+  try {
+    console.log('🛣️ Fetching REAL road route from TomTom API...');
+    console.log('📍 Start:', pickupCoords);
+    console.log('🏁 End:', dropoffCoords);
+
+    // Check if API key exists
+    const apiKey = process.env.NEXT_PUBLIC_TOMTOM_API_KEY || "YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6";
+    if (!apiKey || apiKey === "YOUR_TOMTOM_API_KEY") {
+      throw new Error('TomTom API key is missing or invalid');
+    }
+
+    // Fetch route from TomTom Routing API for REAL ROADS
+    const response = await fetch(
+      `https://api.tomtom.com/routing/1/calculateRoute/${pickupCoords.lat},${pickupCoords.lng}:${dropoffCoords.lat},${dropoffCoords.lng}/json?key=${apiKey}&routeType=fastest&traffic=true&travelMode=car&routeRepresentation=polyline&computeBestOrder=false&instructionsType=tagged&language=en-US&vehicleMaxSpeed=120&vehicleWeight=2000&departAt=now`
+    );
     
-    try {
-      // Fetch route from TomTom Routing API
-      const response = await fetch(
-        `https://api.tomtom.com/routing/1/calculateRoute/${pickupCoords.lat},${pickupCoords.lng}:${dropoffCoords.lat},${dropoffCoords.lng}/json?key=YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6&routeType=fast&traffic=true&travelMode=car`
-      );
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Route API error:', response.status, errorText);
+      throw new Error(`Route API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('📊 Road Route API response received:', data);
+
+    if (data.routes && data.routes.length > 0) {
+      const route = data.routes[0];
+      const legs = route.legs[0];
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.routes && data.routes.length > 0) {
-          const route = data.routes[0];
-          const legs = route.legs[0];
-          
-          // Extract waypoints for curved route
-          const waypoints = legs.points.map((point: any) => ({
-            lat: point.latitude,
-            lng: point.longitude
-          }));
-          console.log('🛣️ Route waypoints extracted:', waypoints.length, 'points');
-          
-          // Extract route instructions
-          if (route.guidance && route.guidance.instructions) {
-            const instructions = route.guidance.instructions.map((inst: any) => ({
+      // Extract waypoints for detailed ROAD route
+      let waypoints: Coordinates[] = [];
+      
+      if (legs.points && legs.points.length > 0) {
+        waypoints = legs.points.map((point: any) => ({
+          lat: point.latitude,
+          lng: point.longitude
+        }));
+        console.log(`✅ Got ${waypoints.length} ROAD route points from API`);
+      } else if (route.geometry && route.geometry.coordinates) {
+        // Alternative: use geometry coordinates
+        waypoints = route.geometry.coordinates.map((coord: [number, number]) => ({
+          lat: coord[1],
+          lng: coord[0]
+        }));
+        console.log(`✅ Got ${waypoints.length} coordinates from geometry`);
+      }
+
+      // Extract route instructions for turn-by-turn
+      const instructions = [];
+      if (route.guidance && route.guidance.instructions) {
+        for (const inst of route.guidance.instructions) {
+          if (instructions.length < 10) { // Limit to 10 instructions
+            instructions.push({
               instruction: inst.message,
               distance: inst.routeOffsetInMeters
-            }));
-            setRouteInstructions(instructions);
+            });
           }
-          
-          // Check for traffic delays
-          const hasTraffic = legs.summary.trafficDelayInSeconds > 0;
-          setHasTraffic(hasTraffic);
-          
-          setMapRoute({
-            start: pickupCoords,
-            end: dropoffCoords,
-            waypoints: waypoints,
-            hasTraffic: hasTraffic
-          });
-          
-          // Center map on route
-          const bounds = calculateBounds(pickupCoords, dropoffCoords);
-          setMapCenter({
-            lat: (bounds.minLat + bounds.maxLat) / 2,
-            lng: (bounds.minLng + bounds.maxLng) / 2
-          });
-          setMapZoom(calculateZoomLevel(bounds));
         }
       }
-    } catch (error) {
-      console.error('Error fetching route:', error);
-      // Fallback to straight line
+      setRouteInstructions(instructions);
+      console.log(`📋 Extracted ${instructions.length} turn-by-turn instructions`);
+
+      // Check for traffic delays
+      const hasTraffic = legs.summary?.trafficDelayInSeconds > 0;
+      setHasTraffic(hasTraffic);
+      
+      if (hasTraffic) {
+        const delayMinutes = Math.ceil(legs.summary.trafficDelayInSeconds / 60);
+        console.log(`⚠️ Traffic delay detected: ${delayMinutes} minutes`);
+      }
+
+      // Calculate accurate distance from ROAD route
+      const routeDistanceKm = legs.summary?.lengthInMeters / 1000;
+      const displayDistance = formData.unit === 'km' 
+        ? routeDistanceKm 
+        : routeDistanceKm * 0.621371; // Convert to miles
+        
+      setDistance(displayDistance);
+      console.log(`📏 Accurate ROAD route distance: ${displayDistance.toFixed(2)} ${formData.unit}`);
+
+      // Update map route with detailed ROAD waypoints
       setMapRoute({
         start: pickupCoords,
         end: dropoffCoords,
-        hasTraffic: false
+        waypoints: waypoints,
+        hasTraffic: hasTraffic
       });
-    }
-  };
 
+      console.log('✅ ROAD route data sent to map component');
+
+      // Recalculate rent with accurate ROAD distance
+      const pricing = domainData?.pricing || { 
+        rentPerKm: 1, 
+        rentPerMile: 1.6, 
+        currency: 0, 
+        conversionRate: 1 
+      };
+      
+      const trafficMultiplier = hasTraffic ? 1.02 : 1.0;
+      const baseRent = calculateRent(displayDistance, pricing, formData.unit);
+      const calculatedRent = baseRent * trafficMultiplier;
+      setRent(calculatedRent);
+      
+      console.log('💰 Rent recalculated based on ROAD distance:', {
+        distance: displayDistance,
+        unit: formData.unit,
+        baseRent: baseRent,
+        trafficMultiplier: trafficMultiplier,
+        finalRent: calculatedRent
+      });
+
+    } else {
+      console.warn('⚠️ No road routes found in API response');
+      throw new Error('No road route found between locations');
+    }
+
+  } catch (error) {
+    console.error('❌ Error fetching road route:', error);
+    
+    // Show error but don't draw straight line
+    setError('Could not calculate road route. Please check locations and try again.');
+    setTimeout(() => setError(null), 5000);
+    
+    // Clear any existing route
+    setMapRoute(null);
+  }
+};
   // Calculate bounds for zoom level
   const calculateBounds = (start: Coordinates, end: Coordinates) => {
     return {
@@ -655,6 +730,9 @@ export default function RentCalculatorPage() {
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
                 Rent Calculator
               </h1>
+              <button>
+                login
+              </button>
               <p className="text-gray-600">
                 Calculate transportation costs based on {currentDomain} pricing
               </p>
@@ -1076,13 +1154,14 @@ export default function RentCalculatorPage() {
               <TomTomMap
                 center={mapCenter}
                 zoom={mapZoom}
-                onLocationSelect={(lat, lng) => {
+                onLocationSelect={(lat: number, lng: number) => {
                   // Handle map click for setting pickup/dropoff
                   const activeElement = document.activeElement as HTMLInputElement;
                   const isPickup = activeElement?.name === 'pickup';
                   const isDropoff = activeElement?.name === 'dropoff';
                   
-                  if (isPickup) {
+                  // If called from "Center on my location" button or no input focused, set pickup
+                  if (isPickup || (!isPickup && !isDropoff)) {
                     setPickupCoords({ lat, lng });
                     setFormData(prev => ({ ...prev, pickup: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}` }));
                     addMarker(lat, lng, 'Pickup', '#3B82F6', '📍');
@@ -1094,11 +1173,11 @@ export default function RentCalculatorPage() {
                 }}
                 markers={mapMarkers}
                 route={mapRoute}
-                apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
+                apiKey={process.env.NEXT_PUBLIC_TOMTOM_API_KEY || "YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"}
                 showTraffic={true}
                 countryCode={userCountry}
-                onZoomChange={(zoom) => setMapZoom(zoom)}
-                onCenterChange={(center) => setMapCenter(center)}
+                onZoomChange={(zoom: number) => setMapZoom(zoom)}
+                onCenterChange={(center: any) => setMapCenter(center)}
               />
             </div>
             
