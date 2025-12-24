@@ -1,130 +1,166 @@
-import { BookingForm } from "../mainwebsite/bookingform"
+import RentCalculatingForm, { RentCalculatingFormProps } from "./RentCalculatingForm"
+import RentResults from "./RentResults"
+import { ShieldCheck, Star, Clock } from "lucide-react";
 
-export function Hero() {
+export function Hero(props: RentCalculatingFormProps) {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black">
-        {/* Dynamic Background with Parallax Effect */}
-        <div 
-          className="absolute inset-0 opacity-40 bg-cover bg-center bg-no-repeat transform scale-110 animate-float"
-          style={{
-            backgroundImage: `url('/luxury-airport-transfer-van.jpg')`,
-          }}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 lg:py-0 bg-black">
+      {/* 1. Dynamic Background & Lighting */}
+      <div className="absolute inset-0 z-0">
+        <div
+          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+          style={{ backgroundImage: `url('/luxury-airport-transfer-van.jpg')` }}
         />
-        
-        {/* Animated Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
-        
-        {/* Animated Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.05)_1px,transparent_1px)] bg-[size:80px_80px] opacity-20" />
-        
-        {/* Floating Particles */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-[2px] h-[2px] bg-amber-400/50 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${2 + Math.random() * 3}s`
-              }}
-            />
-          ))}
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(236,72,153,0.15),transparent_25%)]" />
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(168,85,247,0.15),transparent_25%)]" />
+
+        {/* Animated Particles */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left Side - Enhanced Text Content */}
-          <div className="space-y-6 lg:space-y-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full max-w-7xl">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+
+          {/* Left Side: Typography & Value Prop */}
+          <div className="space-y-10 max-w-2xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-amber-600/20 backdrop-blur-sm border border-amber-500/30 px-4 py-2 rounded-full animate-fade-in">
-              <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-              <span className="text-amber-300 font-semibold text-sm tracking-wider">
-                PREMIUM SERVICE GUARANTEED
+            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-pink-500/10 hover:bg-white/10 transition-colors cursor-default group">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-pink-500 to-rose-500"></span>
               </span>
+              <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase group-hover:text-white transition-colors">Premium Chauffeur Service</span>
             </div>
 
-            {/* Main Headline with Gradient */}
-            <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
-                <span className="block text-white">
-                  Ride with Mr Transfers
-                </span>
-                <span className="block mt-2">
-                  <span className="relative inline-block">
-                    <span className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-500 blur-xl opacity-70 rounded-lg" />
-                    <span className="relative bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent">
-                      No.1 UK
-                    </span>
-                  </span>
+            <div className="space-y-6">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
+                Ride with <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-pink-500 to-rose-500 animate-gradient-x">
+                  Mr Transfers
                 </span>
               </h1>
-              
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white/90 leading-tight">
-                Airport Transfers
-              </h2>
+
+              <div className="flex items-center gap-4">
+                <div className="h-px w-12 bg-white/20"></div>
+                <h2 className="text-xl md:text-2xl text-gray-300 font-light tracking-wide">
+                  No.1 UK Airport Transfers
+                </h2>
+              </div>
+
+              <p className="text-lg text-gray-400 leading-relaxed max-w-lg font-light">
+                Experience the epitome of luxury and reliability.
+                Zero hidden fees, 99.9% on-time arrival, and professional chauffeurs at your service.
+              </p>
             </div>
 
-            {/* Description */}
-            <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-xl text-balance">
-              Experience premium airport taxi services with real-time tracking, 
-              professional drivers, and competitive pricing. Your journey, perfected.
-            </p>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-4">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-5 border-t border-white/10 pt-8">
               {[
-                { value: "24/7", label: "Service" },
-                { value: "5★", label: "Rating" },
-                { value: "15min", label: "Avg Wait" }
-              ].map((stat, index) => (
-                <div 
-                  key={index}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center transform transition-all hover:scale-105 hover:border-amber-500/30"
-                >
-                  <div className="text-2xl font-bold text-amber-300">{stat.value}</div>
-                  <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+                { label: 'Rating', value: '4.9/5', sub: 'TrustPilot' },
+                { label: 'Fleets', value: '500+', sub: 'Luxury Cars' },
+                { label: 'Support', value: '24/7', sub: 'Live Chat' },
+              ].map((stat, i) => (
+                <div key={i} className="group cursor-default">
+                  <h4 className="text-3xl font-bold text-white mb-1 group-hover:text-pink-400 transition-colors">{stat.value}</h4>
+                  <p className="text-sm font-medium text-gray-300">{stat.label}</p>
+                  <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right Side - Booking Form with Animation */}
-          <div className="relative">
-            {/* Decorative Elements */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-xl" />
-            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-tr from-amber-600/10 to-transparent rounded-full blur-xl" />
-            
-            {/* Form Container with Glass Effect */}
-            <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-              {/* Shine Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shine" />
-              
-              {/* Form Header */}
-              <div className="border-b border-white/10 p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">✓</span>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">Instant Quote</h3>
-                    <p className="text-sm text-gray-300">Best price guaranteed</p>
-                  </div>
+          {/* Right Side: Form Card */}
+          <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
+            {/* Glow Behind Form */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+
+            {/* Glass Card */}
+            <div className="relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+              {/* Header */}
+              <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
+                  <p className="text-xs text-pink-400 mt-1 font-medium flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                    Best Price Guaranteed
+                  </p>
+                </div>
+                <div className="p-2 bg-gradient-to-br from-white/10 to-transparent rounded-lg border border-white/10">
+                  <span className="text-xl">⚡</span>
                 </div>
               </div>
-              
-              {/* Booking Form */}
+
               <div className="p-6">
-                <BookingForm />
+                <RentCalculatingForm {...props} />
               </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="mt-6 flex justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+              {/* Placeholder for trust badges/logos if needed (Visa, Stripe, etc) - visually represented by text for now */}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Map Toggle Button - Premium Design */}
+      {props.onToggleMap && (
+        <button
+          onClick={props.onToggleMap}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 group"
+          aria-label={props.isMapVisible ? "Hide Map" : "Show Map"}
+        >
+          <div className="flex flex-col items-center gap-3 transition-all duration-300 transform group-hover:-translate-y-1">
+            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${props.isMapVisible ? 'text-pink-400' : 'text-gray-400 group-hover:text-white'}`}>
+              {props.isMapVisible ? 'Close Live Map' : 'View Live Map'}
+            </span>
+
+            <div className={`
+              relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500
+              ${props.isMapVisible
+                ? 'bg-gradient-to-br from-pink-500 to-purple-600 shadow-[0_0_20px_rgba(236,72,153,0.5)] border-transparent rotate-180'
+                : 'bg-white/5 border border-white/10 backdrop-blur-md shadow-lg group-hover:bg-white/10 group-hover:border-pink-500/30'
+              }
+            `}>
+              {/* Inner Glow ring for unselected state */}
+              {!props.isMapVisible && (
+                <div className="absolute inset-0 rounded-full border border-white/5 animate-ping opacity-20 group-hover:opacity-40" />
+              )}
+
+              <svg
+                className={`w-5 h-5 transition-all duration-300 ${props.isMapVisible ? 'text-white' : 'text-gray-400 group-hover:text-pink-400'}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7" />
+              </svg>
+            </div>
+          </div>
+        </button>
+      )}
+
+      {/* Results Popup Overlay */}
+      {(props.distance !== null || props.rent !== null) && (
+        <div className="absolute bottom-0 left-0 right-0 z-50 px-4 pb-6 flex justify-center pointer-events-none">
+          <div className="w-full max-w-5xl pointer-events-auto animate-in slide-in-from-bottom-10 fade-in duration-500">
+            <RentResults
+              distance={props.distance}
+              rent={props.rent}
+              hasTraffic={props.hasTraffic}
+              routeInstructions={props.routeInstructions}
+              formData={props.formData}
+              domainData={props.domainData}
+              onClose={() => {
+                props.onDistanceChange(null);
+                props.onRentChange(null);
+                props.onMapRouteChange(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </section>
   )
 }

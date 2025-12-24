@@ -78,7 +78,7 @@ export default function MapComponent({
   onMapRouteChange,
   getCurrentCountryName
 }: MapComponentProps) {
-  
+
   const calculateBounds = (start: { lat: number; lng: number }, end: { lat: number; lng: number }) => {
     return {
       minLat: Math.min(start.lat, end.lat),
@@ -92,7 +92,7 @@ export default function MapComponent({
     const latDiff = bounds.maxLat - bounds.minLat;
     const lngDiff = bounds.maxLng - bounds.minLng;
     const maxDiff = Math.max(latDiff, lngDiff);
-    
+
     if (maxDiff > 10) return 5;
     if (maxDiff > 5) return 6;
     if (maxDiff > 2) return 7;
@@ -127,74 +127,71 @@ export default function MapComponent({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800">
-            {getCurrentCountryName()} Map
-          </h3>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-gray-600">Pickup</span>
+    <div className="relative group">
+      {/* Glow Effect */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+
+      <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative ring-1 ring-white/5 backdrop-blur-3xl">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-white flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              {getCurrentCountryName()} Map
+            </h3>
+            <p className="text-xs text-gray-400 mt-1">
+              {distance !== null
+                ? `Total Distance: ${distance?.toFixed(2)} ${unit}${hasTraffic ? ' (Heavy Traffic)' : ''}`
+                : `Select locations to view route`}
+            </p>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center gap-3 text-xs font-medium">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+              <span className="text-gray-300">Pickup</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <span className="text-sm text-gray-600">Dropoff</span>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+              <span className="text-gray-300">Dropoff</span>
             </div>
-            {route && (
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-1 bg-purple-500"></div>
-                <span className="text-sm text-gray-600">Route</span>
-              </div>
-            )}
-            {hasTraffic && (
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                <span className="text-sm text-gray-600">Traffic</span>
-              </div>
-            )}
           </div>
         </div>
-        <p className="text-sm text-gray-600 mt-1">
-          {distance !== null 
-            ? `Route distance: ${distance?.toFixed(2)} ${unit}${hasTraffic ? ' • Traffic detected (+2%)' : ''}`
-            : `Viewing ${getCurrentCountryName()}. Click on the map to set locations or type addresses above.`}
-        </p>
-      </div>
-      
-      <div className="h-[500px] w-full" style={{ minHeight: '500px' }}>
-        <TomTomMap
-          center={center}
-          zoom={zoom}
-          onLocationSelect={handleMapClick}
-          markers={markers}
-          route={route}
-          apiKey={process.env.NEXT_PUBLIC_TOMTOM_API_KEY || "YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"}
-          showTraffic={true}
-          countryCode={userCountry}
-          onZoomChange={onZoomChange}
-          onCenterChange={onCenterChange}
-        />
-      </div>
-      
-      {/* Map Controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-2">
-        <button
-          onClick={handleFitRoute}
-          disabled={!pickupCoords || !dropoffCoords}
-          className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Fit route to view"
-        >
-          🎯
-        </button>
-        <button
-          onClick={handleResetView}
-          className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition"
-          title="Reset to country view"
-        >
-          🌍
-        </button>
+
+        <div className="h-[500px] w-full relative z-0" style={{ minHeight: '500px' }}>
+          <TomTomMap
+            center={center}
+            zoom={zoom}
+            onLocationSelect={handleMapClick}
+            markers={markers}
+            route={route}
+            apiKey={process.env.NEXT_PUBLIC_TOMTOM_API_KEY || "YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"}
+            showTraffic={true}
+            countryCode={userCountry}
+            onZoomChange={onZoomChange}
+            onCenterChange={onCenterChange}
+          />
+        </div>
+
+        {/* Floating Map Controls */}
+        <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-10">
+          <button
+            onClick={handleFitRoute}
+            disabled={!pickupCoords || !dropoffCoords}
+            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-pink-500 hover:border-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95 backdrop-blur-md"
+            title="Fit route to view"
+          >
+            🎯
+          </button>
+          <button
+            onClick={handleResetView}
+            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-pink-500 hover:border-pink-500 transition-all hover:scale-110 active:scale-95 backdrop-blur-md"
+            title="Reset to country view"
+          >
+            🌍
+          </button>
+        </div>
       </div>
     </div>
   );

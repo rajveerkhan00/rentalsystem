@@ -40,9 +40,9 @@ interface TomTomMapProps {
 export default function TomTomMap({
   center = { lat: 30.3753, lng: 69.3451 },
   zoom = 6,
-  onLocationSelect = () => {},
-  onZoomChange = () => {},
-  onCenterChange = () => {},
+  onLocationSelect = () => { },
+  onZoomChange = () => { },
+  onCenterChange = () => { },
   markers = [],
   route = null,
   apiKey,
@@ -91,7 +91,7 @@ export default function TomTomMap({
   // Handle voice commands
   const handleVoiceCommand = (command: string) => {
     const lowerCommand = command.toLowerCase();
-    
+
     if (lowerCommand.includes('center') || lowerCommand.includes('zoom out')) {
       mapInstanceRef.current?.setZoom((mapInstanceRef.current?.getZoom() ?? 0) - 1);
       speak('Zooming out');
@@ -170,12 +170,12 @@ export default function TomTomMap({
           const { latitude, longitude } = position.coords;
           const newLocation = { lat: latitude, lng: longitude };
           setUserLocation(newLocation);
-          
+
           // Add user location marker
           if (mapInstanceRef.current && isLoaded) {
             addUserLocationMarker(newLocation);
           }
-          
+
           console.log('📍 User location detected:', newLocation);
         },
         (error) => {
@@ -190,11 +190,11 @@ export default function TomTomMap({
           const { latitude, longitude } = position.coords;
           const newLocation = { lat: latitude, lng: longitude };
           setUserLocation(newLocation);
-          
+
           if (onLocationUpdate) {
             onLocationUpdate(newLocation);
           }
-          
+
           // Update user location marker
           if (mapInstanceRef.current && isLiveTracking && isLoaded) {
             updateUserLocationMarker(newLocation);
@@ -229,7 +229,7 @@ export default function TomTomMap({
     if (!mapInstanceRef.current || !isLoaded) return;
 
     // Remove existing user location marker
-    const existingUserMarker = markersRef.current.find(m => 
+    const existingUserMarker = markersRef.current.find(m =>
       m.getElement()?.classList?.contains('user-location-marker')
     );
     if (existingUserMarker) {
@@ -278,23 +278,23 @@ export default function TomTomMap({
   const updateUserLocationMarker = (location: Coordinates) => {
     if (!mapInstanceRef.current || !isLoaded) return;
 
-    const userMarker = markersRef.current.find(m => 
+    const userMarker = markersRef.current.find(m =>
       m.getElement()?.classList?.contains('user-location-marker')
     );
-    
+
     if (userMarker) {
       userMarker.setLngLat(new tt.LngLat(location.lng, location.lat));
-      
+
       // Add smooth animation
       const currentCenter = mapInstanceRef.current.getCenter();
       const newCenter = new tt.LngLat(location.lng, location.lat);
-      
+
       // Only follow if user location is far from center
       const distance = Math.sqrt(
-        Math.pow(currentCenter.lng - location.lng, 2) + 
+        Math.pow(currentCenter.lng - location.lng, 2) +
         Math.pow(currentCenter.lat - location.lat, 2)
       );
-      
+
       if (distance > 0.01) { // Only follow if > ~1km away
         mapInstanceRef.current.easeTo({
           center: newCenter,
@@ -312,18 +312,18 @@ export default function TomTomMap({
     if (!route || !mapInstanceRef.current || !pinpointCoords || !isLoaded) return;
 
     setIsSimulating(true);
-    
+
     // Generate a path from pinpoint to route end
     const path: Coordinates[] = [];
     const steps = 100;
-    
+
     for (let i = 0; i <= steps; i++) {
       const progress = i / steps;
       const lat = pinpointCoords.lat + (route.end.lat - pinpointCoords.lat) * progress;
       const lng = pinpointCoords.lng + (route.end.lng - pinpointCoords.lng) * progress;
       path.push({ lat, lng });
     }
-    
+
     setSimulatedPath(path);
     setCurrentSimulationIndex(0);
 
@@ -343,29 +343,29 @@ export default function TomTomMap({
           }
           return prev;
         }
-        
+
         const newIndex = prev + 1;
         const newLocation = path[newIndex];
-        
+
         // Update moving marker
         if (movingMarker && mapInstanceRef.current) {
           movingMarker.setLngLat(new tt.LngLat(newLocation.lng, newLocation.lat));
-          
+
           // Update distance and duration
           if (routeDistance) {
             const remainingDist = routeDistance * ((path.length - newIndex) / path.length);
             setRemainingDistance(remainingDist);
-            
+
             if (routeDuration) {
               const remainingDur = routeDuration * ((path.length - newIndex) / path.length);
               setRemainingDuration(Math.max(0, Math.round(remainingDur)));
             }
           }
         }
-        
+
         // Update UI
         setIsMoving(true);
-        
+
         return newIndex;
       });
     }, 100); // Update every 100ms
@@ -629,7 +629,7 @@ export default function TomTomMap({
   // Initialize map on mount
   useEffect(() => {
     if (initializingRef.current) return;
-    
+
     if (!mapRef.current || !apiKey) {
       setMapError('API key is required for TomTom Maps');
       return;
@@ -642,7 +642,7 @@ export default function TomTomMap({
     }
 
     initializingRef.current = true;
-    
+
     try {
       console.log('🗺️ Initializing TomTom Map with API key:', apiKey.substring(0, 10) + '...');
 
@@ -696,12 +696,12 @@ export default function TomTomMap({
       map.on('load', () => {
         console.log('🎯 Map fully loaded');
         setIsLoaded(true);
-        
+
         // Add traffic layer if enabled
         if (showTraffic && apiKey) {
           addTrafficLayer();
         }
-        
+
         // If route exists, draw it
         if (route) {
           drawRealRoute();
@@ -809,19 +809,19 @@ export default function TomTomMap({
           'route-end-marker',
           'route-fallback'
         ];
-        
+
         layersToRemove.forEach(layerId => {
           if (mapInstanceRef.current?.getLayer(layerId)) {
             mapInstanceRef.current.removeLayer(layerId);
           }
         });
-        
+
         ['route', 'route-fallback', 'route-label'].forEach(sourceId => {
           if (mapInstanceRef.current?.getSource(sourceId)) {
             mapInstanceRef.current.removeSource(sourceId);
           }
         });
-        
+
         routeLayerRef.current = null;
       }
 
@@ -846,12 +846,12 @@ export default function TomTomMap({
         // Use the first route (fastest) by default
         const selectedRoute = routes[selectedRouteIndex] || routes[0];
         const legs = selectedRoute.legs[0];
-        
+
         // Extract coordinates from the geometry
         let coordinates: [number, number][] = [];
-        
+
         if (selectedRoute.legs && selectedRoute.legs[0] && selectedRoute.legs[0].points) {
-          coordinates = selectedRoute.legs[0].points.map((point: any) => 
+          coordinates = selectedRoute.legs[0].points.map((point: any) =>
             [point.longitude, point.latitude]
           );
           console.log(`📈 Got ${coordinates.length} route points from API geometry`);
@@ -866,7 +866,7 @@ export default function TomTomMap({
           setRouteDuration(durationMinutes);
           setRemainingDuration(durationMinutes);
           console.log(`📏 Distance: ${distanceKm.toFixed(2)} km, Duration: ${durationMinutes} min`);
-          
+
           // Check for traffic
           const hasTrafficDelay = legs.summary.trafficDelayInSeconds > 0;
           console.log(`🚦 Traffic delay: ${hasTrafficDelay ? 'Yes' : 'No'}`);
@@ -945,7 +945,7 @@ export default function TomTomMap({
         if (coordinates.length > 10) {
           const midIndex = Math.floor(coordinates.length / 2);
           const [midLng, midLat] = coordinates[midIndex];
-          
+
           mapInstanceRef.current.addSource('route-label', {
             type: 'geojson',
             data: {
@@ -982,7 +982,7 @@ export default function TomTomMap({
         if (coordinates.length > 0) {
           const bounds = new tt.LngLatBounds();
           coordinates.forEach(coord => bounds.extend(coord));
-          
+
           mapInstanceRef.current.fitBounds(bounds, {
             padding: 100,
             duration: 1500
@@ -994,7 +994,7 @@ export default function TomTomMap({
           if (mapInstanceRef.current?.getLayer('route-line')) {
             mapInstanceRef.current.setPaintProperty('route-line', 'line-opacity', 0);
             mapInstanceRef.current.setPaintProperty('route-outline', 'line-opacity', 0);
-            
+
             let opacity = 0;
             const animate = () => {
               opacity += 0.05;
@@ -1084,7 +1084,7 @@ export default function TomTomMap({
     });
 
     const routeColor = route.hasTraffic ? '#ef4444' : '#3b82f6';
-    
+
     mapInstanceRef.current.addLayer({
       id: 'route-fallback-outline',
       type: 'line',
@@ -1117,7 +1117,7 @@ export default function TomTomMap({
     });
 
     routeLayerRef.current = 'route-fallback';
-    
+
     // Add markers
     addRouteMarker(route.start.lng, route.start.lat, 'Start', '#3b82f6', '📍', true);
     addRouteMarker(route.end.lng, route.end.lat, 'End', '#ef4444', '🏁', true);
@@ -1145,27 +1145,27 @@ export default function TomTomMap({
       transition: all 0.3s ease;
       z-index: 1000;
     `;
-    
+
     el.innerHTML = icon || title.charAt(0);
-    
+
     el.addEventListener('mouseenter', () => {
       el.style.transform = 'scale(1.2)';
       el.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
     });
-    
+
     el.addEventListener('mouseleave', () => {
       el.style.transform = 'scale(1)';
       el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     });
 
-    const marker = new tt.Marker({ 
+    const marker = new tt.Marker({
       element: el,
       anchor: 'center'
     })
       .setLngLat(new tt.LngLat(lng, lat))
       .addTo(mapInstanceRef.current);
 
-    const popup = new tt.Popup({ 
+    const popup = new tt.Popup({
       offset: 25,
       closeButton: true,
       closeOnClick: false,
@@ -1227,15 +1227,15 @@ export default function TomTomMap({
     // Clear existing markers (except route markers if we have a route)
     markersRef.current.forEach(marker => {
       const el = marker.getElement();
-      if (!el?.classList?.contains('route-marker') && 
-          !el?.classList?.contains('user-location-marker') &&
-          !el?.classList?.contains('pinpoint-marker')) {
+      if (!el?.classList?.contains('route-marker') &&
+        !el?.classList?.contains('user-location-marker') &&
+        !el?.classList?.contains('pinpoint-marker')) {
         marker.remove();
       }
     });
-    
+
     // Filter out non-route markers
-    markersRef.current = markersRef.current.filter(marker => 
+    markersRef.current = markersRef.current.filter(marker =>
       marker.getElement()?.classList?.contains('route-marker') ||
       marker.getElement()?.classList?.contains('user-location-marker') ||
       marker.getElement()?.classList?.contains('pinpoint-marker')
@@ -1266,30 +1266,30 @@ export default function TomTomMap({
         cursor: pointer;
         transition: all 0.2s ease;
       `;
-      
+
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.1)';
         el.style.zIndex = '1000';
       });
-      
+
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
       });
-      
+
       if (markerData.icon) {
         el.innerHTML = markerData.icon;
       } else {
         el.textContent = markerData.title.charAt(0);
       }
 
-      const marker = new tt.Marker({ 
+      const marker = new tt.Marker({
         element: el,
         anchor: 'bottom'
       })
         .setLngLat(new tt.LngLat(markerData.position.lng, markerData.position.lat))
         .addTo(mapInstanceRef.current!);
 
-      const popup = new tt.Popup({ 
+      const popup = new tt.Popup({
         offset: 30,
         closeButton: true,
         closeOnClick: true,
@@ -1309,7 +1309,7 @@ export default function TomTomMap({
           </div>
         `)
         .setLngLat(new tt.LngLat(markerData.position.lng, markerData.position.lat));
-      
+
       marker.setPopup(popup);
       markersRef.current.push(marker);
     });
@@ -1475,13 +1475,13 @@ export default function TomTomMap({
           transition: transform 0.3s ease-out;
         }
       `}</style>
-      
-      <div 
-        ref={mapRef} 
+
+      <div
+        ref={mapRef}
         className="w-full h-full"
         style={{ minHeight: '500px' }}
       />
-      
+
       {/* Moving Location Indicator */}
       {isMoving && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
@@ -1524,7 +1524,7 @@ export default function TomTomMap({
               )}
               {isMoving && (
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                  <div 
+                  <div
                     className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${((routeDistance! - remainingDistance) / routeDistance!) * 100}%` }}
                   ></div>
@@ -1566,38 +1566,35 @@ export default function TomTomMap({
           <div className="flex gap-1">
             <button
               onClick={() => setMapStyle('light')}
-              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${
-                mapStyle === 'light'
-                  ? 'bg-white text-gray-800 shadow-lg'
-                  : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-              }`}
+              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${mapStyle === 'light'
+                ? 'bg-white text-gray-800 shadow-lg'
+                : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+                }`}
             >
               ☀️
             </button>
             <button
               onClick={() => setMapStyle('dark')}
-              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${
-                mapStyle === 'dark'
-                  ? 'bg-white text-gray-800 shadow-lg'
-                  : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-              }`}
+              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${mapStyle === 'dark'
+                ? 'bg-white text-gray-800 shadow-lg'
+                : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+                }`}
             >
               🌙
             </button>
             <button
               onClick={() => setMapStyle('satellite')}
-              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${
-                mapStyle === 'satellite'
-                  ? 'bg-white text-gray-800 shadow-lg'
-                  : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-              }`}
+              className={`px-3 py-2 rounded-lg font-medium text-xs transition-all ${mapStyle === 'satellite'
+                ? 'bg-white text-gray-800 shadow-lg'
+                : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+                }`}
             >
               🛰️
             </button>
           </div>
         </div>
       </div>
-      
+
       {/* Left Control Panel */}
       <div className="absolute top-24 left-4 flex flex-col gap-3 max-w-xs">
         {/* Quick Actions Card */}
@@ -1665,11 +1662,10 @@ export default function TomTomMap({
                 <span className="text-xs text-gray-600">Traffic</span>
                 <button
                   onClick={() => setSelectedLayer(selectedLayer === 'traffic' ? 'none' : 'traffic')}
-                  className={`w-6 h-6 rounded border-2 transition-all ${
-                    selectedLayer === 'traffic'
-                      ? 'bg-red-500 border-red-500'
-                      : 'border-gray-300 hover:border-red-400'
-                  }`}
+                  className={`w-6 h-6 rounded border-2 transition-all ${selectedLayer === 'traffic'
+                    ? 'bg-red-500 border-red-500'
+                    : 'border-gray-300 hover:border-red-400'
+                    }`}
                 >
                   {selectedLayer === 'traffic' && '✓'}
                 </button>
@@ -1678,11 +1674,10 @@ export default function TomTomMap({
                 <span className="text-xs text-gray-600">Satellite</span>
                 <button
                   onClick={() => setMapStyle(mapStyle === 'satellite' ? 'light' : 'satellite')}
-                  className={`w-6 h-6 rounded border-2 transition-all ${
-                    mapStyle === 'satellite'
-                      ? 'bg-blue-500 border-blue-500'
-                      : 'border-gray-300 hover:border-blue-400'
-                  }`}
+                  className={`w-6 h-6 rounded border-2 transition-all ${mapStyle === 'satellite'
+                    ? 'bg-blue-500 border-blue-500'
+                    : 'border-gray-300 hover:border-blue-400'
+                    }`}
                 >
                   {mapStyle === 'satellite' && '✓'}
                 </button>
@@ -1717,13 +1712,13 @@ export default function TomTomMap({
             <h4 className="font-bold text-gray-800 text-sm">🎤 Voice Assistant</h4>
             <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
           </div>
-          
+
           {voiceText && (
             <p className="text-xs text-gray-600 mb-3 bg-blue-50 p-2 rounded border-l-2 border-blue-500">
               {voiceText}
             </p>
           )}
-          
+
           <div className="flex gap-2">
             <button
               onClick={startVoiceListener}
@@ -1797,7 +1792,7 @@ export default function TomTomMap({
               <h4 className="font-bold text-gray-800 text-sm">📍 Route Details</h4>
               <div className={`w-3 h-3 rounded-full ${route.hasTraffic ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></div>
             </div>
-            
+
             {/* Route Alternatives */}
             {routeAlternatives.length > 1 && (
               <div className="mb-3 p-2 bg-white/60 rounded-lg">
@@ -1814,11 +1809,10 @@ export default function TomTomMap({
                           // Re-draw route with selected alternative
                           setTimeout(() => drawRealRoute(), 100);
                         }}
-                        className={`flex-1 px-2 py-1 rounded text-xs font-medium transition-all ${
-                          selectedRouteIndex === index
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-white/80 text-gray-700 hover:bg-white'
-                        }`}
+                        className={`flex-1 px-2 py-1 rounded text-xs font-medium transition-all ${selectedRouteIndex === index
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white/80 text-gray-700 hover:bg-white'
+                          }`}
                       >
                         {index === 0 ? '🚀 Fastest' : index === 1 ? '⚖️ Balanced' : '🛣️ Alternative'}<br />
                         {altDistance.toFixed(1)}km • {altDuration}min
@@ -1828,7 +1822,7 @@ export default function TomTomMap({
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-white/80 p-2 rounded-lg">
@@ -1840,7 +1834,7 @@ export default function TomTomMap({
                   <div className="font-bold text-green-600">{routeDuration} min</div>
                 </div>
               </div>
-              
+
               {remainingDistance !== null && (
                 <div className="bg-white/80 p-2 rounded-lg">
                   <div className="text-xs text-gray-500 mb-1">Remaining</div>
@@ -1848,23 +1842,23 @@ export default function TomTomMap({
                     {remainingDistance.toFixed(1)} km
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-green-400 to-blue-500 h-1.5 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${routeDistance ? Math.max(0, ((routeDistance - remainingDistance) / routeDistance) * 100) : 0}%` 
+                      style={{
+                        width: `${routeDistance ? Math.max(0, ((routeDistance - remainingDistance) / routeDistance) * 100) : 0}%`
                       }}
                     ></div>
                   </div>
                 </div>
               )}
-              
+
               <div className="bg-white/80 p-2 rounded-lg">
                 <div className="text-xs text-gray-500 mb-1">Status</div>
                 <div className={`text-sm font-medium ${route.hasTraffic ? 'text-red-600' : 'text-green-600'}`}>
                   {route.hasTraffic ? '🚦 Heavy Traffic' : '✅ Clear Roads'}
                 </div>
               </div>
-              
+
               {routeInstructions.length > 0 && (
                 <div className="bg-white/80 p-2 rounded-lg max-h-24 overflow-y-auto">
                   <div className="text-xs text-gray-500 font-bold mb-1">📋 Directions</div>
@@ -1987,16 +1981,15 @@ export default function TomTomMap({
                 📍 My Location
               </button>
             )}
-            
+
             {/* Simulate Button */}
             {isPinpointSelected && route && (
               <button
                 onClick={isSimulating ? stopLocationSimulation : startLocationSimulation}
-                className={`px-4 py-3 rounded-full font-medium shadow-lg transition-all ${
-                  isSimulating
-                    ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white'
-                }`}
+                className={`px-4 py-3 rounded-full font-medium shadow-lg transition-all ${isSimulating
+                  ? 'bg-red-500 hover:bg-red-600 text-white'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white'
+                  }`}
                 title={isSimulating ? "Stop Simulation" : "Start Simulation"}
               >
                 {isSimulating ? '⏹️ Stop Sim' : '▶️ Simulate'}

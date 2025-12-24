@@ -1,290 +1,206 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Mail, Phone, Calendar, ChevronDown, Menu, X } from "lucide-react";
+import { Mail, Phone, Calendar, ChevronDown, Menu, X, ArrowRight } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [airportOpen, setAirportOpen] = useState(false);
   const [blogOpen, setBlogOpen] = useState(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
-      {/* Top Info Bar */}
-      <div className="bg-gray-900 text-gray-300 py-2 px-4">
-        <div className="container mx-auto flex items-center justify-between">
-          {/* Contact Icons */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="mailto:info@mrtransfers.com"
-              className="flex items-center gap-2 hover:text-pink-500 transition-colors"
-            >
-              <Mail className="size-4" />
-            </Link>
-            <Link
-              href="tel:+1234567890"
-              className="flex items-center gap-2 hover:text-pink-500 transition-colors"
-            >
-              <Phone className="size-4" />
-            </Link>
-            <Link
-              href="/booking"
-              className="flex items-center gap-2 hover:text-pink-500 transition-colors"
-            >
-              <Calendar className="size-4" />
-            </Link>
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center py-6 px-4 pointer-events-none">
+      <div
+        className={`
+          pointer-events-auto
+          transition-all duration-500 ease-in-out
+          ${scrolled ? 'w-full max-w-5xl py-3 px-6 bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl rounded-full' : 'w-full max-w-7xl py-4 px-8 bg-transparent border-transparent'}
+          flex items-center justify-between
+        `}
+      >
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative transform transition-transform group-hover:scale-110">
+            <svg viewBox="0 0 60 60" className="w-10 h-10 md:w-12 md:h-12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="28" className="fill-pink-500 group-hover:fill-pink-400 transition-colors" />
+              <path
+                d="M15 35h30v5c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2v-1h-14v1c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2v-5z"
+                fill="currentColor"
+                className="text-white"
+              />
+              <path
+                d="M18 35l2-8h20l2 8M20 38h4M36 38h4"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                className="text-white"
+              />
+              <path
+                d="M12 25h4v-8h-4v8zM18 25h3v-5h-3v5zM23 25h3v-10h-3v10zM28 25h3v-7h-3v7zM33 25h4v-9h-4v9zM39 25h3v-6h-3v6zM44 25h4v-8h-4v8z"
+                fill="currentColor"
+                className="text-white/60"
+              />
+            </svg>
           </div>
-
-          {/* Promotional Text */}
-          <div className="flex-1 text-center md:text-right">
-            <p className="text-sm">
-              We Provide{" "}
-              <span className="text-pink-500 font-medium">The Best Taxi Services & Discounts</span> For You
-            </p>
+          <div className="flex flex-col">
+            <span className="text-lg md:text-xl font-black text-white leading-none tracking-tight">MR TRANSFERS</span>
+            <span className="text-[10px] md:text-xs text-pink-400 font-bold tracking-widest leading-none mt-0.5">PREMIUM TRAVEL</span>
           </div>
-        </div>
-      </div>
+        </Link>
 
-      {/* Floating Navigation Bar */}
-      <div className="bg-white shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative">
-                <svg viewBox="0 0 60 60" className="w-14 h-14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* pink circle background */}
-                    <circle cx="30" cy="30" r="28" fill="#ec4899" /> {/* pink-500 */}
-                  {/* Taxi silhouette */}
-                  <path
-                    d="M15 35h30v5c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2v-1h-14v1c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2v-5z"
-                    fill="currentColor"
-                    className="text-gray-900"
-                  />
-                  <path
-                    d="M18 35l2-8h20l2 8M20 38h4M36 38h4"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    className="text-gray-900"
-                  />
-                  {/* City skyline */}
-                  <path
-                    d="M12 25h4v-8h-4v8zM18 25h3v-5h-3v5zM23 25h3v-10h-3v10zM28 25h3v-7h-3v7zM33 25h4v-9h-4v9zM39 25h3v-6h-3v6zM44 25h4v-8h-4v8z"
-                    fill="currentColor"
-                    className="text-gray-900"
-                    opacity="0.6"
-                  />
-                </svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold text-gray-800 leading-tight">MR TRANSFERS</span>
-                <span className="text-xs text-pink-500 font-medium leading-tight">BETTER AND FASTER</span>
-              </div>
-            </Link>
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-1">
+          <Link
+            href="/"
+            className="px-4 py-2 text-sm font-medium text-white hover:text-pink-400 transition-colors rounded-full hover:bg-white/5"
+          >
+            Home
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link
-                href="/"
-                className="text-pink-500 font-medium hover:text-pink-400 transition-colors"
-              >
-                Home
+          {/* Airport Dropdown */}
+          <div
+            className="relative group"
+            onMouseEnter={() => setAirportOpen(true)}
+            onMouseLeave={() => setAirportOpen(false)}
+          >
+            <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white hover:text-pink-400 transition-colors rounded-full hover:bg-white/5 outline-none">
+              Airports
+              <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform" />
+            </button>
+            <div className={`absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl py-2 transition-all duration-300 transform origin-top ${airportOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
+              {/* Triangle Pointer */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-1.5 w-3 h-3 bg-black/90 border-t border-l border-white/10 rotate-45"></div>
+
+              <Link href="/airport/heathrow" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors group/item">
+                Heathrow <ArrowRight className="w-3 h-3 opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all text-pink-400" />
               </Link>
-
-              {/* Airport Dropdown - hover-based */}
-              <div
-                className="relative group"
-                onMouseEnter={() => setAirportOpen(true)}
-                onMouseLeave={() => setAirportOpen(false)}
-              >
-                <button className="flex items-center gap-1 text-gray-800 font-medium hover:text-pink-500 transition-colors focus:outline-none">
-                  Airport Transfers
-                  <ChevronDown className="size-4" />
-                </button>
-                {airportOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50">
-                    <Link
-                      href="/airport/heathrow"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Heathrow Airport
-                    </Link>
-                    <Link
-                      href="/airport/gatwick"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Gatwick Airport
-                    </Link>
-                    <Link
-                      href="/airport/stansted"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Stansted Airport
-                    </Link>
-                    <Link
-                      href="/airport/luton"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Luton Airport
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <Link
-                href="/areas"
-                className="text-gray-800 font-medium hover:text-pink-500 transition-colors"
-              >
-                Areas We Cover
+              <Link href="/airport/gatwick" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors group/item">
+                Gatwick <ArrowRight className="w-3 h-3 opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all text-pink-400" />
               </Link>
-
-              {/* Blog Dropdown */}
-              <div
-                className="relative group"
-                onMouseEnter={() => setBlogOpen(true)}
-                onMouseLeave={() => setBlogOpen(false)}
-              >
-                <button className="flex items-center gap-1 text-gray-800 font-medium hover:text-pink-500 transition-colors focus:outline-none">
-                  Blog
-                  <ChevronDown className="size-4" />
-                </button>
-                {blogOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50">
-                    <Link
-                      href="/blog"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      All Posts
-                    </Link>
-                    <Link
-                      href="/blog/travel-tips"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Travel Tips
-                    </Link>
-                    <Link
-                      href="/blog/news"
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                    >
-                      Company News
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <Link
-                href="/contact"
-                className="text-gray-800 font-medium hover:text-pink-500 transition-colors"
-              >
-                Contact
+              <Link href="/airport/stansted" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors group/item">
+                Stansted <ArrowRight className="w-3 h-3 opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all text-pink-400" />
               </Link>
-            </nav>
-
-            {/* CTA Button */}
-            <div className="hidden lg:block">
-              <Link href="/booking">
-                <button className="bg-pink-500 text-gray-900 hover:bg-pink-400 font-bold px-6 py-2 rounded-full transition-colors">
-                  Book now!
-                </button>
+              <Link href="/airport/luton" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors group/item">
+                Luton <ArrowRight className="w-3 h-3 opacity-0 group-hover/item:opacity-100 -translate-x-2 group-hover/item:translate-x-0 transition-all text-pink-400" />
               </Link>
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden text-gray-800"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-            </button>
           </div>
+
+          <Link
+            href="/areas"
+            className="px-4 py-2 text-sm font-medium text-white hover:text-pink-400 transition-colors rounded-full hover:bg-white/5"
+          >
+            Areas
+          </Link>
+
+          {/* Blog Dropdown */}
+          <div
+            className="relative group"
+            onMouseEnter={() => setBlogOpen(true)}
+            onMouseLeave={() => setBlogOpen(false)}
+          >
+            <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white hover:text-pink-400 transition-colors rounded-full hover:bg-white/5 outline-none">
+              Blog
+              <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform" />
+            </button>
+            <div className={`absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl py-2 transition-all duration-300 transform origin-top ${blogOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-1.5 w-3 h-3 bg-black/90 border-t border-l border-white/10 rotate-45"></div>
+              <Link href="/blog" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">All Posts</Link>
+              <Link href="/blog/travel-tips" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Travel Tips</Link>
+              <Link href="/blog/news" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Company News</Link>
+            </div>
+          </div>
+        </nav>
+
+        {/* Action Buttons */}
+        <div className="hidden lg:flex items-center gap-4">
+          <Link href="tel:+44123456789" className="hidden xl:flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-medium group">
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-pink-500/20 group-hover:text-pink-400 transition-all border border-white/10">
+              <Phone className="w-3.5 h-3.5" />
+            </div>
+            <span>+44 123 456 789</span>
+          </Link>
+          <Link href="/booking">
+            <button className="bg-white text-black hover:bg-pink-500 hover:text-white font-bold px-6 py-2.5 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.5)] transform hover:-translate-y-0.5 text-sm flex items-center gap-2">
+              Book Now <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className="lg:hidden p-2 text-white hover:text-pink-400 transition-colors"
+          onClick={() => setMobileMenuOpen(true)}
+        >
+          <Menu className="w-6 h-6" />
+        </button>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-200">
-          <nav className="container mx-auto px-4 py-6 flex flex-col gap-4">
-            <Link
-              href="/"
-              className="text-pink-500 font-medium py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
+      {/* Mobile Menu Overlay */}
+      <div className={`fixed inset-0 z-[60] lg:hidden transition-all duration-300 ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none delay-500'}`}>
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
 
-            <div className="border-t border-gray-200 pt-4">
-              <p className="text-gray-800 font-medium mb-2">Airport Transfers</p>
-              <div className="pl-4 flex flex-col gap-2">
-                {["heathrow", "gatwick", "stansted", "luton"].map((airport) => (
+        {/* Drawer */}
+        <div className={`absolute top-0 right-0 w-80 h-full bg-gray-950 border-l border-white/10 shadow-2xl p-6 transition-transform duration-300 transform ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-xl font-bold text-white">Menu</span>
+            <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-white transition-colors bg-white/5 rounded-full">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <nav className="space-y-6">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block text-lg font-medium text-white hover:text-pink-400">Home</Link>
+
+            <div>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Airports</p>
+              <div className="space-y-3 pl-2 border-l border-white/10 ml-1">
+                {['Heathrow', 'Gatwick', 'Stansted', 'Luton'].map(airport => (
                   <Link
                     key={airport}
-                    href={`/airport/${airport}`}
-                    className="text-gray-800 py-1 hover:text-pink-500"
+                    href={`/airport/${airport.toLowerCase()}`}
                     onClick={() => setMobileMenuOpen(false)}
+                    className="block text-gray-300 hover:text-white text-sm"
                   >
-                    {airport.charAt(0).toUpperCase() + airport.slice(1)} Airport
+                    {airport}
                   </Link>
                 ))}
               </div>
             </div>
 
-            <Link
-              href="/areas"
-              className="text-gray-800 font-medium py-2 border-t border-gray-200 pt-4"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Areas We Cover
-            </Link>
+            <Link href="/areas" onClick={() => setMobileMenuOpen(false)} className="block text-lg font-medium text-white hover:text-pink-400">Areas We Cover</Link>
+            <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="block text-lg font-medium text-white hover:text-pink-400">Blog</Link>
+            <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-lg font-medium text-white hover:text-pink-400">Contact</Link>
+          </nav>
 
-            <div className="border-t border-gray-200 pt-4">
-              <p className="text-gray-800 font-medium mb-2">Blog</p>
-              <div className="pl-4 flex flex-col gap-2">
-                <Link
-                  href="/blog"
-                  className="text-gray-800 py-1 hover:text-pink-500"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  All Posts
-                </Link>
-                <Link
-                  href="/blog/travel-tips"
-                  className="text-gray-800 py-1 hover:text-pink-500"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Travel Tips
-                </Link>
-                <Link
-                  href="/blog/news"
-                  className="text-gray-800 py-1 hover:text-pink-500"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Company News
-                </Link>
-              </div>
-            </div>
-
-            <Link
-              href="/contact"
-              className="text-gray-800 font-medium py-2 border-t border-gray-200 pt-4"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
-
-            <Link href="/booking">
-              <button
-                className="bg-pink-500 text-gray-900 hover:bg-pink-400 font-bold py-2 px-6 rounded-full mt-4 w-full"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Book now!
+          <div className="mt-8 pt-8 border-t border-white/10 space-y-4">
+            <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+              <button className="w-full bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors shadow-lg shadow-pink-500/20">
+                Book Now
               </button>
             </Link>
-          </nav>
+            <div className="flex justify-center gap-4 text-gray-400">
+              <a href="#" className="hover:text-pink-400 transition-colors"><Mail className="w-5 h-5" /></a>
+              <a href="#" className="hover:text-pink-400 transition-colors"><Phone className="w-5 h-5" /></a>
+              <a href="#" className="hover:text-pink-400 transition-colors"><Calendar className="w-5 h-5" /></a>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

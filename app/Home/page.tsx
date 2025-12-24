@@ -45,7 +45,12 @@ export default function RentCalculatorPage() {
   const [formData, setFormData] = useState({
     pickup: '',
     dropoff: '',
-    unit: 'km' as 'km' | 'mile'
+    unit: 'km' as 'km' | 'mile',
+    pickupDate: new Date().toISOString().split('T')[0],
+    pickupTime: '12:00',
+    returnDate: '',
+    returnTime: '12:00',
+    isReturnJourney: false
   });
   const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -70,6 +75,7 @@ export default function RentCalculatorPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasTraffic, setHasTraffic] = useState<boolean>(false);
+  const [showMap, setShowMap] = useState(false);
   const [routeInstructions, setRouteInstructions] = useState<Array<{
     instruction: string;
     distance: number;
@@ -183,7 +189,7 @@ export default function RentCalculatorPage() {
   }, [addMarker]);
 
   // Handle form input changes from RentCalculatingForm
-  const handleFormInputChange = useCallback((field: 'pickup' | 'dropoff' | 'unit', value: string | 'km' | 'mile') => {
+  const handleFormInputChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -235,7 +241,12 @@ export default function RentCalculatorPage() {
     setFormData({
       pickup: '',
       dropoff: '',
-      unit: 'km'
+      unit: 'km',
+      pickupDate: new Date().toISOString().split('T')[0],
+      pickupTime: '12:00',
+      returnDate: '',
+      returnTime: '12:00',
+      isReturnJourney: false
     });
     setPickupCoords(null);
     setDropoffCoords(null);
@@ -274,70 +285,146 @@ export default function RentCalculatorPage() {
     }
   }, [distance, domainData, pickupCoords, dropoffCoords]);
 
+  // Handle swap locations
+  const handleSwapLocations = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      pickup: prev.dropoff,
+      dropoff: prev.pickup
+    }));
+
+    const tempPickupCoords = pickupCoords;
+    setPickupCoords(dropoffCoords);
+    setDropoffCoords(tempPickupCoords);
+
+    // Swap markers
+    if (pickupCoords && dropoffCoords) {
+      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', '#3B82F6', '📍');
+      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', '#EF4444', '🏁');
+    } else if (pickupCoords) {
+      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', '#EF4444', '🏁');
+      // Remove pickup marker logic if strict marker management is needed, 
+      // but addMarker filters by title so replacing is enough.
+    } else if (dropoffCoords) {
+      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', '#3B82F6', '📍');
+    }
+
+    // Reset route validation or trigger recalculation if needed
+    // The useEffect for mapRoute/routeInstructions triggers on coords change
+  }, [pickupCoords, dropoffCoords, addMarker]);
+
+  const handleToggleMap = useCallback(() => {
+    setShowMap((prev) => {
+      const newState = !prev;
+      if (newState) {
+        // Smooth scroll to map section with a slight delay if we are opening it
+        setTimeout(() => {
+          const mapSection = document.getElementById('map-section');
+          if (mapSection) {
+            mapSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+      return newState;
+    });
+  }, []);
+
   return (
     <>
       <Header />
-      <Hero />
-      <div className="min-h-screen mt-30 bg-linear-to-br from-blue-50 to-gray-100 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Rent Calculating Form */}
-            <RentCalculatingForm
-              formData={formData}
-              onFormDataChange={handleFormInputChange}
-              pickupCoords={pickupCoords}
-              dropoffCoords={dropoffCoords}
-              distance={distance}
-              rent={rent}
-              error={error}
-              hasTraffic={hasTraffic}
-              routeInstructions={routeInstructions}
-              domainData={domainData}
-              userCountry={userCountry}
-              onPickupCoordsChange={setPickupCoords}
-              onDropoffCoordsChange={setDropoffCoords}
-              onDistanceChange={setDistance}
-              onRentChange={setRent}
-              onErrorChange={setError}
-              onHasTrafficChange={setHasTraffic}
-              onRouteInstructionsChange={setRouteInstructions}
-              onMapRouteChange={setMapRoute}
-              onMapCenterChange={setMapCenter}
-              onMapZoomChange={setMapZoom}
-              onSuggestionSelect={handleSuggestionSelect}
-              onCalculateRent={handleCalculateRent}
-              onResetForm={handleResetForm}
-              onUnitChange={handleUnitChange}
-              isLoading={isLoading}
-              getCurrentCountryName={getCurrentCountryName}
-              onAddMarker={addMarker}
-            />
+      <Hero
+        formData={formData}
+        onFormDataChange={handleFormInputChange}
+        pickupCoords={pickupCoords}
+        dropoffCoords={dropoffCoords}
+        distance={distance}
+        rent={rent}
+        error={error}
+        hasTraffic={hasTraffic}
+        routeInstructions={routeInstructions}
+        domainData={domainData}
+        userCountry={userCountry}
+        onPickupCoordsChange={setPickupCoords}
+        onDropoffCoordsChange={setDropoffCoords}
+        onDistanceChange={setDistance}
+        onRentChange={setRent}
+        onErrorChange={setError}
+        onHasTrafficChange={setHasTraffic}
+        onRouteInstructionsChange={setRouteInstructions}
+        onMapRouteChange={setMapRoute}
+        onMapCenterChange={setMapCenter}
+        onMapZoomChange={setMapZoom}
+        onSuggestionSelect={handleSuggestionSelect}
+        onCalculateRent={handleCalculateRent}
+        onResetForm={handleResetForm}
+        onUnitChange={handleUnitChange}
+        isLoading={isLoading}
+        getCurrentCountryName={getCurrentCountryName}
+        onAddMarker={addMarker}
+        onSwapLocations={handleSwapLocations}
+        onToggleMap={handleToggleMap}
+        isMapVisible={showMap}
+      />
 
-            {/* Map Component */}
-            <MapComponent
-              center={mapCenter}
-              zoom={mapZoom}
-              markers={mapMarkers}
-              route={mapRoute}
-              userCountry={userCountry}
-              pickupCoords={pickupCoords}
-              dropoffCoords={dropoffCoords}
-              distance={distance}
-              unit={formData.unit}
-              hasTraffic={hasTraffic}
-              onLocationSelect={(lat: number, lng: number) => {
-                const activeElement = document.activeElement as HTMLInputElement;
-                const isPickup = activeElement?.name === 'pickup';
-                handleMapLocationSelect(lat, lng, isPickup || !activeElement?.name?.includes('dropoff'));
-              }}
-              onZoomChange={setMapZoom}
-              onCenterChange={setMapCenter}
-              onMapRouteChange={setMapRoute}
-              getCurrentCountryName={getCurrentCountryName}
-            />
+      {showMap && (
+        <section className="relative py-24 bg-black overflow-hidden animate-fade-in" id="map-section">
+          {/* Background Effects - Intensified Spotlight */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            {/* Top Fade */}
+            <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-black to-transparent z-10" />
+
+            {/* Strong Spotlights - Balanced */}
+            <div className="absolute left-0 top-1/4 w-[900px] h-[900px] bg-purple-500/40 rounded-full blur-[120px] -translate-x-1/3 animate-pulse" />
+            <div className="absolute right-0 bottom-1/4 w-[800px] h-[800px] bg-pink-600/30 rounded-full blur-[120px] translate-x-1/2 animate-pulse delay-1000" />
+
+            {/* Central Beam */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.15)_0%,transparent_50%)]" />
+
+            {/* Noise */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
           </div>
-        </div>
-      </div>
+
+          <div className="container mx-auto px-4 relative z-10 max-w-7xl">
+            {/* Section Header */}
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+                Live Coverage & <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">Real-Time Traffic</span>
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Explore our service areas and check live traffic conditions. We operate 24/7 across major airports and cities.
+              </p>
+            </div>
+
+            {/* Map Wrapper */}
+            <div className="relative">
+              {/* Decorative Borders/Glows are handled inside MapComponent now, but we can add an outer glow too */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-2xl -z-10" />
+
+              <MapComponent
+                center={mapCenter}
+                zoom={mapZoom}
+                markers={mapMarkers}
+                route={mapRoute}
+                userCountry={userCountry}
+                pickupCoords={pickupCoords}
+                dropoffCoords={dropoffCoords}
+                distance={distance}
+                unit={formData.unit}
+                hasTraffic={hasTraffic}
+                onLocationSelect={(lat: number, lng: number) => {
+                  const activeElement = document.activeElement as HTMLInputElement;
+                  const isPickup = activeElement?.name === 'pickup';
+                  handleMapLocationSelect(lat, lng, isPickup || !activeElement?.name?.includes('dropoff'));
+                }}
+                onZoomChange={setMapZoom}
+                onCenterChange={setMapCenter}
+                onMapRouteChange={setMapRoute}
+                getCurrentCountryName={getCurrentCountryName}
+              />
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }
