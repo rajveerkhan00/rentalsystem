@@ -19,12 +19,12 @@ export function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center py-6 px-4 pointer-events-none">
+    <header className="fixed  top-0 left-0 right-0 z-50 flex justify-center py-6 px-4 pointer-events-none">
       <div
         className={`
           pointer-events-auto
           transition-all duration-500 ease-in-out
-          ${scrolled ? 'w-full max-w-5xl py-3 px-6 bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl rounded-full' : 'w-full max-w-7xl py-4 px-8 bg-transparent border-transparent'}
+          ${scrolled ? 'w-full max-w-5xl py-3 px-6 bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl rounded-full' : 'container mx-auto py-4 px-4 sm:px-6 lg:px-8 bg-transparent border-transparent'}
           flex items-center justify-between
         `}
       >
@@ -117,9 +117,15 @@ export function Header() {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-1.5 w-3 h-3 bg-black/90 border-t border-l border-white/10 rotate-45"></div>
               <Link href="/blog" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">All Posts</Link>
               <Link href="/blog/travel-tips" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Travel Tips</Link>
-              <Link href="/blog/news" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Company News</Link>
+              <Link href="/blog/company-news" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Company News</Link>
             </div>
           </div>
+          <Link
+            href="/contact"
+            className="px-4 py-2 text-sm font-medium text-white hover:text-pink-400 transition-colors rounded-full hover:bg-white/5"
+          >
+            Contact
+          </Link>
         </nav>
 
         {/* Action Buttons */}

@@ -4,8 +4,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from '../components/mainwebsite/header';
 import MapComponent from '../components/mainwebsite/MapComponent';
-import RentCalculatingForm from '../components/mainwebsite/RentCalculatingForm';
 import { Hero } from '../components/mainwebsite/hero';
+import { Footer } from '../components/mainwebsite/footer';
+import { BlogSection } from '../components/mainwebsite/blog-section';
+import { Testimonials } from '../components/mainwebsite/testimonials';
+import AboutSection from '../components/mainwebsite/about-section';
+import ExperienceSection from '../components/mainwebsite/experience-section';
+import ServicesSection from '../components/mainwebsite/services-section';
+import TaxiRates from '../components/mainwebsite/taxi-rates';
+import WhyChooseUs from '../components/mainwebsite/why-choose-us';
+
+
 
 import {
   fetchDomainPricing,
@@ -368,23 +377,21 @@ export default function RentCalculatorPage() {
 
       {showMap && (
         <section className="relative py-24 bg-black overflow-hidden animate-fade-in" id="map-section">
-          {/* Background Effects - Intensified Spotlight */}
+          {/* Background Effects - Exact Match to Hero */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Top Fade */}
-            <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-black to-transparent z-10" />
+            <div
+              className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+              style={{ backgroundImage: `url('/blogbg.jpg')` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(236,72,153,0.15),transparent_25%)]" />
+            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(168,85,247,0.15),transparent_25%)]" />
 
-            {/* Strong Spotlights - Balanced */}
-            <div className="absolute left-0 top-1/4 w-[900px] h-[900px] bg-purple-500/40 rounded-full blur-[120px] -translate-x-1/3 animate-pulse" />
-            <div className="absolute right-0 bottom-1/4 w-[800px] h-[800px] bg-pink-600/30 rounded-full blur-[120px] translate-x-1/2 animate-pulse delay-1000" />
-
-            {/* Central Beam */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.15)_0%,transparent_50%)]" />
-
-            {/* Noise */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+            {/* Animated Particles */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
           </div>
 
-          <div className="container mx-auto px-4 relative z-10 max-w-7xl">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             {/* Section Header */}
             <div className="text-center mb-16 space-y-4">
               <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
@@ -425,6 +432,16 @@ export default function RentCalculatorPage() {
           </div>
         </section>
       )}
+
+      <AboutSection />
+      <ServicesSection />
+      <ExperienceSection />
+      <TaxiRates />
+      <WhyChooseUs />
+
+      <Testimonials />
+      <BlogSection />
+      <Footer />
     </>
   );
 }

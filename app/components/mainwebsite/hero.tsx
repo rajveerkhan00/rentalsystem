@@ -19,7 +19,7 @@ export function Hero(props: RentCalculatingFormProps) {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
 
           {/* Left Side: Typography & Value Prop */}
@@ -69,36 +69,37 @@ export function Hero(props: RentCalculatingFormProps) {
               ))}
             </div>
           </div>
+          <div className="md:ml-50">
+            {/* Right Side: Form Card */}
+            <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
+              {/* Glow Behind Form */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
-          {/* Right Side: Form Card */}
-          <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
-            {/* Glow Behind Form */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-
-            {/* Glass Card */}
-            <div className="relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
-              {/* Header */}
-              <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
-                  <p className="text-xs text-pink-400 mt-1 font-medium flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-                    Best Price Guaranteed
-                  </p>
+              {/* Glass Card */}
+              <div className="relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+                {/* Header */}
+                <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
+                    <p className="text-xs text-pink-400 mt-1 font-medium flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                      Best Price Guaranteed
+                    </p>
+                  </div>
+                  <div className="p-2 bg-gradient-to-br from-white/10 to-transparent rounded-lg border border-white/10">
+                    <span className="text-xl">⚡</span>
+                  </div>
                 </div>
-                <div className="p-2 bg-gradient-to-br from-white/10 to-transparent rounded-lg border border-white/10">
-                  <span className="text-xl">⚡</span>
+
+                <div className="p-6">
+                  <RentCalculatingForm {...props} />
                 </div>
               </div>
 
-              <div className="p-6">
-                <RentCalculatingForm {...props} />
+              {/* Trust Badges */}
+              <div className="mt-6 flex justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                {/* Placeholder for trust badges/logos if needed (Visa, Stripe, etc) - visually represented by text for now */}
               </div>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="mt-6 flex justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-              {/* Placeholder for trust badges/logos if needed (Visa, Stripe, etc) - visually represented by text for now */}
             </div>
           </div>
         </div>
@@ -144,7 +145,7 @@ export function Hero(props: RentCalculatingFormProps) {
       {/* Results Popup Overlay */}
       {(props.distance !== null || props.rent !== null) && (
         <div className="absolute bottom-0 left-0 right-0 z-50 px-4 pb-6 flex justify-center pointer-events-none">
-          <div className="w-full max-w-5xl pointer-events-auto animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto animate-in slide-in-from-bottom-10 fade-in duration-500">
             <RentResults
               distance={props.distance}
               rent={props.rent}

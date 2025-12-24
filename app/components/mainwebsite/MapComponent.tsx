@@ -127,7 +127,7 @@ export default function MapComponent({
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group ">
       {/* Glow Effect */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
