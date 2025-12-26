@@ -14,20 +14,9 @@ export async function middleware(request: NextRequest) {
     secureCookie: process.env.NODE_ENV === 'production'
   });
 
-  // Domain-specific redirection for root and /Home
-  if (pathname === '/' || pathname === '/Home') {
-    if (host === superAdminDomain) {
-      if (token?.role === 'superadmin') {
-        return NextResponse.redirect(new URL('/SuperDashboard', request.url));
-      } else {
-        return NextResponse.redirect(new URL('/SuperLogin', request.url));
-      }
-    } else {
-      // For all other domains, navigate to Home
-      if (pathname === '/') {
-        return NextResponse.redirect(new URL('/Home', request.url));
-      }
-    }
+  // Simple root redirection
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/Home', request.url));
   }
 
   // Protected routes
@@ -40,8 +29,12 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some(route => pathname === route);
 
   // Redirect to login if accessing protected route without token
-  if ((isSuperAdminRoute || isAdminRoute) && !token) {
+  if (isSuperAdminRoute && !token) {
     return NextResponse.redirect(new URL('/SuperLogin', request.url));
+  }
+
+  if (isAdminRoute && !token) {
+    return NextResponse.redirect(new URL('/AdminLogin', request.url));
   }
 
   // Redirect to appropriate dashboard if accessing auth routes with valid token
