@@ -1,7 +1,9 @@
 import { Plane } from "lucide-react";
 import { useTheme } from "../ThemeProvider";
+import { ServicesSkeleton } from "./Skeleton";
 
-export default function ServicesSection() {
+export default function ServicesSection({ loading }: { loading?: boolean }) {
+  if (loading) return <ServicesSkeleton />;
   useTheme();
 
   const airports = [

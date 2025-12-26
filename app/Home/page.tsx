@@ -14,6 +14,7 @@ import ServicesSection from '../components/mainwebsite/services-section';
 import TaxiRates from '../components/mainwebsite/taxi-rates';
 import WhyChooseUs from '../components/mainwebsite/why-choose-us';
 import { useTheme } from '../components/ThemeProvider';
+import { PageSkeleton } from '../components/mainwebsite/Skeleton';
 
 
 
@@ -83,7 +84,9 @@ export default function RentCalculatorPage() {
   const [mapZoom, setMapZoom] = useState<number>(6);
   const [userCountry, setUserCountry] = useState<string>('PK');
   const [domainData, setDomainData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [minLoadingPassed, setMinLoadingPassed] = useState(false);
+  const { isThemeLoading } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [hasTraffic, setHasTraffic] = useState<boolean>(false);
   const [showMap, setShowMap] = useState(false);
@@ -94,6 +97,11 @@ export default function RentCalculatorPage() {
 
   // Initialize user country and domain data
   useEffect(() => {
+    // Start minimum loading timer
+    const timer = setTimeout(() => {
+      setMinLoadingPassed(true);
+    }, 1000);
+
     const initializeData = async () => {
       // Get user country from IP
       try {
@@ -153,6 +161,7 @@ export default function RentCalculatorPage() {
     };
 
     initializeData();
+    return () => clearTimeout(timer);
   }, []);
 
   // Automatically draw route when both locations are selected
@@ -339,6 +348,10 @@ export default function RentCalculatorPage() {
       return newState;
     });
   }, []);
+
+  if ((isLoading || isThemeLoading || !minLoadingPassed) && !domainData) {
+    return <PageSkeleton />;
+  }
 
   return (
     <>

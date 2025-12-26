@@ -469,7 +469,7 @@ export default function AdminDashboard() {
           onDefaultThemeChange={handleDefaultThemeChange}
         />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <main className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {(error || success) && (
             <div className={`mb-8 p-4 rounded-2xl backdrop-blur-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 ${error
               ? 'bg-red-500/10 border-red-500/20 text-red-200 shadow-[0_0_20px_rgba(239,68,68,0.1)]'

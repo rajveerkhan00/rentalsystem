@@ -23,7 +23,7 @@ export default function InfoPanel({ pricing, currencies }: InfoPanelProps) {
             <span className="text-[10px] font-black text-[rgb(var(--primary))] border border-[rgb(var(--primary))]/30 px-2 py-0.5 rounded uppercase tracking-[0.2em] bg-[rgb(var(--primary))]/10">System Briefing</span>
           </div>
           <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tighter italic">Pricing Logic & Protocol</h3>
-          <p className="text-sm text-gray-400 font-medium leading-relaxed max-w-2xl">
+          <p className="text-sm text-gray-400 font-medium leading-relaxed max-w-4xl">
             Protocol synchronized: <span className="text-[rgb(var(--primary))] font-black">1 KM = {pricing.rentPerKm.toFixed(2)} {selectedCurrency.symbol}</span>
             <span className="mx-2 opacity-30">|</span>
             <span className="text-[rgb(var(--secondary))] font-black">1 MILE = {pricing.rentPerMile.toFixed(2)} {selectedCurrency.symbol}</span>

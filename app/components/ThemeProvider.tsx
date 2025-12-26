@@ -6,6 +6,7 @@ import { Theme, getThemeById } from '@/lib/themes';
 interface ThemeContextType {
     currentTheme: Theme;
     setTheme: (themeId: string) => void;
+    isThemeLoading: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -19,6 +20,7 @@ export function ThemeProvider({
 }) {
     const [themeId, setThemeId] = useState(initialThemeId);
     const [currentTheme, setCurrentTheme] = useState<Theme>(getThemeById(initialThemeId));
+    const [isThemeLoading, setIsThemeLoading] = useState(true);
 
     useEffect(() => {
         // Fetch domain-specific theme on mount
@@ -31,6 +33,8 @@ export function ThemeProvider({
                 }
             } catch (error) {
                 console.error('Failed to resolve domain theme:', error);
+            } finally {
+                setIsThemeLoading(false);
             }
         };
         fetchTheme();
@@ -48,7 +52,7 @@ export function ThemeProvider({
     }, [themeId]);
 
     return (
-        <ThemeContext.Provider value={{ currentTheme, setTheme: setThemeId }}>
+        <ThemeContext.Provider value={{ currentTheme, setTheme: setThemeId, isThemeLoading }}>
             {children}
         </ThemeContext.Provider>
     );

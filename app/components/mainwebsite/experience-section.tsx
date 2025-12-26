@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTheme } from "../ThemeProvider";
+import { ExperienceSkeleton } from "./Skeleton";
 
-export default function ExperienceSection() {
+export default function ExperienceSection({ loading }: { loading?: boolean }) {
+  if (loading) return <ExperienceSkeleton />;
   useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);

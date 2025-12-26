@@ -1,7 +1,9 @@
 import { Shield, Clock, CreditCard, Check } from "lucide-react";
 import { useTheme } from "../ThemeProvider";
+import { WhyChooseUsSkeleton } from "./Skeleton";
 
-export default function WhyChooseUs() {
+export default function WhyChooseUs({ loading }: { loading?: boolean }) {
+  if (loading) return <WhyChooseUsSkeleton />;
   useTheme();
 
   return (

@@ -31,7 +31,7 @@ export default function SuperDashboard() {
         fetchAdmins();
         setLoadedTabs(prev => new Set(prev).add('admins'));
       }
-      
+
       if (activeTab === 'domains' && !loadedTabs.has('domains')) {
         fetchDomains();
         setLoadedTabs(prev => new Set(prev).add('domains'));
@@ -59,7 +59,7 @@ export default function SuperDashboard() {
     try {
       setDomainsLoading(true);
       const response = await fetch('/api/superadmin/domains');
-      
+
       if (response.ok) {
         const data = await response.json();
         setDomains(data.domains || []);
@@ -83,7 +83,7 @@ export default function SuperDashboard() {
     <div className="min-h-screen bg-gray-50">
       <Header session={session} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {session.user.role === 'superadmin' ? (
           <>
             {/* Tab Navigation */}
@@ -91,21 +91,19 @@ export default function SuperDashboard() {
               <nav className="-mb-px flex space-x-8">
                 <button
                   onClick={() => setActiveTab('admins')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'admins'
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'admins'
                       ? 'border-black text-black'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   Admin Management
                 </button>
                 <button
                   onClick={() => setActiveTab('domains')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'domains'
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'domains'
                       ? 'border-black text-black'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   Domain Management
                 </button>
@@ -119,8 +117,8 @@ export default function SuperDashboard() {
 
             {/* Domain Management Tab */}
             {activeTab === 'domains' && (
-              <DomainManagement 
-                domains={domains} 
+              <DomainManagement
+                domains={domains}
                 setDomains={setDomains}
                 domainsLoading={domainsLoading}
                 setDomainsLoading={setDomainsLoading}
@@ -130,7 +128,7 @@ export default function SuperDashboard() {
         ) : (
           <div className="bg-white shadow rounded-lg p-6 text-center">
             <h2 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-gray-600">You need super admin privileges to access this page.</p>
+            <p className="text-gray-600 max-w-4xl mx-auto">You need super admin privileges to access this page.</p>
           </div>
         )}
       </main>

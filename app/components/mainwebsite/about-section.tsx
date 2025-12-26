@@ -1,8 +1,10 @@
 import { Map, Car } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "../ThemeProvider";
+import { AboutSkeleton } from "./Skeleton";
 
-export default function AboutSection() {
+export default function AboutSection({ loading }: { loading?: boolean }) {
+  if (loading) return <AboutSkeleton />;
   useTheme();
 
   return (

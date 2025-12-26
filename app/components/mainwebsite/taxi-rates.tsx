@@ -1,6 +1,7 @@
 import { Check, Info, Users, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "../ThemeProvider";
+import { SectionSkeleton } from "./Skeleton";
 
 const vehicles = [
   {
@@ -32,7 +33,8 @@ const vehicles = [
   },
 ];
 
-export default function TaxiRates() {
+export default function TaxiRates({ loading }: { loading?: boolean }) {
+  if (loading) return <SectionSkeleton cardCount={3} />;
   useTheme();
 
   return (

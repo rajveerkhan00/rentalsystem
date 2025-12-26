@@ -15,7 +15,7 @@ interface HeaderProps {
 export default function Header({ user, dashboardData, saving, onSave, onLogout, onDefaultThemeChange }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="flex flex-col">
           <h1 className="text-xl md:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x uppercase italic">
             Control Center

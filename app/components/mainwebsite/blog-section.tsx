@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { useTheme } from "../ThemeProvider"
+import { BlogSectionSkeleton } from "./Skeleton"
 
 interface BlogPost {
   id: number
@@ -38,7 +39,8 @@ const blogPosts: BlogPost[] = [
   },
 ]
 
-export function BlogSection() {
+export function BlogSection({ loading }: { loading?: boolean }) {
+  if (loading) return <BlogSectionSkeleton />;
   useTheme();
 
   return (

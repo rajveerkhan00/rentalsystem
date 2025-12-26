@@ -62,7 +62,7 @@ export function BlogContent({ title, subtitle, posts, activeCategory = "All" }: 
                 </div>
 
                 {/* Blog Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1700px] mx-auto">
                     {posts.map((post) => (
                         <div
                             key={post.id}

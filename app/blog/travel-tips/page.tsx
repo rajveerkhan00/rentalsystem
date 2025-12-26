@@ -1,9 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Header } from '../../components/mainwebsite/header';
 import { Footer } from '../../components/mainwebsite/footer';
 import { BlogContent, BlogPost } from '../../components/mainwebsite/blog-content';
 import { useTheme } from '../../components/ThemeProvider';
+import { BlogSkeleton } from '../../components/mainwebsite/Skeleton';
 
 const travelTipsPosts: BlogPost[] = [
     {
@@ -29,7 +31,20 @@ const travelTipsPosts: BlogPost[] = [
 ];
 
 export default function TravelTipsPage() {
-    useTheme();
+    const { isThemeLoading } = useTheme();
+    const [minLoadingPassed, setMinLoadingPassed] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setMinLoadingPassed(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isThemeLoading || !minLoadingPassed) {
+        return <BlogSkeleton />;
+    }
+
     return (
         <main className="bg-black">
             <Header />

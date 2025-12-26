@@ -1,8 +1,10 @@
 import Image from "next/image"
 import { Star, Quote } from "lucide-react"
 import { useTheme } from "../ThemeProvider"
+import { TestimonialsSkeleton } from "./Skeleton"
 
-export function Testimonials() {
+export function Testimonials({ loading }: { loading?: boolean }) {
+  if (loading) return <TestimonialsSkeleton />;
   useTheme();
 
   const testimonials = [
