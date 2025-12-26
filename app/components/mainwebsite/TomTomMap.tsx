@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
+import { useTheme } from '../ThemeProvider';
 
 interface Coordinates {
   lat: number;
@@ -54,6 +55,7 @@ export default function TomTomMap({
   onLocationUpdate,
   liveLocation
 }: TomTomMapProps) {
+  useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<tt.Map | null>(null);
   const markersRef = useRef<tt.Marker[]>([]);
@@ -405,7 +407,7 @@ export default function TomTomMap({
       const el = document.createElement('div');
       el.className = 'pickup-selection-marker';
       el.style.cssText = `
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        background: linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary)));
         width: 48px;
         height: 48px;
         border-radius: 50%;
@@ -919,7 +921,7 @@ export default function TomTomMap({
         });
 
         // Add main route line
-        const routeColor = route.hasTraffic ? '#ef4444' : '#3b82f6';
+        const routeColor = route.hasTraffic ? '#ef4444' : 'rgb(var(--primary))';
         mapInstanceRef.current.addLayer({
           id: 'route-line',
           type: 'line',
@@ -938,8 +940,8 @@ export default function TomTomMap({
         routeLayerRef.current = 'route-line';
 
         // Add start and end markers
-        addRouteMarker(route.start.lng, route.start.lat, 'Pickup Location', '#3b82f6', '🚗', true);
-        addRouteMarker(route.end.lng, route.end.lat, 'Dropoff Location', '#ef4444', '🏁', true);
+        addRouteMarker(route.start.lng, route.start.lat, 'Pickup Location', 'rgb(var(--primary))', '🚗', true);
+        addRouteMarker(route.end.lng, route.end.lat, 'Dropoff Location', 'rgb(var(--secondary))', '🏁', true);
 
         // Add distance label in the middle of route
         if (coordinates.length > 10) {
@@ -1083,7 +1085,7 @@ export default function TomTomMap({
       }
     });
 
-    const routeColor = route.hasTraffic ? '#ef4444' : '#3b82f6';
+    const routeColor = route.hasTraffic ? '#ef4444' : 'rgb(var(--primary))';
 
     mapInstanceRef.current.addLayer({
       id: 'route-fallback-outline',
@@ -1119,8 +1121,8 @@ export default function TomTomMap({
     routeLayerRef.current = 'route-fallback';
 
     // Add markers
-    addRouteMarker(route.start.lng, route.start.lat, 'Start', '#3b82f6', '📍', true);
-    addRouteMarker(route.end.lng, route.end.lat, 'End', '#ef4444', '🏁', true);
+    addRouteMarker(route.start.lng, route.start.lat, 'Start', 'rgb(var(--primary))', '📍', true);
+    addRouteMarker(route.end.lng, route.end.lat, 'End', 'rgb(var(--secondary))', '🏁', true);
   }, [route, isLoaded]);
 
   // Helper function to add route markers
@@ -1635,7 +1637,7 @@ export default function TomTomMap({
               <button
                 onClick={startLocationSimulation}
                 disabled={isSimulating}
-                className="bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-lg text-sm font-medium transition-all hover:scale-105 active:scale-95 shadow-md col-span-2"
+                className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90 text-white p-3 rounded-lg text-sm font-medium transition-all hover:scale-105 active:scale-95 shadow-md col-span-2"
                 title="Start Simulation"
               >
                 {isSimulating ? '▶️ Simulating...' : '🎬 Start Simulation'}
@@ -1988,7 +1990,7 @@ export default function TomTomMap({
                 onClick={isSimulating ? stopLocationSimulation : startLocationSimulation}
                 className={`px-4 py-3 rounded-full font-medium shadow-lg transition-all ${isSimulating
                   ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white'
+                  : 'bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] hover:from-[rgb(var(--primary))]/90 hover:to-[rgb(var(--secondary))]/90 text-white'
                   }`}
                 title={isSimulating ? "Stop Simulation" : "Start Simulation"}
               >
@@ -2001,7 +2003,7 @@ export default function TomTomMap({
 
       {/* Loading Overlay */}
       {!isLoaded && !mapError && (
-        <div className="absolute inset-0 bg-linear-to-br from-blue-900/90 to-purple-900/90 backdrop-blur-md flex flex-col items-center justify-center">
+        <div className="absolute inset-0 bg-linear-to-br from-[rgb(var(--primary))]/90 to-[rgb(var(--secondary))]/90 backdrop-blur-md flex flex-col items-center justify-center">
           <div className="text-center max-w-md px-8">
             <div className="relative mb-6">
               <div className="animate-spin rounded-full h-20 w-20 border-4 border-white border-t-transparent mx-auto"></div>
@@ -2019,7 +2021,7 @@ export default function TomTomMap({
                 <span>Setting up voice assistant</span>
               </div>
               <div className="flex items-center justify-center gap-3 text-white/80 text-sm">
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <div className="w-2 h-2 bg-[rgb(var(--primary))] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 <span>Preparing routing engine</span>
               </div>
               <div className="flex items-center justify-center gap-3 text-white/80 text-sm">

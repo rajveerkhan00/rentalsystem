@@ -27,12 +27,14 @@ export interface DomainData {
   domainName: string;
   status: 'active' | 'inactive' | 'pending';
   expiryDate?: string;
+  themeId?: string; // ADDED: Theme for specific domain
 }
 
 export interface DashboardData {
   location: LocationData;
   pricing: RentalPricing;
   domains: DomainData[];
+  defaultTheme?: string; // ADDED: Global default theme
   lastUpdated: Date;
 }
 

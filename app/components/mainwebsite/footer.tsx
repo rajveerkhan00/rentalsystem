@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { useTheme } from "../ThemeProvider";
 
 export function Footer() {
+    useTheme();
+
     return (
         <footer className="w-full">
             {/* CTA Section - Matching Hero Theme */}
@@ -13,16 +16,16 @@ export function Footer() {
                         style={{ backgroundImage: `url('/dark-highway-background.jpg')` }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/95" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(236,72,153,0.15),transparent_35%)]" />
-                    <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(168,85,247,0.15),transparent_35%)]" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(var(--primary),0.15),transparent_35%)]" />
+                    <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(var(--secondary),0.15),transparent_35%)]" />
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
                 </div>
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-pink-500/10 mb-8">
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgb(var(--primary))]/10 mb-8">
                         <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-pink-500 to-rose-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"></span>
                         </span>
                         <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase">24-Hour Service Available</span>
                     </div>
@@ -30,7 +33,7 @@ export function Footer() {
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                         Call Now & Book Your
                         <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-pink-500 to-rose-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--primary))] to-[rgb(var(--secondary))]">
                             Premium Transfer
                         </span>
                     </h2>
@@ -41,7 +44,7 @@ export function Footer() {
 
                     <Link
                         href="tel:+447491321209"
-                        className="inline-flex items-center gap-4 px-8 py-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xl hover:opacity-90 transition-all shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 hover:scale-105 duration-300"
+                        className="inline-flex items-center gap-4 px-8 py-4 rounded-xl bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] text-white font-bold text-xl hover:opacity-90 transition-all shadow-lg shadow-[rgb(var(--primary))]/30 hover:shadow-[rgb(var(--primary))]/50 hover:scale-105 duration-300"
                     >
                         <Phone className="w-6 h-6" />
                         +44 749 132 1209
@@ -64,8 +67,8 @@ export function Footer() {
                             <Link href="/" className="flex items-center gap-3 group">
 
                                 <div className="flex flex-col">
-                                    <span className="text-lg font-bold text-white leading-tight group-hover:text-pink-400 transition-colors">MR TRANSFERS</span>
-                                    <span className="text-[10px] text-pink-400 font-medium tracking-[0.15em] uppercase">Premium Service</span>
+                                    <span className="text-lg font-bold text-white leading-tight group-hover:text-[rgb(var(--primary))] transition-colors">MR TRANSFERS</span>
+                                    <span className="text-[10px] text-[rgb(var(--primary))] font-medium tracking-[0.15em] uppercase">Premium Service</span>
                                 </div>
                             </Link>
                             <p className="text-gray-400 text-sm leading-relaxed">
@@ -77,14 +80,14 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-white font-bold text-lg tracking-tight">Contact</h3>
                             <div className="space-y-4">
-                                <Link href="mailto:info@mrtransfers.co.uk" className="flex items-center gap-3 text-gray-400 hover:text-pink-400 transition-colors group">
-                                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-pink-500/30 transition-colors">
+                                <Link href="mailto:info@mrtransfers.co.uk" className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
+                                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[rgb(var(--primary))]/30 transition-colors">
                                         <Mail className="w-4 h-4" />
                                     </div>
                                     <span className="text-sm">info@mrtransfers.co.uk</span>
                                 </Link>
-                                <Link href="tel:+447491321209" className="flex items-center gap-3 text-gray-400 hover:text-pink-400 transition-colors group">
-                                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-pink-500/30 transition-colors">
+                                <Link href="tel:+447491321209" className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
+                                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[rgb(var(--primary))]/30 transition-colors">
                                         <Phone className="w-4 h-4" />
                                     </div>
                                     <span className="text-sm">+44 749 132 1209</span>
@@ -127,7 +130,7 @@ export function Footer() {
                                     <Link
                                         key={link.label}
                                         href={link.href}
-                                        className="block text-sm text-gray-400 hover:text-pink-400 transition-colors hover:translate-x-1 duration-200"
+                                        className="block text-sm text-gray-400 hover:text-[rgb(var(--primary))] transition-colors hover:translate-x-1 duration-200"
                                     >
                                         {link.label}
                                     </Link>
@@ -146,7 +149,7 @@ export function Footer() {
                             © 2025 Mr Transfers. Developed by{" "}
                             <Link
                                 href="https://nextleveldigitally.com"
-                                className="text-pink-400 hover:text-pink-300 transition-colors"
+                                className="text-[rgb(var(--primary))] hover:text-[rgb(var(--primary))]/80 transition-colors"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -155,10 +158,10 @@ export function Footer() {
                         </div>
 
                         <div className="flex gap-6 text-sm text-gray-500">
-                            <Link href="/privacy" className="hover:text-pink-400 transition-colors">
+                            <Link href="/privacy" className="hover:text-[rgb(var(--primary))] transition-colors">
                                 Privacy Policy
                             </Link>
-                            <Link href="/terms" className="hover:text-pink-400 transition-colors">
+                            <Link href="/terms" className="hover:text-[rgb(var(--primary))] transition-colors">
                                 Terms & Conditions
                             </Link>
                         </div>

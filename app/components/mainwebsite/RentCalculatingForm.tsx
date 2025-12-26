@@ -388,7 +388,7 @@ export default function RentCalculatingForm({
         {/* Pickup Location */}
         <div className="space-y-1.5 relative group">
           <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-            <MapPin className="w-3.5 h-3.5 text-pink-400" />
+            <MapPin className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
             Pickup Location
           </label>
           <div className="relative">
@@ -401,9 +401,9 @@ export default function RentCalculatingForm({
               onFocus={() => setShowPickupSuggestions(true)}
               onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
               placeholder={`Enter pickup in ${getCurrentCountryName()}...`}
-              className="w-full pl-9 pr-10 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm"
+              className="w-full pl-9 pr-10 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-pink-400 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[rgb(var(--primary))] transition-colors" />
             <div className="flex gap-2 absolute right-2 top-1/2 -translate-y-1/2">
               <button
                 onClick={handleLocateMe}
@@ -420,7 +420,7 @@ export default function RentCalculatingForm({
               <button
                 onClick={() => handleGeocode('pickup')}
                 disabled={isGeocoding || !formData.pickup.trim()}
-                className="p-1.5 bg-pink-500/20 text-pink-400 rounded-md hover:bg-pink-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 bg-[rgb(var(--primary))]/20 text-[rgb(var(--primary))] rounded-md hover:bg-[rgb(var(--primary))]/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Locate coordinates"
               >
                 {isGeocoding ? <div className="animate-spin w-3 h-3 border-2 border-current border-t-transparent rounded-full" /> : <MapPin className="w-3.5 h-3.5" />}
@@ -432,7 +432,7 @@ export default function RentCalculatingForm({
               <div className="absolute z-20 w-full mt-1 bg-[#1a1c2e] border border-white/10 rounded-lg shadow-xl overflow-hidden backdrop-blur-xl">
                 {fetchingSuggestions ? (
                   <div className="px-3 py-2 text-center text-gray-400">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent mx-auto mb-1"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-[rgb(var(--primary))] border-t-transparent mx-auto mb-1"></div>
                     <p className="text-[10px]">Searching...</p>
                   </div>
                 ) : pickupSuggestions.length === 0 ? (
@@ -449,8 +449,8 @@ export default function RentCalculatingForm({
                         handleSuggestionClick(suggestion, 'pickup');
                       }}
                     >
-                      <div className="p-1.5 rounded-full bg-white/5 group-hover/item:bg-pink-500/20 transition-colors">
-                        <MapPin className="w-3 h-3 text-gray-400 group-hover/item:text-pink-400" />
+                      <div className="p-1.5 rounded-full bg-white/5 group-hover/item:bg-[rgb(var(--primary))]/20 transition-colors">
+                        <MapPin className="w-3 h-3 text-gray-400 group-hover/item:text-[rgb(var(--primary))]" />
                       </div>
                       <div className="min-w-0">
                         <div className="font-medium text-gray-200 text-xs truncate">
@@ -472,7 +472,7 @@ export default function RentCalculatingForm({
         <div className="relative h-2 flex items-right justify-center z-10">
           <button
             onClick={onSwapLocations}
-            className="absolute p-1.5 rounded-full bg-gray-800 border border-white/10 text-gray-400 hover:text-pink-400 hover:border-pink-500/50 hover:bg-gray-700 transition-all shadow-lg transform hover:scale-110 hover:rotate-180 duration-300"
+            className="absolute p-1.5 rounded-full bg-gray-800 border border-white/10 text-gray-400 hover:text-[rgb(var(--primary))] hover:border-[rgb(var(--primary))]/50 hover:bg-gray-700 transition-all shadow-lg transform hover:scale-110 hover:rotate-180 duration-300"
             title="Swap locations"
           >
             <ArrowUpDown className="w-3.5 h-3.5" />
@@ -482,7 +482,7 @@ export default function RentCalculatingForm({
         {/* Dropoff Location */}
         <div className="space-y-1.5 relative group">
           <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-            <Navigation className="w-3.5 h-3.5 text-pink-400" />
+            <Navigation className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
             Dropoff Location
           </label>
           <div className="relative">
@@ -495,13 +495,13 @@ export default function RentCalculatingForm({
               onFocus={() => setShowDropoffSuggestions(true)}
               onBlur={() => setTimeout(() => setShowDropoffSuggestions(false), 200)}
               placeholder={`Enter destination...`}
-              className="w-full pl-9 pr-10 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm"
+              className="w-full pl-9 pr-10 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-pink-400 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[rgb(var(--primary))] transition-colors" />
             <button
               onClick={() => handleGeocode('dropoff')}
               disabled={isGeocoding || !formData.dropoff.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-pink-500/20 text-pink-400 rounded-md hover:bg-pink-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[rgb(var(--primary))]/20 text-[rgb(var(--primary))] rounded-md hover:bg-[rgb(var(--primary))]/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
               title="Locate coordinates"
             >
               {isGeocoding ? <div className="animate-spin w-3 h-3 border-2 border-current border-t-transparent rounded-full" /> : <Navigation className="w-3.5 h-3.5" />}
@@ -512,7 +512,7 @@ export default function RentCalculatingForm({
               <div className="absolute z-20 w-full mt-1 bg-[#1a1c2e] border border-white/10 rounded-lg shadow-xl overflow-hidden backdrop-blur-xl">
                 {fetchingSuggestions ? (
                   <div className="px-3 py-2 text-center text-gray-400">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent mx-auto mb-1"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-[rgb(var(--primary))] border-t-transparent mx-auto mb-1"></div>
                     <p className="text-[10px]">Searching...</p>
                   </div>
                 ) : dropoffSuggestions.length === 0 ? (
@@ -529,8 +529,8 @@ export default function RentCalculatingForm({
                         handleSuggestionClick(suggestion, 'dropoff');
                       }}
                     >
-                      <div className="p-1.5 rounded-full bg-white/5 group-hover/item:bg-pink-500/20 transition-colors">
-                        <Navigation className="w-3 h-3 text-gray-400 group-hover/item:text-pink-400" />
+                      <div className="p-1.5 rounded-full bg-white/5 group-hover/item:bg-[rgb(var(--primary))]/20 transition-colors">
+                        <Navigation className="w-3 h-3 text-gray-400 group-hover/item:text-[rgb(var(--primary))]" />
                       </div>
                       <div className="min-w-0">
                         <div className="font-medium text-gray-200 text-xs truncate">
@@ -553,7 +553,7 @@ export default function RentCalculatingForm({
           {/* Pickup Date */}
           <div className="space-y-1.5 relative group">
             <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-              <Calendar className="w-3.5 h-3.5 text-pink-400" />
+              <Calendar className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
               Pickup Date
             </label>
             <input
@@ -561,14 +561,14 @@ export default function RentCalculatingForm({
               name="pickupDate"
               value={formData.pickupDate}
               onChange={handleInputChange}
-              className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm [color-scheme:dark]"
+              className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm [color-scheme:dark]"
             />
           </div>
 
           {/* Pickup Time */}
           <div className="space-y-1.5 relative group">
             <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-              <Clock className="w-3.5 h-3.5 text-pink-400" />
+              <Clock className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
               Time
             </label>
             <input
@@ -576,7 +576,7 @@ export default function RentCalculatingForm({
               name="pickupTime"
               value={formData.pickupTime}
               onChange={handleInputChange}
-              className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm [color-scheme:dark]"
+              className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm [color-scheme:dark]"
             />
           </div>
         </div>
@@ -591,7 +591,7 @@ export default function RentCalculatingForm({
               onChange={handleInputChange}
               className="sr-only peer"
             />
-            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pink-500"></div>
+            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[rgb(var(--primary))]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[rgb(var(--primary))]"></div>
             <span className="ml-2 text-xs font-medium text-gray-300">Return Journey?</span>
           </label>
         </div>
@@ -602,7 +602,7 @@ export default function RentCalculatingForm({
             {/* Return Date */}
             <div className="space-y-1.5 relative group">
               <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-                <Calendar className="w-3.5 h-3.5 text-pink-400" />
+                <Calendar className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
                 Return Date
               </label>
               <input
@@ -610,14 +610,14 @@ export default function RentCalculatingForm({
                 name="returnDate"
                 value={formData.returnDate}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm [color-scheme:dark]"
+                className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm [color-scheme:dark]"
               />
             </div>
 
             {/* Return Time */}
             <div className="space-y-1.5 relative group">
               <label className="flex items-center gap-2 text-xs font-medium text-gray-300">
-                <Clock className="w-3.5 h-3.5 text-pink-400" />
+                <Clock className="w-3.5 h-3.5 text-[rgb(var(--primary))]" />
                 Time
               </label>
               <input
@@ -625,7 +625,7 @@ export default function RentCalculatingForm({
                 name="returnTime"
                 value={formData.returnTime}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all backdrop-blur-sm [color-scheme:dark]"
+                className="w-full px-3 py-3 bg-white/5 border border-white/10 text-white text-sm placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all backdrop-blur-sm [color-scheme:dark]"
               />
             </div>
           </div>
@@ -636,7 +636,7 @@ export default function RentCalculatingForm({
           <button
             onClick={() => handleUnitClick('km')}
             className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${formData.unit === 'km'
-              ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20'
+              ? 'bg-[rgb(var(--primary))] text-white shadow-lg shadow-[rgba(var(--primary),0.2)]'
               : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
           >
@@ -645,7 +645,7 @@ export default function RentCalculatingForm({
           <button
             onClick={() => handleUnitClick('mile')}
             className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${formData.unit === 'mile'
-              ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20'
+              ? 'bg-[rgb(var(--primary))] text-white shadow-lg shadow-[rgba(var(--primary),0.2)]'
               : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
           >
@@ -658,7 +658,7 @@ export default function RentCalculatingForm({
           <button
             onClick={calculateRentHandler}
             disabled={isLoading || calculatingRoute || !pickupCoords || !dropoffCoords}
-            className="flex-[2] bg-gradient-to-r from-pink-500 to-rose-600 text-white py-3 rounded-xl font-bold hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-[0.98] text-sm"
+            className="flex-[2] bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x text-white py-3 rounded-xl font-bold hover:shadow-[0_0_20px_rgba(var(--primary),0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-[0.98] text-sm"
           >
             {calculatingRoute || isLoading ? (
               <>

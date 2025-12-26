@@ -1,7 +1,10 @@
 import Image from "next/image"
 import { Star, Quote } from "lucide-react"
+import { useTheme } from "../ThemeProvider"
 
 export function Testimonials() {
+  useTheme();
+
   const testimonials = [
     {
       name: "Xavier Mcfarla",
@@ -35,8 +38,8 @@ export function Testimonials() {
           style={{ backgroundImage: `url('/testimonials-bg.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(236,72,153,0.12),transparent_40%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_90%_80%,rgba(168,85,247,0.12),transparent_40%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(var(--primary),0.12),transparent_40%)]" />
+        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_90%_80%,rgba(var(--secondary),0.12),transparent_40%)]" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
       </div>
 
@@ -44,16 +47,16 @@ export function Testimonials() {
         {/* Header */}
         <div className="text-center mb-16 space-y-6">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-pink-500/10">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgb(var(--primary))]/10">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-pink-500 to-rose-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"></span>
             </span>
             <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase">Customer Feedback</span>
           </div>
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            What Our Clients <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-pink-500 to-rose-500">Say</span>
+            What Our Clients <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--primary))] to-[rgb(var(--secondary))]">Say</span>
           </h2>
 
           <p className="text-gray-400 text-lg max-w-2xl mx-auto font-light leading-relaxed">
@@ -66,17 +69,17 @@ export function Testimonials() {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="group relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-pink-500/30 transition-all duration-500 hover:shadow-lg hover:shadow-pink-500/10"
+              className="group relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-[rgb(var(--primary))]/30 transition-all duration-500 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10"
             >
               {/* Quote Icon */}
               <div className="absolute top-6 right-6">
-                <Quote className="w-10 h-10 text-pink-500/20 group-hover:text-pink-500/40 transition-colors" />
+                <Quote className="w-10 h-10 text-[rgb(var(--primary))]/20 group-hover:text-[rgb(var(--primary))]/40 transition-colors" />
               </div>
 
               {/* Stars */}
               <div className="flex gap-1 mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-pink-400 fill-pink-400" />
+                  <Star key={i} className="w-4 h-4 text-[rgb(var(--primary))] fill-[rgb(var(--primary))]" />
                 ))}
               </div>
 
@@ -87,7 +90,7 @@ export function Testimonials() {
 
               {/* Customer Info */}
               <div className="flex items-center gap-4">
-                <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-pink-500/30 ring-offset-2 ring-offset-black">
+                <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-[rgb(var(--primary))]/30 ring-offset-2 ring-offset-black">
                   <Image
                     src={testimonial.image || "/placeholder.svg"}
                     alt={testimonial.name}
@@ -96,7 +99,7 @@ export function Testimonials() {
                   />
                 </div>
                 <div>
-                  <p className="font-bold text-white group-hover:text-pink-400 transition-colors">
+                  <p className="font-bold text-white group-hover:text-[rgb(var(--primary))] transition-colors">
                     {testimonial.name}
                   </p>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">
@@ -107,7 +110,7 @@ export function Testimonials() {
 
               {/* Hover Glow Effect */}
               <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-purple-500/5 rounded-2xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--primary))]/5 to-[rgb(var(--secondary))]/5 rounded-2xl" />
               </div>
             </div>
           ))}
@@ -127,7 +130,7 @@ export function Testimonials() {
           </div>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-pink-400 fill-pink-400" />
+            <Star className="w-4 h-4 text-[rgb(var(--primary))] fill-[rgb(var(--primary))]" />
             <span className="text-sm">4.9/5 Average Rating</span>
           </div>
           <div className="h-4 w-px bg-white/10" />

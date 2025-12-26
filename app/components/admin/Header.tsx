@@ -1,6 +1,7 @@
 'use client';
 
 import { SessionUser } from './types';
+import { themes } from '@/lib/themes';
 
 interface HeaderProps {
   user: SessionUser;
@@ -8,38 +9,81 @@ interface HeaderProps {
   saving: boolean;
   onSave: () => void;
   onLogout: () => void;
+  onDefaultThemeChange: (themeId: string) => void; // ADDED
 }
 
-export default function Header({ user, dashboardData, saving, onSave, onLogout }: HeaderProps) {
+export default function Header({ user, dashboardData, saving, onSave, onLogout, onDefaultThemeChange }: HeaderProps) {
   return (
-    <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-lg">
+    <header className="sticky top-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-            Rental System Dashboard
+        <div className="flex flex-col">
+          <h1 className="text-xl md:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x uppercase italic">
+            Control Center
           </h1>
-          <p className="text-sm text-gray-600">
-            Admin: {user?.email} • Last updated: {dashboardData.lastUpdated.toLocaleString()}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))] animate-pulse"></div>
+            <p className="text-[10px] md:text-xs text-gray-400 font-medium uppercase tracking-widest">
+              SECURE ACCESS • {user?.email}
+            </p>
+          </div>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Global Theme Selector */}
+          <div className="hidden lg:flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full h-[40px]">
+            <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Global Theme</span>
+            <div className="relative group/select min-w-[140px]">
+              <select
+                value={dashboardData.defaultTheme || 'default'}
+                onChange={(e) => onDefaultThemeChange(e.target.value)}
+                className="w-full bg-transparent text-[10px] font-black text-white focus:outline-none appearance-none uppercase tracking-widest cursor-pointer pl-6 pr-4"
+              >
+                {themes.map((t) => (
+                  <option key={t.id} value={t.id} className="bg-[#0A0A0A] text-white">
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-white/10 shadow-lg"
+                style={{ background: `rgb(${themes.find(t => t.id === (dashboardData.defaultTheme || 'default'))?.colors['--primary'] || '236 72 153'})` }} />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
           <button
             onClick={onSave}
             disabled={saving}
-            className="px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 rounded-lg text-sm font-medium text-white hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 transition-all duration-200 shadow"
+            className="relative group px-4 md:px-6 py-2 bg-white text-black font-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(var(--primary),0.4)] disabled:opacity-50 hover:-translate-y-0.5 h-[40px] flex items-center"
           >
-            {saving ? (
-              <>
-                <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>
-                Saving...
-              </>
-            ) : 'Save Changes'}
+            <div className="relative z-10 flex items-center gap-2 text-xs font-black uppercase tracking-tight">
+              {saving ? (
+                <>
+                  <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  <span>Syncing</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  <span className="hidden sm:inline">Commit Changes</span>
+                  <span className="sm:hidden">Save</span>
+                </>
+              )}
+            </div>
           </button>
+
           <button
             onClick={onLogout}
-            className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 border border-red-500 rounded-lg text-sm font-medium text-white hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-white transition-all duration-200 shadow"
+            className="p-2 md:px-4 md:py-2 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-all border border-transparent hover:border-white/10 text-xs font-black uppercase tracking-tight group h-[40px]"
           >
-            Logout
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="hidden md:inline">Exit</span>
           </button>
         </div>
       </div>

@@ -30,6 +30,7 @@ import InfoPanel from '@/app/components/admin/InfoPanel';
 
 // Import the shared currency mapping
 import { currencies, getCurrencyById, getCurrencyCodeById } from '@/lib/currency-mapping';
+import { useTheme } from '../components/ThemeProvider';
 
 // Type definitions
 interface SessionUser {
@@ -61,18 +62,21 @@ interface DomainData {
   domainName: string;
   status: 'active' | 'inactive' | 'pending';
   expiryDate?: string;
+  themeId?: string;
 }
 
 interface DashboardData {
   location: LocationData;
   pricing: RentalPricing;
   domains: DomainData[];
+  defaultTheme?: string;
   lastUpdated: Date;
 }
 
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { setTheme } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -80,7 +84,7 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [domainError, setDomainError] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  
+
   // Dashboard data state
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     location: {
@@ -99,20 +103,20 @@ export default function AdminDashboard() {
     domains: [],
     lastUpdated: new Date()
   });
-  
+
   // New domain state
   const [newDomain, setNewDomain] = useState<string>('');
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
     if (status === 'loading') return; // Don't do anything while loading
-    
+
     if (status === 'unauthenticated') {
       console.log('User not authenticated, redirecting to login');
       router.push('/AdminLogin');
       return;
     }
-    
+
     if (status === 'authenticated') {
       const user = session?.user as SessionUser;
       if (user?.role !== 'admin') {
@@ -132,20 +136,20 @@ export default function AdminDashboard() {
           try {
             setLoading(true);
             const response = await fetch('/api/admin/dashboard-data');
-            
+
             if (response.ok) {
               const data = await response.json();
-              
+
               // Convert currency from string to number if needed (for backward compatibility)
               const pricingData = data.pricing || {};
               let currencyValue = pricingData.currency || 0;
-              
+
               // If currency is a string (from old data), convert it to number ID
               if (typeof currencyValue === 'string') {
                 const currencyObj = currencies.find(c => c.code === currencyValue);
                 currencyValue = currencyObj ? currencyObj.id : 0;
               }
-              
+
               setDashboardData({
                 location: data.location || {
                   country: '',
@@ -187,19 +191,19 @@ export default function AdminDashboard() {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5`
       );
-      
+
       const data = await response.json();
-      
+
       if (data && data.length > 0) {
         const result = data[0];
         const address = result.display_name;
-        
+
         // Parse address components
         const addressParts = address.split(', ');
         const country = addressParts[addressParts.length - 1] || '';
         const province = addressParts[addressParts.length - 2] || '';
         const city = addressParts[0] || '';
-        
+
         setDashboardData(prev => ({
           ...prev,
           location: {
@@ -213,7 +217,7 @@ export default function AdminDashboard() {
             }
           }
         }));
-        
+
         setSuccess('Location found!');
         setTimeout(() => setSuccess(''), 3000);
       } else {
@@ -229,14 +233,14 @@ export default function AdminDashboard() {
 
   const handlePricingChange = (field: keyof RentalPricing, value: string | number): void => {
     let processedValue: any = value;
-    
+
     // Handle currency field specifically
     if (field === 'currency') {
       processedValue = typeof value === 'string' ? parseInt(value) || 0 : value;
     } else {
       processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
     }
-    
+
     setDashboardData(prev => ({
       ...prev,
       pricing: {
@@ -244,7 +248,7 @@ export default function AdminDashboard() {
         [field]: processedValue
       }
     }));
-    
+
     // Auto-calculate conversion between mile and km based on 1 km = $1, 1 mile = $1.6
     if (field === 'rentPerMile') {
       // Convert mile to km: 1 mile = 1.60934 km
@@ -296,24 +300,24 @@ export default function AdminDashboard() {
       setDomainError('Please enter a domain name');
       return false;
     }
-    
+
     // Basic domain validation
     const domainPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
     if (!domainPattern.test(newDomain.trim())) {
       setDomainError('Please enter a valid domain name (e.g., example.com)');
       return false;
     }
-    
+
     // Check if domain already exists in local state (case insensitive)
-    const domainExistsLocal = dashboardData.domains.some(domain => 
+    const domainExistsLocal = dashboardData.domains.some(domain =>
       domain.domainName.toLowerCase() === newDomain.trim().toLowerCase()
     );
-    
+
     if (domainExistsLocal) {
       setDomainError('This domain already exists in your list');
       return false;
     }
-    
+
     // Check if domain exists in the database (for any user)
     try {
       setLoading(true);
@@ -322,33 +326,33 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domainName: newDomain.trim() })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.exists) {
         setDomainError(`Domain "${newDomain.trim()}" is already registered by another user`);
         return false;
       }
-      
+
       // Clear any errors
       setDomainError('');
       setError('');
-      
+
       // Add the domain
       const domainData: DomainData = {
         domainName: newDomain.trim(),
         status: 'pending',
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
       };
-      
+
       setDashboardData(prev => ({
         ...prev,
         domains: [...prev.domains, domainData]
       }));
-      
+
       setNewDomain('');
       return true;
-      
+
     } catch (err) {
       console.error('Error checking domain:', err);
       setDomainError('Failed to verify domain availability. Please try again.');
@@ -371,25 +375,25 @@ export default function AdminDashboard() {
       setError('');
       setSuccess('');
       setDomainError('');
-      
+
       // Prepare data for saving
       const dataToSave = {
         ...dashboardData,
         lastUpdated: new Date()
       };
-      
+
       const response = await fetch('/api/admin/dashboard-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSave)
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to save data');
       }
-      
+
       setSuccess('Dashboard data saved successfully!');
       setTimeout(() => setSuccess(''), 5000);
     } catch (err: any) {
@@ -415,13 +419,26 @@ export default function AdminDashboard() {
     setDomainError('');
   };
 
+  const handleUpdateDomainTheme = (index: number, themeId: string) => {
+    const updatedDomains = [...dashboardData.domains];
+    updatedDomains[index] = { ...updatedDomains[index], themeId };
+    setDashboardData(prev => ({ ...prev, domains: updatedDomains }));
+    setSuccess('Theme updated for domain. Remember to save changes.');
+  };
+
+  const handleDefaultThemeChange = (themeId: string) => {
+    setDashboardData(prev => ({ ...prev, defaultTheme: themeId }));
+    setTheme(themeId); // UPDATE THEME IN REAL-TIME
+    setSuccess('Global default theme updated. Remember to save changes.');
+  };
+
   // Prevent infinite re-renders by checking session status
   if (status === 'loading') {
     return <LoadingSpinner />;
   }
 
   const user = session?.user as SessionUser;
-  
+
   // Check if user is authenticated and is admin
   if (status === 'unauthenticated' || !session || user?.role !== 'admin') {
     // Return null while redirect happens
@@ -429,71 +446,88 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900">
-      <Header
-        user={user}
-        dashboardData={dashboardData}
-        saving={saving}
-        onSave={handleSaveData}
-        onLogout={handleLogout}
-      />
+    <div className="min-h-screen bg-black text-white selection:bg-[rgb(var(--primary))]/30">
+      {/* Dynamic Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.1),transparent_25%)]" />
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(var(--secondary),0.1),transparent_25%)]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {(error || success) && (
-          <div className={`mb-6 p-4 rounded-lg ${error ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'}`}>
-            <div className="flex items-center">
-              {error ? (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+      <div className="relative z-10">
+        <Header
+          user={user}
+          dashboardData={dashboardData}
+          saving={saving}
+          onSave={handleSaveData}
+          onLogout={handleLogout}
+          onDefaultThemeChange={handleDefaultThemeChange}
+        />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {(error || success) && (
+            <div className={`mb-8 p-4 rounded-2xl backdrop-blur-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 ${error
+              ? 'bg-red-500/10 border-red-500/20 text-red-200 shadow-[0_0_20px_rgba(239,68,68,0.1)]'
+              : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+              }`}>
+              <div className={`p-2 rounded-lg ${error ? 'bg-red-500/20' : 'bg-emerald-500/20'}`}>
+                {error ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <span>{error}</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>{success}</span>
-                </>
-              )}
+                )}
+              </div>
+              <span className="font-medium">{error || success}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
+              <LocationManagement
+                location={dashboardData.location}
+                searchQuery={searchQuery}
+                loading={loading}
+                onSearchQueryChange={setSearchQuery}
+                onSearch={handleLocationSearch}
+                onLocationChange={handleLocationChange}
+                onMapClick={handleMapClick}
+                apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
+              />
+            </div>
+
+            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
+              <RentalPricing
+                pricing={dashboardData.pricing}
+                currencies={currencies}
+                onPricingChange={handlePricingChange}
+              />
+            </div>
+
+            <div className="lg:col-span-2 group transition-all duration-500 hover:translate-y-[-4px]">
+              <DomainManagement
+                domains={dashboardData.domains}
+                newDomain={newDomain}
+                onNewDomainChange={setNewDomain}
+                onAddDomain={handleAddDomain}
+                onRemoveDomain={handleRemoveDomain}
+                onUpdateDomainTheme={handleUpdateDomainTheme}
+                onKeyPress={handleKeyPress}
+                domainError={domainError}
+                onClearDomainError={handleClearDomainError}
+                checkingDomain={loading}
+              />
             </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <LocationManagement
-            location={dashboardData.location}
-            searchQuery={searchQuery}
-            loading={loading}
-            onSearchQueryChange={setSearchQuery}
-            onSearch={handleLocationSearch}
-            onLocationChange={handleLocationChange}
-            onMapClick={handleMapClick}
-            apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
-          />
-
-          <RentalPricing
-            pricing={dashboardData.pricing}
-            currencies={currencies}
-            onPricingChange={handlePricingChange}
-          />
-
-          <DomainManagement
-            domains={dashboardData.domains}
-            newDomain={newDomain}
-            onNewDomainChange={setNewDomain}
-            onAddDomain={handleAddDomain}
-            onRemoveDomain={handleRemoveDomain}
-            onKeyPress={handleKeyPress}
-            domainError={domainError}
-            onClearDomainError={handleClearDomainError}
-            checkingDomain={loading}
-          />
-        </div>
-
-        <InfoPanel pricing={dashboardData.pricing} currencies={currencies} />
-      </main>
+          <div className="mt-8 transition-all duration-500 hover:translate-y-[-4px]">
+            <InfoPanel pricing={dashboardData.pricing} currencies={currencies} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

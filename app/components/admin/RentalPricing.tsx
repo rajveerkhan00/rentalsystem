@@ -24,151 +24,140 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
-        <span className="w-2 h-5 bg-gradient-to-b from-green-500 to-green-700 rounded-full"></span>
-        Rental Pricing Configuration
+    <div className="bg-[#0A0A0A]/80 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-white/10 ring-1 ring-white/5 relative overflow-hidden group/card transition-all duration-300">
+      {/* Accent Glow */}
+      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[rgb(var(--primary))]/10 rounded-full blur-3xl group-hover/card:bg-[rgb(var(--primary))]/20 transition-all duration-500" />
+
+      <h2 className="text-xl font-bold mb-6 text-white flex items-center gap-3 relative z-10">
+        <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg text-[rgb(var(--primary))]">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        Pricing Matrix
       </h2>
-      
+
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Currency
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10 group/input transition-all duration-300 hover:border-white/20">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+              Select Currency
             </label>
             <select
               value={pricing.currency}
               onChange={handleCurrencyChange}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition-all cursor-pointer"
             >
               {currencies.map((currency: Currency) => (
-                <option key={currency.id} value={currency.id}>
-                  {currency.code} - {currency.name} ({currency.symbol})
+                <option key={currency.id} value={currency.id} className="bg-gray-900">
+                  {currency.code} - {currency.name}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-gray-500 mt-1">
-              Selected: {selectedCurrency.code} ({selectedCurrency.symbol})
-            </p>
+            <div className="flex items-center gap-1.5 mt-2 ml-1">
+              <span className="text-[rgb(var(--primary))] font-bold">{selectedCurrency.symbol}</span>
+              <span className="text-[10px] text-gray-500 font-medium uppercase tracking-tight">{selectedCurrency.name} Active</span>
+            </div>
           </div>
-          
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Currency to USD Rate
+
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10 group/input transition-all duration-300 hover:border-white/20">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+              Rate to USD Base
             </label>
-            <input
-              type="number"
-              step="0.0001"
-              value={pricing.conversionRate}
-              onChange={(e) => handleInputChange('conversionRate', e)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="1.0"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              1 {selectedCurrency.code} = {pricing.conversionRate} USD
-            </p>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.0001"
+                value={pricing.conversionRate}
+                onChange={(e) => handleInputChange('conversionRate', e)}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition-all font-mono"
+                placeholder="1.0"
+              />
+              <div className="absolute right-3 top-2 text-[10px] font-bold text-gray-500 pointer-events-none">
+                {selectedCurrency.code}/USD
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10 group/input transition-all duration-300 hover:border-white/20">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Rent Per Mile ({selectedCurrency.symbol})
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                Per Mile ({selectedCurrency.symbol})
               </label>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Imperial</span>
+              <span className="text-[10px] font-black text-[rgb(var(--primary))] bg-[rgb(var(--primary))]/10 px-2 py-0.5 rounded border border-[rgb(var(--primary))]/10">IMPERIAL</span>
             </div>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={pricing.rentPerMile}
-              onChange={(e) => handleInputChange('rentPerMile', e)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="0.00"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Default: 1 mile = 1.6 × (1 km rent)
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              ≈ ${(pricing.rentPerMile * pricing.conversionRate).toFixed(2)} USD
-            </p>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={pricing.rentPerMile}
+                onChange={(e) => handleInputChange('rentPerMile', e)}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-lg font-black text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition-all font-mono"
+                placeholder="0.00"
+              />
+              <div className="absolute right-4 top-3 text-xs font-bold text-gray-600">
+                ≈ ${(pricing.rentPerMile * pricing.conversionRate).toFixed(2)} USD
+              </div>
+            </div>
           </div>
-          
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+
+          <div className="bg-white/5 rounded-xl p-4 border border-white/10 group/input transition-all duration-300 hover:border-white/20">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Rent Per Kilometer ({selectedCurrency.symbol})
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                Per Kilometer ({selectedCurrency.symbol})
               </label>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Metric</span>
+              <span className="text-[10px] font-black text-[rgb(var(--secondary))] bg-[rgb(var(--secondary))]/10 px-2 py-0.5 rounded border border-[rgb(var(--secondary))]/10">METRIC</span>
             </div>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={pricing.rentPerKm}
-              onChange={(e) => handleInputChange('rentPerKm', e)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="0.00"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Default: 1 km = $1.00
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              ≈ ${(pricing.rentPerKm * pricing.conversionRate).toFixed(2)} USD
-            </p>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={pricing.rentPerKm}
+                onChange={(e) => handleInputChange('rentPerKm', e)}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-lg font-black text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition-all font-mono"
+                placeholder="0.00"
+              />
+              <div className="absolute right-4 top-3 text-xs font-bold text-gray-600">
+                ≈ ${(pricing.rentPerKm * pricing.conversionRate).toFixed(2)} USD
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Conversion Rate: 1 km = $1, 1 mile = $1.6</h3>
+
+        <div className="bg-white/5 rounded-xl p-6 border border-white/10 relative z-10">
+          <h3 className="text-xs font-black text-gray-400 mb-4 uppercase tracking-[0.2em]">Live Projections</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
-              <div className="text-gray-600 mb-1">1 Kilometer</div>
-              <div className="text-green-600 font-medium">
-                {pricing.rentPerKm.toFixed(2)} {selectedCurrency.symbol}
+            {[
+              { label: '1 Kilometer', value: pricing.rentPerKm, usd: pricing.rentPerKm * pricing.conversionRate, color: 'text-[rgb(var(--primary))]' },
+              { label: '1 Mile', value: pricing.rentPerMile, usd: pricing.rentPerMile * pricing.conversionRate, color: 'text-[rgb(var(--primary))]', sub: '(1.6 × Metric)' },
+              { label: '10 Kilometers', value: pricing.rentPerKm * 10, usd: pricing.rentPerKm * 10 * pricing.conversionRate, color: 'text-[rgb(var(--primary))]' },
+              { label: '10 Miles', value: pricing.rentPerMile * 10, usd: pricing.rentPerMile * 10 * pricing.conversionRate, color: 'text-[rgb(var(--primary))]' },
+            ].map((stat, i) => (
+              <div key={i} className="p-3 bg-white/5 rounded-xl border border-white/5 hover:border-white/15 transition-colors">
+                <div className="text-[10px] font-bold text-gray-500 uppercase mb-1">{stat.label}</div>
+                <div className={`text-lg font-black ${stat.color}`}>
+                  {stat.value.toFixed(2)} {selectedCurrency.symbol}
+                </div>
+                <div className="text-[10px] font-medium text-gray-500 mt-0.5">
+                  ≈ ${stat.usd.toFixed(2)} USD
+                </div>
+                {stat.sub && <div className="text-[8px] font-bold text-[rgb(var(--primary))]/50 mt-1">{stat.sub}</div>}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                ${(pricing.rentPerKm * pricing.conversionRate).toFixed(2)} USD
-              </div>
-            </div>
-            <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
-              <div className="text-gray-600 mb-1">1 Mile</div>
-              <div className="text-green-600 font-medium">
-                {pricing.rentPerMile.toFixed(2)} {selectedCurrency.symbol}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                ${(pricing.rentPerMile * pricing.conversionRate).toFixed(2)} USD
-              </div>
-              <div className="text-xs text-blue-600 mt-1">
-                (1.6 × 1 km rent)
-              </div>
-            </div>
-            <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
-              <div className="text-gray-600 mb-1">10 Kilometers</div>
-              <div className="text-green-600 font-medium">
-                {(pricing.rentPerKm * 10).toFixed(2)} {selectedCurrency.symbol}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                ${(pricing.rentPerKm * 10 * pricing.conversionRate).toFixed(2)} USD
-              </div>
-            </div>
-            <div className="p-3 bg-white/50 rounded-lg border border-gray-200">
-              <div className="text-gray-600 mb-1">10 Miles</div>
-              <div className="text-green-600 font-medium">
-                {(pricing.rentPerMile * 10).toFixed(2)} {selectedCurrency.symbol}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                ${(pricing.rentPerMile * 10 * pricing.conversionRate).toFixed(2)} USD
-              </div>
-            </div>
+            ))}
           </div>
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center text-sm text-blue-700">
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          <div className="mt-6 p-3 bg-[rgb(var(--primary))]/10 rounded-xl border border-[rgb(var(--primary))]/20 flex items-start gap-3">
+            <div className="p-1.5 bg-[rgb(var(--primary))]/20 rounded-lg">
+              <svg className="w-4 h-4 text-[rgb(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span><strong>Conversion Logic:</strong> Rent per mile is automatically calculated as 1.6 times the rent per kilometer.</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-[rgb(var(--primary))] opacity-80 uppercase tracking-wider mb-0.5">Pricing Logic Active</p>
+              <p className="text-[10px] text-[rgb(var(--primary))]/80 leading-relaxed uppercase tracking-tight font-medium">Rent per mile is strictly synchronized at 1.6x the kilometer base rate.</p>
             </div>
           </div>
         </div>

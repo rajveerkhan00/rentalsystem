@@ -1,7 +1,10 @@
 import { MapPin, Phone, Mail, Facebook, Linkedin } from "lucide-react"
 import Link from "next/link"
+import { useTheme } from "../ThemeProvider";
 
 export default function ContactSection() {
+    useTheme();
+
     return (
         <section className="relative min-h-screen bg-black overflow-hidden">
             {/* Background Effects - Hero Style */}
@@ -11,8 +14,8 @@ export default function ContactSection() {
                     style={{ backgroundImage: `url('/blogbg.jpg')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
-                <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(168,85,247,0.15),transparent_40%)]" />
-                <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_80%,rgba(236,72,153,0.1),transparent_40%)]" />
+                <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(var(--secondary),0.15),transparent_40%)]" />
+                <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_80%,rgba(var(--primary),0.1),transparent_40%)]" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
             </div>
 
@@ -23,15 +26,15 @@ export default function ContactSection() {
                         GET IN TOUCH
                     </div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-4">
-                        <span className="w-1 h-1 rounded-full bg-pink-500 animate-pulse"></span>
+                        <span className="w-1 h-1 rounded-full bg-[rgb(var(--primary))] animate-pulse"></span>
                         <span className="text-[20px] text-gray-300 font-bold tracking-widest uppercase">Contact Us</span>
                     </div>
                     <h1 className="text-2xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                        Reach Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 animate-gradient-x">Support Team</span>
+                        Reach Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))] animate-gradient-x">Support Team</span>
                     </h1>
                     <nav className="flex items-center justify-center gap-3 text-sm font-medium">
                         <Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link>
-                        <span className="text-pink-500/50">/</span>
+                        <span className="text-[rgb(var(--primary))]/50">/</span>
                         <span className="text-white">Contact</span>
                     </nav>
                 </div>
@@ -46,7 +49,7 @@ export default function ContactSection() {
                         <div className="space-y-4">
                             <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight leading-none">
                                 We're Here to <br />
-                                <span className="text-pink-500">Help You 24/7.</span>
+                                <span className="text-[rgb(var(--primary))]">Help You 24/7.</span>
                             </h2>
                             <p className="text-gray-400 text-base leading-relaxed font-light max-w-xl">
                                 Whether you have questions about a booking, need a custom quote, or want to discuss corporate travel,
@@ -61,31 +64,31 @@ export default function ContactSection() {
                                     icon: MapPin,
                                     label: "Location",
                                     value: "London Gatwick, UK",
-                                    color: "from-pink-500 to-rose-500"
+                                    color: "from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"
                                 },
                                 {
                                     icon: Phone,
                                     label: "Phone",
                                     value: "+44 7491 321 209",
                                     href: "tel:+447491321209",
-                                    color: "from-purple-500 to-indigo-500"
+                                    color: "from-[rgb(var(--secondary))] to-[rgb(var(--primary))]"
                                 },
                                 {
                                     icon: Mail,
                                     label: "Email",
                                     value: "info@mrtransfers.co.uk",
                                     href: "mailto:info@mrtransfers.co.uk",
-                                    color: "from-pink-500 to-purple-500"
+                                    color: "from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"
                                 }
                             ].map((item, i) => (
                                 <div key={i} className="group flex items-center gap-5 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 transition-all duration-500 hover:-translate-x-1">
-                                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg shadow-pink-500/20 group-hover:scale-105 transition-transform duration-500`}>
+                                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg shadow-[rgb(var(--primary))]/20 group-hover:scale-105 transition-transform duration-500`}>
                                         <item.icon className="w-7 h-7 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-pink-500 uppercase tracking-widest mb-1">{item.label}</p>
+                                        <p className="text-[10px] font-bold text-[rgb(var(--primary))] uppercase tracking-widest mb-1">{item.label}</p>
                                         {item.href ? (
-                                            <a href={item.href} className="text-lg font-bold text-white hover:text-pink-400 transition-colors tracking-tight">
+                                            <a href={item.href} className="text-lg font-bold text-white hover:text-[rgb(var(--primary))] transition-colors tracking-tight">
                                                 {item.value}
                                             </a>
                                         ) : (
@@ -101,7 +104,7 @@ export default function ContactSection() {
                             <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Follow Us</span>
                             <div className="flex gap-4">
                                 {[Facebook, Linkedin].map((Icon, i) => (
-                                    <a key={i} href="#" className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-pink-500 hover:border-pink-500 transition-all duration-300">
+                                    <a key={i} href="#" className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[rgb(var(--primary))] hover:border-[rgb(var(--primary))] transition-all duration-300">
                                         <Icon className="w-5 h-5" />
                                     </a>
                                 ))}
@@ -112,7 +115,7 @@ export default function ContactSection() {
                     {/* Right Column - Contact Form */}
                     <div className="relative group">
                         {/* Glow Behind Form */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
                         <div className="relative bg-[#0A0A0A]/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl">
                             <div className="mb-8">
@@ -127,7 +130,7 @@ export default function ContactSection() {
                                         <input
                                             type="text"
                                             placeholder="John Doe"
-                                            className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all placeholder:text-gray-600 text-sm"
+                                            className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all placeholder:text-gray-600 text-sm"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
@@ -135,7 +138,7 @@ export default function ContactSection() {
                                         <input
                                             type="email"
                                             placeholder="john@example.com"
-                                            className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all placeholder:text-gray-600 text-sm"
+                                            className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all placeholder:text-gray-600 text-sm"
                                         />
                                     </div>
                                 </div>
@@ -145,7 +148,7 @@ export default function ContactSection() {
                                     <input
                                         type="text"
                                         placeholder="How can we help?"
-                                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all placeholder:text-gray-600 text-sm"
+                                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all placeholder:text-gray-600 text-sm"
                                     />
                                 </div>
 
@@ -154,13 +157,13 @@ export default function ContactSection() {
                                     <textarea
                                         rows={4}
                                         placeholder="Tell us more about your request..."
-                                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all placeholder:text-gray-600 resize-none text-sm"
+                                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all placeholder:text-gray-600 resize-none text-sm"
                                     />
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 flex items-center justify-center gap-2 group/btn"
+                                    className="w-full bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] hover:from-[rgb(var(--primary))] hover:to-[rgb(var(--secondary))] text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-xl shadow-[rgb(var(--primary))]/25 hover:shadow-[rgb(var(--primary))]/40 flex items-center justify-center gap-2 group/btn"
                                 >
                                     <span>Send Message</span>
                                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">

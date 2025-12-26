@@ -47,12 +47,12 @@ export default function RentResults({
                         <X className="w-5 h-5" />
                     </button>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[rgb(var(--primary))]/10 to-[rgb(var(--secondary))]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 <div className="grid md:grid-cols-3 gap-8 items-center relative z-10">
                     {/* Price Section */}
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <p className="text-pink-200 text-sm font-medium mb-1">Estimated Price</p>
+                        <p className="text-[rgb(var(--primary))] text-sm opacity-80 font-medium mb-1">Estimated Price</p>
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-black text-white tracking-tight">
                                 {getCurrencySymbolById(domainData?.pricing?.currency ?? 0)}{rent?.toFixed(2)}
@@ -72,7 +72,7 @@ export default function RentResults({
                     {/* Distance Section */}
                     <div className="flex flex-col justify-center">
                         <div className="flex items-center gap-2 mb-1">
-                            <MapPin className="w-5 h-5 text-pink-400" />
+                            <MapPin className="w-5 h-5 text-[rgb(var(--primary))]" />
                             <p className="text-gray-300 font-medium">Total Distance</p>
                         </div>
                         <p className="text-3xl font-bold text-white pl-7">
@@ -122,7 +122,7 @@ export default function RentResults({
                     {routeInstructions.slice(0, 5).map((inst, index) => (
                         <div key={index} className="flex-none w-64 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:bg-black/60 transition-colors">
                             <div className="flex items-start gap-3">
-                                <span className="flex-none flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold border border-pink-500/30">
+                                <span className="flex-none flex items-center justify-center w-6 h-6 rounded-full bg-[rgb(var(--primary))]/20 text-[rgb(var(--primary))] text-xs font-bold border border-[rgb(var(--primary))]/30">
                                     {index + 1}
                                 </span>
                                 <div>

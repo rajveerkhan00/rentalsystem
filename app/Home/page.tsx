@@ -13,6 +13,7 @@ import ExperienceSection from '../components/mainwebsite/experience-section';
 import ServicesSection from '../components/mainwebsite/services-section';
 import TaxiRates from '../components/mainwebsite/taxi-rates';
 import WhyChooseUs from '../components/mainwebsite/why-choose-us';
+import { useTheme } from '../components/ThemeProvider';
 
 
 
@@ -50,6 +51,7 @@ interface LocationSuggestion {
 }
 
 export default function RentCalculatorPage() {
+  useTheme();
   // Shared state
   const [formData, setFormData] = useState({
     pickup: '',
@@ -189,11 +191,11 @@ export default function RentCalculatorPage() {
     if (isPickup) {
       setPickupCoords({ lat, lng });
       setFormData(prev => ({ ...prev, pickup: locationText }));
-      addMarker(lat, lng, 'Pickup', '#3B82F6', '📍');
+      addMarker(lat, lng, 'Pickup', 'rgb(var(--primary))', '📍');
     } else {
       setDropoffCoords({ lat, lng });
       setFormData(prev => ({ ...prev, dropoff: locationText }));
-      addMarker(lat, lng, 'Dropoff', '#EF4444', '🏁');
+      addMarker(lat, lng, 'Dropoff', 'rgb(var(--secondary))', '🏁');
     }
   }, [addMarker]);
 
@@ -215,11 +217,11 @@ export default function RentCalculatorPage() {
     if (type === 'pickup') {
       setFormData(prev => ({ ...prev, pickup: suggestion.display_name }));
       setPickupCoords(coords);
-      addMarker(coords.lat, coords.lng, 'Pickup', '#3B82F6', '📍');
+      addMarker(coords.lat, coords.lng, 'Pickup', 'rgb(var(--primary))', '📍');
     } else {
       setFormData(prev => ({ ...prev, dropoff: suggestion.display_name }));
       setDropoffCoords(coords);
-      addMarker(coords.lat, coords.lng, 'Dropoff', '#EF4444', '🏁');
+      addMarker(coords.lat, coords.lng, 'Dropoff', 'rgb(var(--secondary))', '🏁');
     }
   }, [addMarker]);
 
@@ -308,14 +310,14 @@ export default function RentCalculatorPage() {
 
     // Swap markers
     if (pickupCoords && dropoffCoords) {
-      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', '#3B82F6', '📍');
-      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', '#EF4444', '🏁');
+      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', 'rgb(var(--primary))', '📍');
+      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', 'rgb(var(--secondary))', '🏁');
     } else if (pickupCoords) {
-      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', '#EF4444', '🏁');
+      addMarker(pickupCoords.lat, pickupCoords.lng, 'Dropoff', 'rgb(var(--secondary))', '🏁');
       // Remove pickup marker logic if strict marker management is needed, 
       // but addMarker filters by title so replacing is enough.
     } else if (dropoffCoords) {
-      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', '#3B82F6', '📍');
+      addMarker(dropoffCoords.lat, dropoffCoords.lng, 'Pickup', 'rgb(var(--primary))', '📍');
     }
 
     // Reset route validation or trigger recalculation if needed
@@ -384,8 +386,8 @@ export default function RentCalculatorPage() {
               style={{ backgroundImage: `url('/blogbg.jpg')` }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(236,72,153,0.15),transparent_25%)]" />
-            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(168,85,247,0.15),transparent_25%)]" />
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_25%)]" />
+            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(var(--secondary),0.15),transparent_25%)]" />
 
             {/* Animated Particles */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
@@ -395,7 +397,7 @@ export default function RentCalculatorPage() {
             {/* Section Header */}
             <div className="text-center mb-16 space-y-4">
               <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                Live Coverage & <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">Real-Time Traffic</span>
+                Live Coverage & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]">Real-Time Traffic</span>
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Explore our service areas and check live traffic conditions. We operate 24/7 across major airports and cities.
@@ -405,7 +407,7 @@ export default function RentCalculatorPage() {
             {/* Map Wrapper */}
             <div className="relative">
               {/* Decorative Borders/Glows are handled inside MapComponent now, but we can add an outer glow too */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-2xl -z-10" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))]/10 via-[rgb(var(--secondary))]/10 to-[rgb(var(--primary))]/10 rounded-3xl blur-2xl -z-10" />
 
               <MapComponent
                 center={mapCenter}

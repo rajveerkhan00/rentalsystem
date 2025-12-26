@@ -3,6 +3,7 @@
 import { Header } from '../../components/mainwebsite/header';
 import { Footer } from '../../components/mainwebsite/footer';
 import { BlogContent, BlogPost } from '../../components/mainwebsite/blog-content';
+import { useTheme } from '../../components/ThemeProvider';
 
 const companyNewsPosts: BlogPost[] = [
     {
@@ -28,6 +29,7 @@ const companyNewsPosts: BlogPost[] = [
 ];
 
 export default function CompanyNewsPage() {
+    useTheme();
     return (
         <main className="bg-black">
             <Header />

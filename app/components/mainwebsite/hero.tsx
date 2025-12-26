@@ -12,8 +12,8 @@ export function Hero(props: RentCalculatingFormProps) {
           style={{ backgroundImage: `url('/luxury-airport-transfer-van.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(236,72,153,0.15),transparent_25%)]" />
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(168,85,247,0.15),transparent_25%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_25%)]" />
+        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(var(--secondary),0.15),transparent_25%)]" />
 
         {/* Animated Particles */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
@@ -25,10 +25,10 @@ export function Hero(props: RentCalculatingFormProps) {
           {/* Left Side: Typography & Value Prop */}
           <div className="space-y-10 max-w-2xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-pink-500/10 hover:bg-white/10 transition-colors cursor-default group">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-pink-500 to-rose-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--accent))]"></span>
               </span>
               <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase group-hover:text-white transition-colors">Premium Chauffeur Service</span>
             </div>
@@ -36,8 +36,8 @@ export function Hero(props: RentCalculatingFormProps) {
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
                 Ride with <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-pink-500 to-rose-500 animate-gradient-x">
-                  Mr Transfers
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x">
+                  {props.domainData?.adminName || 'Mr Transfers'}
                 </span>
               </h1>
 
@@ -62,7 +62,7 @@ export function Hero(props: RentCalculatingFormProps) {
                 { label: 'Support', value: '24/7', sub: 'Live Chat' },
               ].map((stat, i) => (
                 <div key={i} className="group cursor-default">
-                  <h4 className="text-3xl font-bold text-white mb-1 group-hover:text-pink-400 transition-colors">{stat.value}</h4>
+                  <h4 className="text-3xl font-bold text-white mb-1 group-hover:text-[rgb(var(--primary))] transition-colors">{stat.value}</h4>
                   <p className="text-sm font-medium text-gray-300">{stat.label}</p>
                   <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
                 </div>
@@ -73,7 +73,7 @@ export function Hero(props: RentCalculatingFormProps) {
             {/* Right Side: Form Card */}
             <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
               {/* Glow Behind Form */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
               {/* Glass Card */}
               <div className="relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
@@ -81,8 +81,8 @@ export function Hero(props: RentCalculatingFormProps) {
                 <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
-                    <p className="text-xs text-pink-400 mt-1 font-medium flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                    <p className="text-xs text-[rgb(var(--primary))] mt-1 font-medium flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))] animate-pulse"></span>
                       Best Price Guaranteed
                     </p>
                   </div>
@@ -113,15 +113,15 @@ export function Hero(props: RentCalculatingFormProps) {
           aria-label={props.isMapVisible ? "Hide Map" : "Show Map"}
         >
           <div className="flex flex-col items-center gap-3 transition-all duration-300 transform group-hover:-translate-y-1">
-            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${props.isMapVisible ? 'text-pink-400' : 'text-gray-400 group-hover:text-white'}`}>
+            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${props.isMapVisible ? 'text-[rgb(var(--primary))]' : 'text-gray-400 group-hover:text-white'}`}>
               {props.isMapVisible ? 'Close Live Map' : 'View Live Map'}
             </span>
 
             <div className={`
               relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500
               ${props.isMapVisible
-                ? 'bg-gradient-to-br from-pink-500 to-purple-600 shadow-[0_0_20px_rgba(236,72,153,0.5)] border-transparent rotate-180'
-                : 'bg-white/5 border border-white/10 backdrop-blur-md shadow-lg group-hover:bg-white/10 group-hover:border-pink-500/30'
+                ? 'bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] shadow-[0_0_20px_rgba(var(--primary),0.5)] border-transparent rotate-180'
+                : 'bg-white/5 border border-white/10 backdrop-blur-md shadow-lg group-hover:bg-white/10 group-hover:border-[rgb(var(--primary))]/30'
               }
             `}>
               {/* Inner Glow ring for unselected state */}
@@ -130,7 +130,7 @@ export function Hero(props: RentCalculatingFormProps) {
               )}
 
               <svg
-                className={`w-5 h-5 transition-all duration-300 ${props.isMapVisible ? 'text-white' : 'text-gray-400 group-hover:text-pink-400'}`}
+                className={`w-5 h-5 transition-all duration-300 ${props.isMapVisible ? 'text-white' : 'text-gray-400 group-hover:text-[rgb(var(--primary))]'}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

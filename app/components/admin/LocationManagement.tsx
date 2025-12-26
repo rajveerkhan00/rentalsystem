@@ -44,33 +44,41 @@ export default function LocationManagement({
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-6 border border-gray-200">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-          <span className="w-2 h-5 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full"></span>
-          Location Management
+    <div className="bg-[#0A0A0A]/80 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border border-white/10 ring-1 ring-white/5 relative overflow-hidden group/card transition-all duration-300">
+      {/* Accent Glow */}
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[rgb(var(--primary))]/10 rounded-full blur-3xl group-hover/card:bg-[rgb(var(--primary))]/20 transition-all duration-500" />
+
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <h2 className="text-xl font-bold text-white flex items-center gap-3">
+          <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg">
+            <svg className="w-5 h-5 text-[rgb(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          Location Control
         </h2>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-          OpenStreetMap
+        <span className="text-[10px] font-bold text-[rgb(var(--primary))] bg-[rgb(var(--primary))]/10 border border-[rgb(var(--primary))]/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+          Live Geocoding
         </span>
       </div>
-      
+
       <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Search Location
+        <div className="relative z-10">
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2.5 ml-1">
+            Search Destination
           </label>
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
+          <div className="flex gap-3">
+            <div className="flex-1 relative group/input">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchQueryChange(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Search country, city, or address..."
-                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all duration-300 pl-11 group-hover/input:border-white/20"
               />
-              <div className="absolute left-3 top-3.5 text-gray-400">
+              <div className="absolute left-4 top-3.5 text-gray-500 group-hover/input:text-[rgb(var(--primary))] transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -79,68 +87,48 @@ export default function LocationManagement({
             <button
               onClick={onSearch}
               disabled={loading}
-              className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 border border-blue-400 rounded-lg font-medium text-white hover:from-blue-400 hover:to-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 transition-all duration-200 shadow"
+              className="px-6 py-3 bg-[rgb(var(--primary))] hover:brightness-110 disabled:bg-gray-800 disabled:text-gray-500 rounded-xl font-bold text-white transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] active:scale-95 flex items-center gap-2"
             >
-              Search
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span>Search</span>
+                </>
+              )}
             </button>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Country
-            </label>
-            <input
-              type="text"
-              value={location.country}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onLocationChange('country', e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Province/State
-            </label>
-            <input
-              type="text"
-              value={location.province}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onLocationChange('province', e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              City
-            </label>
-            <input
-              type="text"
-              value={location.city}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onLocationChange('city', e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Address
-            </label>
-            <input
-              type="text"
-              value={location.address}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => onLocationChange('address', e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
+          {[
+            { label: 'Country', field: 'country', value: location.country },
+            { label: 'Province/State', field: 'province', value: location.province },
+            { label: 'City', field: 'city', value: location.city },
+            { label: 'Full Address', field: 'address', value: location.address },
+          ].map((item) => (
+            <div key={item.field}>
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">
+                {item.label}
+              </label>
+              <input
+                type="text"
+                value={item.value}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => onLocationChange(item.field as any, e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 focus:border-[rgb(var(--primary))]/30 transition-all duration-300"
+              />
+            </div>
+          ))}
         </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Map (Click to set location)
+
+        <div className="relative z-10">
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">
+            Map Interaction
           </label>
-          <div className="h-64">
+          <div className="h-72 rounded-2xl overflow-hidden border border-white/10 relative group/map shadow-inner bg-gray-900/50">
             <TomTomMap
               center={location.coordinates}
               zoom={location.coordinates.lat === 30.67 ? 6 : 12}
@@ -149,18 +137,29 @@ export default function LocationManagement({
               address={location.address}
               apiKey={apiKey}
             />
+            {/* Map Overlay for click instruction */}
+            <div className="absolute top-4 left-4 z-40 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 pointer-events-none opacity-0 group-hover/map:opacity-100 transition-opacity duration-500">
+              <p className="text-[10px] font-bold text-[rgb(var(--primary))] uppercase tracking-wider">Click map to set coordinates</p>
+            </div>
           </div>
-          <div className="mt-2 text-xs text-gray-500 flex justify-between">
-            <span>
-              Coordinates: {location.coordinates.lat.toFixed(6)}, {location.coordinates.lng.toFixed(6)}
-            </span>
+          <div className="mt-4 px-2 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="p-1 px-2 bg-white/5 rounded-md border border-white/10">
+                <p className="text-[10px] font-mono text-gray-400">
+                  LAT: {location.coordinates.lat.toFixed(6)}
+                </p>
+              </div>
+              <div className="p-1 px-2 bg-white/5 rounded-md border border-white/10">
+                <p className="text-[10px] font-mono text-gray-400">
+                  LNG: {location.coordinates.lng.toFixed(6)}
+                </p>
+              </div>
+            </div>
             {location.coordinates.lat !== 0 && (
-              <span className="text-green-600 flex items-center">
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                Location set
-              </span>
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Active Pin</span>
+              </div>
             )}
           </div>
         </div>

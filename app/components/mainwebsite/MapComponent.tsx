@@ -3,6 +3,7 @@
 
 import { ComponentType } from 'react';
 import dynamic from 'next/dynamic';
+import { useTheme } from "../ThemeProvider";
 
 const TomTomMap = dynamic(
   () => import('./TomTomMap') as Promise<{ default: ComponentType<any> }>,
@@ -78,6 +79,7 @@ export default function MapComponent({
   onMapRouteChange,
   getCurrentCountryName
 }: MapComponentProps) {
+  useTheme();
 
   const calculateBounds = (start: { lat: number; lng: number }, end: { lat: number; lng: number }) => {
     return {
@@ -129,7 +131,7 @@ export default function MapComponent({
   return (
     <div className="relative group ">
       {/* Glow Effect */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
       <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative ring-1 ring-white/5 backdrop-blur-3xl">
         {/* Header */}
@@ -148,11 +150,11 @@ export default function MapComponent({
 
           {/* Legend */}
           <div className="flex items-center gap-3 text-xs font-medium">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/10">
               <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
               <span className="text-gray-300">Pickup</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/10">
               <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
               <span className="text-gray-300">Dropoff</span>
             </div>
@@ -179,14 +181,14 @@ export default function MapComponent({
           <button
             onClick={handleFitRoute}
             disabled={!pickupCoords || !dropoffCoords}
-            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-pink-500 hover:border-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95 backdrop-blur-md"
+            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-[rgb(var(--primary))] hover:border-[rgb(var(--primary))] transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95 backdrop-blur-md"
             title="Fit route to view"
           >
             🎯
           </button>
           <button
             onClick={handleResetView}
-            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-pink-500 hover:border-pink-500 transition-all hover:scale-110 active:scale-95 backdrop-blur-md"
+            className="p-3 bg-black/80 text-white border border-white/20 rounded-xl shadow-lg hover:bg-[rgb(var(--primary))] hover:border-[rgb(var(--primary))] transition-all hover:scale-110 active:scale-95 backdrop-blur-md"
             title="Reset to country view"
           >
             🌍
