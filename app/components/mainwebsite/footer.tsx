@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useTheme } from "../ThemeProvider";
 
-export function Footer() {
+export function Footer(props: any) {
     useTheme();
 
     return (
@@ -43,11 +43,11 @@ export function Footer() {
                     </p>
 
                     <Link
-                        href="tel:+447491321209"
+                        href={`tel:${props.domainData?.siteContent?.contactPhone || '+447491321209'}`}
                         className="inline-flex items-center gap-4 px-8 py-4 rounded-xl bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] text-white font-bold text-xl hover:opacity-90 transition-all shadow-lg shadow-[rgb(var(--primary))]/30 hover:shadow-[rgb(var(--primary))]/50 hover:scale-105 duration-300"
                     >
                         <Phone className="w-6 h-6" />
-                        +44 749 132 1209
+                        {props.domainData?.siteContent?.contactPhone || '+44 749 132 1209'}
                     </Link>
                 </div>
             </section>
@@ -67,7 +67,9 @@ export function Footer() {
                             <Link href="/" className="flex items-center gap-3 group">
 
                                 <div className="flex flex-col">
-                                    <span className="text-lg font-bold text-white leading-tight group-hover:text-[rgb(var(--primary))] transition-colors">MR TRANSFERS</span>
+                                    <span className="text-lg font-bold text-white leading-tight group-hover:text-[rgb(var(--primary))] transition-colors">
+                                        {props.domainData?.siteContent?.websiteName || 'MR TRANSFERS'}
+                                    </span>
                                     <span className="text-[10px] text-[rgb(var(--primary))] font-medium tracking-[0.15em] uppercase">Premium Service</span>
                                 </div>
                             </Link>
@@ -80,17 +82,17 @@ export function Footer() {
                         <div className="space-y-6">
                             <h3 className="text-white font-bold text-lg tracking-tight">Contact</h3>
                             <div className="space-y-4">
-                                <Link href="mailto:info@mrtransfers.co.uk" className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
+                                <Link href={`mailto:${props.domainData?.siteContent?.contactEmail || 'info@mrtransfers.co.uk'}`} className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
                                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[rgb(var(--primary))]/30 transition-colors">
                                         <Mail className="w-4 h-4" />
                                     </div>
-                                    <span className="text-sm">info@mrtransfers.co.uk</span>
+                                    <span className="text-sm">{props.domainData?.siteContent?.contactEmail || 'info@mrtransfers.co.uk'}</span>
                                 </Link>
-                                <Link href="tel:+447491321209" className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
+                                <Link href={`tel:${props.domainData?.siteContent?.contactPhone || '+447491321209'}`} className="flex items-center gap-3 text-gray-400 hover:text-[rgb(var(--primary))] transition-colors group">
                                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[rgb(var(--primary))]/30 transition-colors">
                                         <Phone className="w-4 h-4" />
                                     </div>
-                                    <span className="text-sm">+44 749 132 1209</span>
+                                    <span className="text-sm">{props.domainData?.siteContent?.contactPhone || '+44 749 132 1209'}</span>
                                 </Link>
                                 <div className="flex items-center gap-3 text-gray-400">
                                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
@@ -110,8 +112,7 @@ export function Footer() {
                                         <Clock className="w-4 h-4" />
                                     </div>
                                     <div className="text-sm">
-                                        <p>Mon – Sat: 08:00 – 18:00</p>
-                                        <p className="text-gray-500">Sun: 09:00 – 18:00</p>
+                                        <p>{props.domainData?.siteContent?.workingHours || 'Mon – Sun: 24/7'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -146,7 +147,7 @@ export function Footer() {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="text-gray-500 text-sm">
-                            © 2025 Mr Transfers. Developed by{" "}
+                            © {new Date().getFullYear()} {props.domainData?.siteContent?.websiteName || 'Mr Transfers'}. Developed by{" "}
                             <Link
                                 href="https://nextleveldigitally.com"
                                 className="text-[rgb(var(--primary))] hover:text-[rgb(var(--primary))]/80 transition-colors"

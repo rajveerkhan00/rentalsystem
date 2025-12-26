@@ -27,10 +27,12 @@ import LocationManagement from '@/app/components/admin/LocationManagement';
 import RentalPricing from '@/app/components/admin/RentalPricing';
 import DomainManagement from '@/app/components/admin/DomainManagement';
 import InfoPanel from '@/app/components/admin/InfoPanel';
+import SiteContentManagement from '@/app/components/admin/SiteContentManagement'; // ADDED
 
 // Import the shared currency mapping
 import { currencies, getCurrencyById, getCurrencyCodeById } from '@/lib/currency-mapping';
 import { useTheme } from '../components/ThemeProvider';
+import { SiteContent } from '@/app/components/admin/types'; // Import SiteContent
 
 // Type definitions
 interface SessionUser {
@@ -54,7 +56,7 @@ interface LocationData {
 interface RentalPricing {
   rentPerMile: number;
   rentPerKm: number;
-  currency: number; // CHANGED FROM string TO number
+  currency: number;
   conversionRate: number;
 }
 
@@ -63,11 +65,14 @@ interface DomainData {
   status: 'active' | 'inactive' | 'pending';
   expiryDate?: string;
   themeId?: string;
+  pricing?: RentalPricing;
+  siteContent?: SiteContent; // ADDED
 }
 
 interface DashboardData {
   location: LocationData;
   pricing: RentalPricing;
+  siteContent?: SiteContent; // ADDED
   domains: DomainData[];
   defaultTheme?: string;
   lastUpdated: Date;
@@ -85,6 +90,11 @@ export default function AdminDashboard() {
   const [domainError, setDomainError] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
+  // State for selecting which domain's pricing to edit (-1 means Global/Default)
+  const [selectedPricingDomainIndex, setSelectedPricingDomainIndex] = useState<number>(-1);
+  // State for selecting which domain's content to edit
+  const [selectedContentDomainIndex, setSelectedContentDomainIndex] = useState<number>(-1);
+
   // Dashboard data state
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     location: {
@@ -97,8 +107,16 @@ export default function AdminDashboard() {
     pricing: {
       rentPerMile: 1.6,
       rentPerKm: 1.0,
-      currency: 0, // CHANGED: Default to 0 (USD) instead of 'USD'
+      currency: 0,
       conversionRate: 1
+    },
+    siteContent: {
+      websiteName: 'Mr Transfers',
+      heroTitle: 'Ride with',
+      heroSubtitle: 'No.1 UK Airport Transfers',
+      contactEmail: 'info@mrtransfers.co.uk',
+      contactPhone: '+44 123 456 789',
+      workingHours: 'Mon - Sun: 24/7'
     },
     domains: [],
     lastUpdated: new Date()
@@ -150,6 +168,27 @@ export default function AdminDashboard() {
                 currencyValue = currencyObj ? currencyObj.id : 0;
               }
 
+              // Also ensure domain specific currency data is correct if present
+              const processedDomains = (data.domains || []).map((d: any) => {
+                let dPricing = d.pricing;
+                if (dPricing) {
+                  let dCurrency = dPricing.currency || 0;
+                  if (typeof dCurrency === 'string') {
+                    const dCurrencyObj = currencies.find(c => c.code === dCurrency);
+                    dCurrency = dCurrencyObj ? dCurrencyObj.id : 0;
+                  }
+                  dPricing = {
+                    ...dPricing,
+                    currency: dCurrency
+                  };
+                }
+                return {
+                  ...d,
+                  pricing: dPricing,
+                  siteContent: d.siteContent // Ensure siteContent is passed through
+                };
+              });
+
               setDashboardData({
                 location: data.location || {
                   country: '',
@@ -164,7 +203,15 @@ export default function AdminDashboard() {
                   currency: currencyValue,
                   conversionRate: pricingData.conversionRate || 1
                 },
-                domains: data.domains || [],
+                siteContent: data.siteContent || {
+                  websiteName: 'Mr Transfers',
+                  heroTitle: 'Ride with',
+                  heroSubtitle: 'No.1 UK Airport Transfers',
+                  contactEmail: 'info@mrtransfers.co.uk',
+                  contactPhone: '+44 123 456 789',
+                  workingHours: 'Mon - Sun: 24/7'
+                },
+                domains: processedDomains,
                 defaultTheme: data.defaultTheme || 'default',
                 lastUpdated: new Date(data.lastUpdated || new Date())
               });
@@ -246,37 +293,98 @@ export default function AdminDashboard() {
       processedValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
     }
 
-    setDashboardData(prev => ({
-      ...prev,
-      pricing: {
-        ...prev.pricing,
-        [field]: processedValue
-      }
-    }));
+    if (selectedPricingDomainIndex === -1) {
+      // Global/Default Pricing Update
+      setDashboardData(prev => {
+        const newPricing = {
+          ...prev.pricing,
+          [field]: processedValue
+        };
 
-    // Auto-calculate conversion between mile and km based on 1 km = $1, 1 mile = $1.6
-    if (field === 'rentPerMile') {
-      // Convert mile to km: 1 mile = 1.60934 km
-      // If rent per mile is $1.6, then rent per km should be $1
-      const kmValue = processedValue / 1.6;
+        // Auto-calculate conversion between mile and km based on current relationship 
+        if (field === 'rentPerMile') {
+          const kmValue = processedValue / 1.6;
+          newPricing.rentPerKm = parseFloat(kmValue.toFixed(2));
+        } else if (field === 'rentPerKm') {
+          const mileValue = processedValue * 1.6;
+          newPricing.rentPerMile = parseFloat(mileValue.toFixed(2));
+        }
+
+        return {
+          ...prev,
+          pricing: newPricing
+        };
+      });
+    } else {
+      // Specific Domain Pricing Update
+      setDashboardData(prev => {
+        const updatedDomains = [...prev.domains];
+        const domain = updatedDomains[selectedPricingDomainIndex];
+
+        // Take existing domain pricing OR fallback to global/prev pricing to start with
+        const currentDomainPricing = domain.pricing ? { ...domain.pricing } : { ...prev.pricing };
+
+        const newPricing = {
+          ...currentDomainPricing,
+          [field]: processedValue
+        };
+
+        // Keep the sync logic
+        if (field === 'rentPerMile') {
+          const kmValue = processedValue / 1.6;
+          newPricing.rentPerKm = parseFloat(kmValue.toFixed(2));
+        } else if (field === 'rentPerKm') {
+          const mileValue = processedValue * 1.6;
+          newPricing.rentPerMile = parseFloat(mileValue.toFixed(2));
+        }
+
+        updatedDomains[selectedPricingDomainIndex] = {
+          ...domain,
+          pricing: newPricing
+        };
+
+        return {
+          ...prev,
+          domains: updatedDomains
+        };
+      });
+    }
+  };
+
+  const handleContentChange = (field: keyof SiteContent, value: string): void => {
+    if (selectedContentDomainIndex === -1) {
+      // Global Update
       setDashboardData(prev => ({
         ...prev,
-        pricing: {
-          ...prev.pricing,
-          rentPerKm: parseFloat(kmValue.toFixed(2))
+        siteContent: {
+          ...prev.siteContent!,
+          [field]: value
         }
       }));
-    } else if (field === 'rentPerKm') {
-      // Convert km to mile: 1 km = 0.621371 mile
-      // If rent per km is $1, then rent per mile should be $1.6
-      const mileValue = processedValue * 1.6;
-      setDashboardData(prev => ({
-        ...prev,
-        pricing: {
-          ...prev.pricing,
-          rentPerMile: parseFloat(mileValue.toFixed(2))
-        }
-      }));
+    } else {
+      // Domain Update
+      setDashboardData(prev => {
+        const updatedDomains = [...prev.domains];
+        const domain = updatedDomains[selectedContentDomainIndex];
+
+        // Ensure siteContent exists or fallback to global/default
+        const currentContent = domain.siteContent ? { ...domain.siteContent } : { ...prev.siteContent! };
+
+        const newContent = {
+          ...currentContent,
+          [field]: value
+        };
+
+        updatedDomains[selectedContentDomainIndex] = {
+          ...domain,
+          siteContent: newContent
+        };
+
+        return {
+          ...prev,
+          domains: updatedDomains
+        };
+      });
     }
   };
 
@@ -372,6 +480,18 @@ export default function AdminDashboard() {
       ...prev,
       domains: prev.domains.filter((_, i) => i !== index)
     }));
+    // If we removed the currently selected domain, reset selection to Global
+    if (selectedPricingDomainIndex === index) {
+      setSelectedPricingDomainIndex(-1);
+    } else if (selectedPricingDomainIndex > index) {
+      setSelectedPricingDomainIndex(prev => prev - 1);
+    }
+    // Same for content
+    if (selectedContentDomainIndex === index) {
+      setSelectedContentDomainIndex(-1);
+    } else if (selectedContentDomainIndex > index) {
+      setSelectedContentDomainIndex(prev => prev - 1);
+    }
   };
 
   const handleSaveData = async (): Promise<void> => {
@@ -506,9 +626,26 @@ export default function AdminDashboard() {
 
             <div className="group transition-all duration-500 hover:translate-y-[-4px]">
               <RentalPricing
-                pricing={dashboardData.pricing}
+                pricing={selectedPricingDomainIndex === -1
+                  ? dashboardData.pricing
+                  : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
                 currencies={currencies}
                 onPricingChange={handlePricingChange}
+                domains={dashboardData.domains}
+                selectedDomainIndex={selectedPricingDomainIndex}
+                onDomainSelect={setSelectedPricingDomainIndex}
+              />
+            </div>
+
+            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
+              <SiteContentManagement
+                siteContent={selectedContentDomainIndex === -1
+                  ? dashboardData.siteContent!
+                  : (dashboardData.domains[selectedContentDomainIndex]?.siteContent || dashboardData.siteContent!)}
+                domains={dashboardData.domains}
+                selectedDomainIndex={selectedContentDomainIndex}
+                onDomainSelect={setSelectedContentDomainIndex}
+                onContentChange={handleContentChange}
               />
             </div>
 
@@ -529,7 +666,12 @@ export default function AdminDashboard() {
           </div>
 
           <div className="mt-8 transition-all duration-500 hover:translate-y-[-4px]">
-            <InfoPanel pricing={dashboardData.pricing} currencies={currencies} />
+            <InfoPanel
+              pricing={selectedPricingDomainIndex === -1
+                ? dashboardData.pricing
+                : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
+              currencies={currencies}
+            />
           </div>
         </main>
       </div>

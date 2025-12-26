@@ -3,13 +3,28 @@
 import { ChangeEvent } from 'react';
 import { Currency, RentalPricing } from './types';
 
+interface DomainData {
+  domainName: string;
+  pricing?: RentalPricing;
+}
+
 interface RentalPricingProps {
   pricing: RentalPricing;
   currencies: Currency[];
   onPricingChange: (field: keyof RentalPricing, value: string | number) => void;
+  domains?: DomainData[];
+  selectedDomainIndex?: number;
+  onDomainSelect?: (index: number) => void;
 }
 
-export default function RentalPricingComponent({ pricing, currencies, onPricingChange }: RentalPricingProps) {
+export default function RentalPricingComponent({
+  pricing,
+  currencies,
+  onPricingChange,
+  domains = [],
+  selectedDomainIndex = -1,
+  onDomainSelect
+}: RentalPricingProps) {
   // Find the selected currency by ID instead of code
   const selectedCurrency = currencies.find(c => c.id === pricing.currency) || currencies[0];
 
@@ -28,14 +43,38 @@ export default function RentalPricingComponent({ pricing, currencies, onPricingC
       {/* Accent Glow */}
       <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[rgb(var(--primary))]/10 rounded-full blur-3xl group-hover/card:bg-[rgb(var(--primary))]/20 transition-all duration-500" />
 
-      <h2 className="text-xl font-bold mb-6 text-white flex items-center gap-3 relative z-10">
-        <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg text-[rgb(var(--primary))]">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        Pricing Matrix
-      </h2>
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <h2 className="text-xl font-bold text-white flex items-center gap-3">
+          <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg text-[rgb(var(--primary))]">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          Pricing Matrix
+        </h2>
+
+        {domains && domains.length > 0 && onDomainSelect && (
+          <div className="relative">
+            <select
+              value={selectedDomainIndex}
+              onChange={(e) => onDomainSelect(parseInt(e.target.value))}
+              className="appearance-none bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-1.5 text-xs font-medium text-gray-300 focus:outline-none focus:ring-1 focus:ring-[rgb(var(--primary))]/50 cursor-pointer hover:bg-white/10 transition-colors"
+            >
+              <option value={-1}>Global Default</option>
+              {domains.map((domain, index) => (
+                <option key={index} value={index}>
+                  {domain.domainName}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">

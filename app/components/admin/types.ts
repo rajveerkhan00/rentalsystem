@@ -23,16 +23,28 @@ export interface RentalPricing {
   conversionRate: number;
 }
 
+export interface SiteContent {
+  websiteName: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  contactEmail: string;
+  contactPhone: string;
+  workingHours: string;
+}
+
 export interface DomainData {
   domainName: string;
   status: 'active' | 'inactive' | 'pending';
   expiryDate?: string;
   themeId?: string; // ADDED: Theme for specific domain
+  pricing?: RentalPricing; // ADDED: Pricing specific to this domain
+  siteContent?: SiteContent; // ADDED: Site content specific to this domain
 }
 
 export interface DashboardData {
   location: LocationData;
   pricing: RentalPricing;
+  siteContent?: SiteContent; // ADDED: Global default site content
   domains: DomainData[];
   defaultTheme?: string; // ADDED: Global default theme
   lastUpdated: Date;

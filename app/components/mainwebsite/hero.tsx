@@ -35,16 +35,16 @@ export function Hero(props: RentCalculatingFormProps) {
 
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
-                Ride with <br />
+                {props.domainData?.siteContent?.heroTitle || 'Ride with'} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x">
-                  {props.domainData?.adminName || 'Mr Transfers'}
+                  {props.domainData?.siteContent?.websiteName || 'Mr Transfers'}
                 </span>
               </h1>
 
               <div className="flex items-center gap-4">
                 <div className="h-px w-12 bg-white/20"></div>
                 <h2 className="text-xl md:text-2xl text-gray-300 font-light tracking-wide">
-                  No.1 UK Airport Transfers
+                  {props.domainData?.siteContent?.heroSubtitle || 'No.1 UK Airport Transfers'}
                 </h2>
               </div>
 

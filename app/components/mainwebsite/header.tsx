@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Mail, Phone, Calendar, ChevronDown, Menu, X, ArrowRight, LayoutDashboard, User } from "lucide-react";
 import { useTheme } from "../ThemeProvider";
 
-export function Header() {
+export function Header(props: any) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [airportOpen, setAirportOpen] = useState(false);
@@ -57,7 +57,9 @@ export function Header() {
             </svg>
           </div>
           <div className="flex flex-col">
-            <span className="text-lg md:text-xl font-black text-white leading-none tracking-tight">MR TRANSFERS</span>
+            <span className="text-lg md:text-xl font-black text-white leading-none tracking-tight uppercase">
+              {props.domainData?.siteContent?.websiteName || 'MR TRANSFERS'}
+            </span>
             <span className="text-[10px] md:text-xs text-[rgb(var(--primary))] font-bold tracking-widest leading-none mt-0.5">PREMIUM TRAVEL</span>
           </div>
         </Link>
@@ -150,11 +152,14 @@ export function Header() {
               </>
             )}
           </Link>
-          <Link href="tel:+44123456789" className="hidden xl:flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-medium group">
+          <Link
+            href={`tel:${props.domainData?.siteContent?.contactPhone || '+44123456789'}`}
+            className="hidden xl:flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-medium group"
+          >
             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[rgb(var(--primary))]/20 group-hover:text-[rgb(var(--primary))] transition-all border border-white/10">
               <Phone className="w-3.5 h-3.5" />
             </div>
-            <span>+44 123 456 789</span>
+            <span>{props.domainData?.siteContent?.contactPhone || '+44 123 456 789'}</span>
           </Link>
           <Link href="/booking">
             <button className="bg-white text-black hover:bg-[rgb(var(--primary))] hover:text-white font-bold px-6 py-2.5 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(var(--primary),0.5)] transform hover:-translate-y-0.5 text-sm flex items-center gap-2">

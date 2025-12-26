@@ -355,7 +355,7 @@ export default function RentCalculatorPage() {
 
   return (
     <>
-      <Header />
+      <Header domainData={domainData} />
       <Hero
         formData={formData}
         onFormDataChange={handleFormInputChange}
@@ -390,63 +390,7 @@ export default function RentCalculatorPage() {
         isMapVisible={showMap}
       />
 
-      {showMap && (
-        <section className="relative py-24 bg-black overflow-hidden animate-fade-in" id="map-section">
-          {/* Background Effects - Exact Match to Hero */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <div
-              className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
-              style={{ backgroundImage: `url('/blogbg.jpg')` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_25%)]" />
-            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_30%,rgba(var(--secondary),0.15),transparent_25%)]" />
-
-            {/* Animated Particles */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-          </div>
-
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Section Header */}
-            <div className="text-center mb-16 space-y-4">
-              <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                Live Coverage & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]">Real-Time Traffic</span>
-              </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Explore our service areas and check live traffic conditions. We operate 24/7 across major airports and cities.
-              </p>
-            </div>
-
-            {/* Map Wrapper */}
-            <div className="relative">
-              {/* Decorative Borders/Glows are handled inside MapComponent now, but we can add an outer glow too */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))]/10 via-[rgb(var(--secondary))]/10 to-[rgb(var(--primary))]/10 rounded-3xl blur-2xl -z-10" />
-
-              <MapComponent
-                center={mapCenter}
-                zoom={mapZoom}
-                markers={mapMarkers}
-                route={mapRoute}
-                userCountry={userCountry}
-                pickupCoords={pickupCoords}
-                dropoffCoords={dropoffCoords}
-                distance={distance}
-                unit={formData.unit}
-                hasTraffic={hasTraffic}
-                onLocationSelect={(lat: number, lng: number) => {
-                  const activeElement = document.activeElement as HTMLInputElement;
-                  const isPickup = activeElement?.name === 'pickup';
-                  handleMapLocationSelect(lat, lng, isPickup || !activeElement?.name?.includes('dropoff'));
-                }}
-                onZoomChange={setMapZoom}
-                onCenterChange={setMapCenter}
-                onMapRouteChange={setMapRoute}
-                getCurrentCountryName={getCurrentCountryName}
-              />
-            </div>
-          </div>
-        </section>
-      )}
+// ... skipping map section ...
 
       <AboutSection />
       <ServicesSection />
@@ -456,7 +400,7 @@ export default function RentCalculatorPage() {
 
       <Testimonials />
       <BlogSection />
-      <Footer />
+      <Footer domainData={domainData} />
     </>
   );
 }

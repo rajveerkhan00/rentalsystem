@@ -20,14 +20,36 @@ interface DashboardData {
   pricing: {
     rentPerMile: number;
     rentPerKm: number;
-    currency: number; // CHANGED FROM string TO number
+    currency: number;
     conversionRate: number;
+  };
+  siteContent?: {
+    websiteName: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    contactEmail: string;
+    contactPhone: string;
+    workingHours: string;
   };
   domains: Array<{
     domainName: string;
     status: 'active' | 'inactive' | 'pending';
     expiryDate?: string;
     themeId?: string;
+    pricing?: {
+      rentPerMile: number;
+      rentPerKm: number;
+      currency: number;
+      conversionRate: number;
+    };
+    siteContent?: {
+      websiteName: string;
+      heroTitle: string;
+      heroSubtitle: string;
+      contactEmail: string;
+      contactPhone: string;
+      workingHours: string;
+    };
   }>;
   defaultTheme?: string;
   lastUpdated: Date;
@@ -82,6 +104,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           rentPerKm: 0,
           currency: 0, // Default to 0 (USD)
           conversionRate: 1
+        },
+        siteContent: {
+          websiteName: 'Mr Transfers',
+          heroTitle: 'Ride with',
+          heroSubtitle: 'No.1 UK Airport Transfers',
+          contactEmail: 'info@mrtransfers.co.uk',
+          contactPhone: '+44 123 456 789',
+          workingHours: 'Mon - Sun: 24/7'
         },
         domains: [],
         lastUpdated: new Date()
@@ -207,6 +237,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           location: data.location,
           pricing: pricingData,
           domains: data.domains,
+          siteContent: data.siteContent, // Add site content
           defaultTheme: data.defaultTheme,
           adminId: userId,
           lastUpdated: new Date()
@@ -236,6 +267,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             status: domain.status,
             themeId: domain.themeId || 'default',
             expiryDate: domain.expiryDate ? new Date(domain.expiryDate) : null,
+            pricing: domain.pricing || pricingData,
+            siteContent: domain.siteContent || data.siteContent, // Use domain specific or fall back to dashboard default
             adminId: userId,
             createdAt: new Date(),
             updatedAt: new Date()
