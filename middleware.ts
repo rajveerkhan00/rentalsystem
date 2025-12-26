@@ -4,19 +4,37 @@ import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get('host');
+  const superAdminDomain = 'rentalsystem-seven.vercel.app';
 
   // Get the session token
-  const token = await getToken({ 
-    req: request, 
+  const token = await getToken({
+    req: request,
     secret: process.env.NEXTAUTH_SECRET || '',
     secureCookie: process.env.NODE_ENV === 'production'
   });
+
+  // Domain-specific redirection for root and /Home
+  if (pathname === '/' || pathname === '/Home') {
+    if (host === superAdminDomain) {
+      if (token?.role === 'superadmin') {
+        return NextResponse.redirect(new URL('/SuperDashboard', request.url));
+      } else {
+        return NextResponse.redirect(new URL('/SuperLogin', request.url));
+      }
+    } else {
+      // For all other domains, navigate to Home
+      if (pathname === '/') {
+        return NextResponse.redirect(new URL('/Home', request.url));
+      }
+    }
+  }
 
   // Protected routes
   const superAdminRoutes = ['/SuperDashboard', '/api/superadmin/add-admin'];
   const adminRoutes = ['/AdminDashboard', '/api/admin/change-password', '/api/admin/forgot-password'];
   const authRoutes = ['/SuperLogin', '/SuperSignup', '/AdminLogin'];
-  
+
   const isSuperAdminRoute = superAdminRoutes.some(route => pathname.startsWith(route));
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some(route => pathname === route);
@@ -64,6 +82,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
+    '/Home',
     '/SuperDashboard/:path*',
     '/AdminDashboard/:path*',
     '/SuperLogin',
