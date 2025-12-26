@@ -165,8 +165,13 @@ export default function AdminDashboard() {
                   conversionRate: pricingData.conversionRate || 1
                 },
                 domains: data.domains || [],
+                defaultTheme: data.defaultTheme || 'default',
                 lastUpdated: new Date(data.lastUpdated || new Date())
               });
+
+              if (data.defaultTheme) {
+                setTheme(data.defaultTheme);
+              }
             }
             setIsInitialized(true); // Mark as initialized
           } catch (err) {

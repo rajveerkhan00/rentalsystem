@@ -205,8 +205,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // 1. Update or insert dashboard data
         const updateData = {
           location: data.location,
-          pricing: pricingData, // Use the processed pricing data
+          pricing: pricingData,
           domains: data.domains,
+          defaultTheme: data.defaultTheme,
           adminId: userId,
           lastUpdated: new Date()
         };
@@ -233,6 +234,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               .replace(/^(https?:\/\/)?(www\.)?/, '')
               .replace(/\/$/, ''),
             status: domain.status,
+            themeId: domain.themeId || 'default',
             expiryDate: domain.expiryDate ? new Date(domain.expiryDate) : null,
             adminId: userId,
             createdAt: new Date(),
