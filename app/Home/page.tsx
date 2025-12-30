@@ -2,17 +2,23 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Header } from '../components/mainwebsite/header';
-import MapComponent from '../components/mainwebsite/MapComponent';
 import { Hero } from '../components/mainwebsite/hero';
-import { Footer } from '../components/mainwebsite/footer';
-import { BlogSection } from '../components/mainwebsite/blog-section';
-import { Testimonials } from '../components/mainwebsite/testimonials';
-import AboutSection from '../components/mainwebsite/about-section';
-import ExperienceSection from '../components/mainwebsite/experience-section';
-import ServicesSection from '../components/mainwebsite/services-section';
-import TaxiRates from '../components/mainwebsite/taxi-rates';
-import WhyChooseUs from '../components/mainwebsite/why-choose-us';
+
+// Dynamically import heavy components
+const MapComponent = dynamic(() => import('../components/mainwebsite/MapComponent'), { 
+  ssr: false,
+  loading: () => <div className="h-[500px] w-full bg-gray-900 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>
+});
+const Footer = dynamic(() => import('../components/mainwebsite/footer').then(mod => mod.Footer));
+const BlogSection = dynamic(() => import('../components/mainwebsite/blog-section').then(mod => mod.BlogSection));
+const Testimonials = dynamic(() => import('../components/mainwebsite/testimonials').then(mod => mod.Testimonials));
+const AboutSection = dynamic(() => import('../components/mainwebsite/about-section'));
+const ExperienceSection = dynamic(() => import('../components/mainwebsite/experience-section'));
+const ServicesSection = dynamic(() => import('../components/mainwebsite/services-section'));
+const TaxiRates = dynamic(() => import('../components/mainwebsite/taxi-rates'));
+const WhyChooseUs = dynamic(() => import('../components/mainwebsite/why-choose-us'));
 import { useTheme } from '../components/ThemeProvider';
 import { PageSkeleton } from '../components/mainwebsite/Skeleton';
 
@@ -390,7 +396,29 @@ export default function RentCalculatorPage() {
         isMapVisible={showMap}
       />
 
-// ... skipping map section ...
+      <div id="map-section" className={`transition-all duration-700 ease-in-out ${showMap ? 'opacity-100 max-h-[800px] mb-20' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+        {showMap && (
+          <div className="container mx-auto px-4 mt-8">
+            <MapComponent
+              center={mapCenter}
+              zoom={mapZoom}
+              markers={mapMarkers}
+              route={mapRoute}
+              userCountry={userCountry}
+              pickupCoords={pickupCoords}
+              dropoffCoords={dropoffCoords}
+              distance={distance}
+              unit={formData.unit}
+              hasTraffic={hasTraffic}
+              onLocationSelect={(lat, lng) => handleMapLocationSelect(lat, lng, !pickupCoords)}
+              onZoomChange={setMapZoom}
+              onCenterChange={setMapCenter}
+              onMapRouteChange={setMapRoute}
+              getCurrentCountryName={getCurrentCountryName}
+            />
+          </div>
+        )}
+      </div>
 
       <AboutSection />
       <ServicesSection />
