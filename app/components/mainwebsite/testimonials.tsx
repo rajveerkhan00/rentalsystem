@@ -40,9 +40,9 @@ export function Testimonials({ loading }: { loading?: boolean }) {
           style={{ backgroundImage: `url('/testimonials-bg.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(var(--primary),0.12),transparent_40%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_90%_80%,rgba(var(--secondary),0.12),transparent_40%)]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
+        <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(var(--primary),0.12),transparent_40%)]" />
+        <div className="hidden md:block absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_90%_80%,rgba(var(--secondary),0.12),transparent_40%)]" />
+        <div className="hidden md:block absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

@@ -10,9 +10,9 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
     <section className="relative py-24 bg-black overflow-hidden">
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.1),transparent_35%)]" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_70%,rgba(var(--secondary),0.1),transparent_35%)]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
+        <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.1),transparent_35%)]" />
+        <div className="hidden md:block absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_70%,rgba(var(--secondary),0.1),transparent_35%)]" />
+        <div className="hidden md:block absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

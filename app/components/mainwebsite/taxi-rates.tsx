@@ -41,8 +41,8 @@ export default function TaxiRates({ loading }: { loading?: boolean }) {
     <section className="relative py-24 bg-black overflow-hidden">
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary),0.1),transparent_35%)]" />
-        <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_80%,rgba(var(--secondary),0.1),transparent_35%)]" />
+        <div className="hidden md:block absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_20%,rgba(var(--primary),0.1),transparent_35%)]" />
+        <div className="hidden md:block absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_80%,rgba(var(--secondary),0.1),transparent_35%)]" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
