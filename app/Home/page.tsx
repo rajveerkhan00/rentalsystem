@@ -384,7 +384,7 @@ export default function RentCalculatorPage() {
       <WhyChooseUs />
 
       <Testimonials />
-      <BlogSection />
+      <BlogSection domainData={domainData} />
       <Footer domainData={domainData} />
     </>
   );

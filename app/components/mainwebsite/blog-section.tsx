@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { useTheme } from "../ThemeProvider"
@@ -39,9 +40,59 @@ const blogPosts: BlogPost[] = [
   },
 ]
 
-export function BlogSection({ loading }: { loading?: boolean }) {
-  if (loading) return <BlogSectionSkeleton />;
+
+export function BlogSection({ domainData }: { domainData?: any }) {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   useTheme();
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      if (!domainData?.domainName) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/blogs?domain=${domainData.domainName}`);
+        if (res.ok) {
+          const data = await res.json();
+          setBlogs(data);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, [domainData?.domainName]);
+
+  if (loading) return <BlogSectionSkeleton />;
+
+  if (blogs.length === 0) {
+    return (
+      <section className="relative py-24 bg-black overflow-hidden">
+
+        <div className="absolute inset-0 z-0">
+          <div
+            className="absolute inset-0 opacity-30 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('/blogbg.jpg')` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+          <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,rgba(var(--primary),0.1),transparent_40%)]" />
+          <div className="hidden md:block absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_70%,rgba(var(--secondary),0.1),transparent_40%)]" />
+          <div className="hidden md:block absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-15 mix-blend-overlay" />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <h2 className="text-3xl font-bold text-white/50">No Data</h2>
+          <p className="text-gray-500 mt-2">No updates available at the moment.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative py-24 bg-black overflow-hidden">
@@ -62,7 +113,7 @@ export function BlogSection({ loading }: { loading?: boolean }) {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
           <div className="space-y-4">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgb(var(--primary))]/10">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 shadow-lg shadow-[rgb(var(--primary))]/10">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"></span>
@@ -89,19 +140,22 @@ export function BlogSection({ loading }: { loading?: boolean }) {
 
         {/* Blog Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.map((post) => (
+          {blogs.map((post) => (
             <Link
-              key={post.id}
-              href={`/blog/${post.slug}`}
-              className="group relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-[rgb(var(--primary))]/30 transition-all duration-500 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10"
+              key={post._id}
+              href={`/blog/${post.slug || '#'}`}
+              className="group relative bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden hover:border-[rgb(var(--primary))]/30 transition-all duration-500 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10"
             >
               {/* Image */}
               <div className="relative h-56 w-full overflow-hidden">
                 <Image
-                  src={post.image || "/placeholder.svg"}
+                  src={post.image || "/placeholder.jpg"} // Use fallback if image is missing
                   alt={post.title}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  onError={(e: any) => {
+                    e.target.src = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=2021&q=80"; // Reliable fallback
+                  }}
                 />
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-60" />
@@ -118,7 +172,7 @@ export function BlogSection({ loading }: { loading?: boolean }) {
                   {post.title}
                 </h3>
                 <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
-                  {post.description}
+                  {post.excerpt}
                 </p>
 
                 {/* Read More */}

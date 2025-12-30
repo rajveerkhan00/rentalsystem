@@ -1,3 +1,4 @@
+
 export interface SessionUser {
   id?: string;
   email?: string | null;
@@ -30,6 +31,18 @@ export interface SiteContent {
   contactEmail: string;
   contactPhone: string;
   workingHours: string;
+}
+
+export interface BlogPost {
+  _id?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  author: string;
+  date: string;
+  slug: string;
+  domainName: string;
 }
 
 export interface DomainData {

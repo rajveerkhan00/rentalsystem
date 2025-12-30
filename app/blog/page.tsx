@@ -6,63 +6,14 @@ import { Footer } from '../components/mainwebsite/footer';
 import { BlogContent, BlogPost } from '../components/mainwebsite/blog-content';
 import { useTheme } from '../components/ThemeProvider';
 import { BlogSkeleton } from '../components/mainwebsite/Skeleton';
-
-const allPosts: BlogPost[] = [
-    {
-        id: 1,
-        title: "Mr Transfers – Your Partner for Reliable Ground Travel Across Gatwick",
-        description: "When it comes to Gatwick airport transfers, reliability, punctuality, and comfort are non-negotiable. At Mr Transfers, we have spent years perfecting our services...",
-        image: "/blog-1.jpg",
-        slug: "mr-transfers-reliable-ground-travel-gatwick",
-        date: "Dec 20, 2025",
-        category: "Company News",
-        author: "Admin"
-    },
-    {
-        id: 2,
-        title: "Your Trusted Partner for Booking a Taxi to Gatwick Airport",
-        description: "Traveling to or from Gatwick Airport should be simple, stress-free, and comfortable. Our specialized fleet ensures you arrive refreshed and on time.",
-        image: "/blog-2.jpg",
-        slug: "booking-taxi-gatwick-airport-mr-transfers",
-        date: "Dec 18, 2025",
-        category: "Travel Tips",
-        author: "Team"
-    },
-    {
-        id: 3,
-        title: "The Importance of Timely Transportation for Airport Transfers",
-        description: "One of the most critical aspects of any air travel journey is the transfer to the airport. Being punctual can save you from unnecessary stress and missed flights.",
-        image: "/blog-3.jpg",
-        slug: "importance-timely-transportation-airport-transfers",
-        date: "Dec 15, 2025",
-        category: "General",
-        author: "Expert"
-    },
-    {
-        id: 4,
-        title: "Top 5 Tips for a Smooth Gatwick Connection",
-        description: "Navigating Gatwick can be tricky if you're not prepared. From choosing the right terminal to booking your transfer in advance, here's what you need to know.",
-        image: "/blog-1.jpg",
-        slug: "top-5-tips-smooth-gatwick-connection",
-        date: "Dec 10, 2025",
-        category: "Travel Tips",
-        author: "Guide"
-    },
-    {
-        id: 5,
-        title: "Expanding Our Fleet: New Mercedes-Benz V-Class Available",
-        description: "We are excited to announce the addition of premium Mercedes-Benz V-Class vehicles to our Gatwick fleet, offering even more comfort for group travels.",
-        image: "/blog-2.jpg",
-        slug: "expanding-fleet-mercedes-benz-v-class",
-        date: "Dec 05, 2025",
-        category: "Company News",
-        author: "Admin"
-    }
-];
+import { cleanDomain, fetchDomainPricing } from '@/lib/db.utils';
 
 export default function BlogPage() {
     const { isThemeLoading } = useTheme();
     const [minLoadingPassed, setMinLoadingPassed] = useState(false);
+    const [blogs, setBlogs] = useState<BlogPost[]>([]);
+    const [domainData, setDomainData] = useState<any>(null);
+    const [loadingBlogs, setLoadingBlogs] = useState(true);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -71,20 +22,63 @@ export default function BlogPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    if (isThemeLoading || !minLoadingPassed) {
+    useEffect(() => {
+        const loadData = async () => {
+            if (typeof window === 'undefined') return;
+            try {
+                const currentDomain = window.location.hostname;
+                const cleanedDomain = cleanDomain(currentDomain);
+
+                // Fetch domain data
+                const dData = await fetchDomainPricing(cleanedDomain);
+                setDomainData(dData);
+
+                // Fetch blogs
+                const res = await fetch(`/api/blogs?domain=${cleanedDomain}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const mappedBlogs = data.map((b: any) => ({
+                        id: b._id,
+                        title: b.title,
+                        description: b.excerpt,
+                        image: b.image,
+                        slug: b.slug,
+                        date: b.date,
+                        category: "General",
+                        author: b.author
+                    }));
+                    setBlogs(mappedBlogs);
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingBlogs(false);
+            }
+        };
+        loadData();
+    }, []);
+
+    if (isThemeLoading || !minLoadingPassed || loadingBlogs) {
         return <BlogSkeleton />;
     }
 
     return (
         <main className="bg-black">
-            <Header />
-            <BlogContent
-                title="All Articles"
-                subtitle="Stay updated with the latest news, travel guides, and insights from the team at Mr Transfers."
-                posts={allPosts}
-                activeCategory="All"
-            />
-            <Footer />
+            <Header domainData={domainData} />
+            {blogs.length > 0 ? (
+                <BlogContent
+                    title="All Articles"
+                    subtitle="Stay updated with the latest news, travel guides, and insights."
+                    posts={blogs}
+                    activeCategory="All"
+                />
+            ) : (
+                <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 pt-32">
+                    <h2 className="text-3xl font-bold text-white/50 mb-4">No Articles Found</h2>
+                    <p className="text-gray-500 max-w-md">There are currently no articles available for this domain. Please check back later.</p>
+                </div>
+            )}
+            <Footer domainData={domainData} />
         </main>
     );
 }

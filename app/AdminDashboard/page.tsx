@@ -27,7 +27,8 @@ import LocationManagement from '@/app/components/admin/LocationManagement';
 import RentalPricing from '@/app/components/admin/RentalPricing';
 import DomainManagement from '@/app/components/admin/DomainManagement';
 import InfoPanel from '@/app/components/admin/InfoPanel';
-import SiteContentManagement from '@/app/components/admin/SiteContentManagement'; // ADDED
+import BlogManagement from '@/app/components/admin/BlogManagement';
+import SiteContentManagement from '@/app/components/admin/SiteContentManagement';
 
 // Import the shared currency mapping
 import { currencies, getCurrencyById, getCurrencyCodeById } from '@/lib/currency-mapping';
@@ -89,6 +90,7 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [domainError, setDomainError] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'location' | 'pricing' | 'site' | 'domain' | 'blog'>('location');
 
   // State for selecting which domain's pricing to edit (-1 means Global/Default)
   const [selectedPricingDomainIndex, setSelectedPricingDomainIndex] = useState<number>(-1);
@@ -610,68 +612,106 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
-              <LocationManagement
-                location={dashboardData.location}
-                searchQuery={searchQuery}
-                loading={loading}
-                onSearchQueryChange={setSearchQuery}
-                onSearch={handleLocationSearch}
-                onLocationChange={handleLocationChange}
-                onMapClick={handleMapClick}
-                apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
-              />
-            </div>
-
-            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
-              <RentalPricing
-                pricing={selectedPricingDomainIndex === -1
-                  ? dashboardData.pricing
-                  : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
-                currencies={currencies}
-                onPricingChange={handlePricingChange}
-                domains={dashboardData.domains}
-                selectedDomainIndex={selectedPricingDomainIndex}
-                onDomainSelect={setSelectedPricingDomainIndex}
-              />
-            </div>
-
-            <div className="group transition-all duration-500 hover:translate-y-[-4px]">
-              <SiteContentManagement
-                siteContent={selectedContentDomainIndex === -1
-                  ? dashboardData.siteContent!
-                  : (dashboardData.domains[selectedContentDomainIndex]?.siteContent || dashboardData.siteContent!)}
-                domains={dashboardData.domains}
-                selectedDomainIndex={selectedContentDomainIndex}
-                onDomainSelect={setSelectedContentDomainIndex}
-                onContentChange={handleContentChange}
-              />
-            </div>
-
-            <div className="lg:col-span-2 group transition-all duration-500 hover:translate-y-[-4px]">
-              <DomainManagement
-                domains={dashboardData.domains}
-                newDomain={newDomain}
-                onNewDomainChange={setNewDomain}
-                onAddDomain={handleAddDomain}
-                onRemoveDomain={handleRemoveDomain}
-                onUpdateDomainTheme={handleUpdateDomainTheme}
-                onKeyPress={handleKeyPress}
-                domainError={domainError}
-                onClearDomainError={handleClearDomainError}
-                checkingDomain={loading}
-              />
-            </div>
+          {/* Navigation Tabs */}
+          <div className="flex flex-wrap items-center gap-4 mb-8 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md w-full overflow-x-auto">
+            {[
+              { id: 'location', label: 'Location Control', icon: '📍' },
+              { id: 'pricing', label: 'Pricing Matrix', icon: '💰' },
+              { id: 'site', label: 'Site Control', icon: '⚡' },
+              { id: 'blog', label: 'Blog Manager', icon: '📝' },
+              { id: 'domain', label: 'Domain Network', icon: '🌐' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300
+                  ${activeTab === tab.id
+                    ? 'bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] text-white shadow-lg shadow-[rgb(var(--primary))]/20 scale-[1.02]'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }
+                `}
+              >
+                <span className="text-xl">{tab.icon}</span>
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </button>
+            ))}
           </div>
 
-          <div className="mt-8 transition-all duration-500 hover:translate-y-[-4px]">
-            <InfoPanel
-              pricing={selectedPricingDomainIndex === -1
-                ? dashboardData.pricing
-                : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
-              currencies={currencies}
-            />
+          {/* Content Area */}
+          <div className="transition-all duration-500 ease-in-out">
+            {activeTab === 'location' && (
+              <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <LocationManagement
+                  location={dashboardData.location}
+                  searchQuery={searchQuery}
+                  loading={loading}
+                  onSearchQueryChange={setSearchQuery}
+                  onSearch={handleLocationSearch}
+                  onLocationChange={handleLocationChange}
+                  onMapClick={handleMapClick}
+                  apiKey="YxbLh0enMQBXkiLMbuUc78T2ZLTaW6b6"
+                />
+              </div>
+            )}
+
+            {activeTab === 'pricing' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <RentalPricing
+                  pricing={selectedPricingDomainIndex === -1
+                    ? dashboardData.pricing
+                    : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
+                  currencies={currencies}
+                  onPricingChange={handlePricingChange}
+                  domains={dashboardData.domains}
+                  selectedDomainIndex={selectedPricingDomainIndex}
+                  onDomainSelect={setSelectedPricingDomainIndex}
+                />
+                <InfoPanel
+                  pricing={selectedPricingDomainIndex === -1
+                    ? dashboardData.pricing
+                    : (dashboardData.domains[selectedPricingDomainIndex]?.pricing || dashboardData.pricing)}
+                  currencies={currencies}
+                />
+              </div>
+            )}
+
+            {activeTab === 'site' && (
+              <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <SiteContentManagement
+                  siteContent={selectedContentDomainIndex === -1
+                    ? dashboardData.siteContent!
+                    : (dashboardData.domains[selectedContentDomainIndex]?.siteContent || dashboardData.siteContent!)}
+                  domains={dashboardData.domains}
+                  selectedDomainIndex={selectedContentDomainIndex}
+                  onDomainSelect={setSelectedContentDomainIndex}
+                  onContentChange={handleContentChange}
+                />
+              </div>
+            )}
+
+            {activeTab === 'blog' && (
+              <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <BlogManagement domains={dashboardData.domains} />
+              </div>
+            )}
+
+            {activeTab === 'domain' && (
+              <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <DomainManagement
+                  domains={dashboardData.domains}
+                  newDomain={newDomain}
+                  onNewDomainChange={setNewDomain}
+                  onAddDomain={handleAddDomain}
+                  onRemoveDomain={handleRemoveDomain}
+                  onUpdateDomainTheme={handleUpdateDomainTheme}
+                  onKeyPress={handleKeyPress}
+                  domainError={domainError}
+                  onClearDomainError={handleClearDomainError}
+                  checkingDomain={loading}
+                />
+              </div>
+            )}
           </div>
         </main>
       </div>

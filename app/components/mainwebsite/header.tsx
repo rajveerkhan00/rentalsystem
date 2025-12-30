@@ -10,7 +10,7 @@ export function Header(props: any) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [airportOpen, setAirportOpen] = useState(false);
-  const [blogOpen, setBlogOpen] = useState(false);
+
   const { data: session } = useSession();
   useTheme();
 
@@ -109,23 +109,12 @@ export function Header(props: any) {
             Areas
           </Link>
 
-          {/* Blog Dropdown */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setBlogOpen(true)}
-            onMouseLeave={() => setBlogOpen(false)}
+          <Link
+            href="/blog"
+            className="px-4 py-2 text-sm font-medium text-white hover:text-[rgb(var(--primary))] transition-colors rounded-full hover:bg-white/5"
           >
-            <button className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white hover:text-[rgb(var(--primary))] transition-colors rounded-full hover:bg-white/5 outline-none">
-              Blog
-              <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform" />
-            </button>
-            <div className={`absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl py-2 transition-all duration-300 transform origin-top ${blogOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-1.5 w-3 h-3 bg-black/90 border-t border-l border-white/10 rotate-45"></div>
-              <Link href="/blog" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">All Posts</Link>
-              <Link href="/blog/travel-tips" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Travel Tips</Link>
-              <Link href="/blog/company-news" className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 mx-1 rounded-lg transition-colors">Company News</Link>
-            </div>
-          </div>
+            Blog
+          </Link>
           <Link
             href="/contact"
             className="px-4 py-2 text-sm font-medium text-white hover:text-[rgb(var(--primary))] transition-colors rounded-full hover:bg-white/5"
