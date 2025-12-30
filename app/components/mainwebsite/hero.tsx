@@ -6,9 +6,9 @@ export function Hero(props: RentCalculatingFormProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 lg:py-0 bg-black">
       {/* 1. Dynamic Background & Lighting */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 will-change-transform">
         <div
-          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom will-change-transform"
           style={{ backgroundImage: `url('/luxury-airport-transfer-van.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
@@ -76,7 +76,7 @@ export function Hero(props: RentCalculatingFormProps) {
               <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
               {/* Glass Card */}
-              <div className="relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+              <div className="relative bg-[#0A0A0A]/80 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
                 {/* Header */}
                 <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
                   <div>

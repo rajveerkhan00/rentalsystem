@@ -7,21 +7,21 @@ export { currencies, getCurrencyById, getCurrencySymbolById };
 // Clean domain name utility
 export function cleanDomain(domain: string): string {
   if (!domain) return '';
-  
+
   let cleaned = domain.trim();
-  
+
   // Remove protocol (http://, https://)
   cleaned = cleaned.replace(/^https?:\/\//i, '');
-  
+
   // Remove www. prefix
   cleaned = cleaned.replace(/^www\./i, '');
-  
+
   // Remove trailing slash
   cleaned = cleaned.replace(/\/$/, '');
-  
+
   // Remove port if present
   cleaned = cleaned.split(':')[0];
-  
+
   return cleaned.toLowerCase();
 }
 
@@ -36,13 +36,13 @@ export function calculateDistance(
   const R = unit === 'km' ? 6371 : 3956;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
-  
+
   return parseFloat(distance.toFixed(2));
 }
 
@@ -57,18 +57,18 @@ export function calculateRent(
   unit: 'km' | 'mile'
 ): number {
   let rent = 0;
-  
+
   if (unit === 'km') {
     rent = distance * (pricing?.rentPerKm || 1);
   } else {
     rent = distance * (pricing?.rentPerMile || 1.6);
   }
-  
+
   // Apply currency conversion if needed
   if (pricing?.conversionRate && pricing.conversionRate !== 1) {
     rent *= pricing.conversionRate;
   }
-  
+
   return parseFloat(rent.toFixed(2));
 }
 
@@ -76,20 +76,25 @@ export function calculateRent(
 export async function geocodeAddress(address: string, countryCode?: string) {
   try {
     let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
-    
-    // Add country bias if provided
+
     if (countryCode) {
       url += `&countrycodes=${countryCode.toLowerCase()}`;
     }
-    
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'RentCalculator/1.0'
-      }
+      },
+      signal: controller.signal
     });
-    
+
+    clearTimeout(timeoutId);
+
     const data = await response.json();
-    
+
     if (data && data.length > 0) {
       return {
         lat: parseFloat(data[0].lat),
@@ -107,21 +112,30 @@ export async function geocodeAddress(address: string, countryCode?: string) {
 // Get country code from user's IP address
 export async function getCountryCodeFromIP(): Promise<string> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
     // Method 1: Using ipapi.co (free tier)
-    const response = await fetch('https://ipapi.co/json/');
+    const response = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (response.ok) {
       const data = await response.json();
       return data.country_code || 'PK';
     }
-    
+
     // Method 2: Using ipinfo.io (free tier)
-    const response2 = await fetch('https://ipinfo.io/json');
+    const controller2 = new AbortController();
+    const timeoutId2 = setTimeout(() => controller2.abort(), 5000);
+    const response2 = await fetch('https://ipinfo.io/json', { signal: controller2.signal });
+    clearTimeout(timeoutId2);
+
     if (response2.ok) {
       const data = await response2.json();
       return data.country || 'PK';
     }
-    
-    return 'PK'; // Default to Pakistan
+
+    return 'PK';
   } catch (error) {
     console.error('Error detecting country:', error);
     return 'PK';
@@ -131,17 +145,22 @@ export async function getCountryCodeFromIP(): Promise<string> {
 // Reverse geocode coordinates to address
 export async function reverseGeocode(lat: number, lng: number) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
       {
         headers: {
           'User-Agent': 'RentCalculator/1.0'
-        }
+        },
+        signal: controller.signal
       }
     );
-    
+    clearTimeout(timeoutId);
+
     const data = await response.json();
-    
+
     if (data && data.display_name) {
       return data.display_name;
     }
@@ -155,21 +174,25 @@ export async function reverseGeocode(lat: number, lng: number) {
 // Search for location suggestions with country filtering
 export async function searchLocationSuggestions(query: string, countryCode?: string) {
   if (query.length < 2) return [];
-  
+
   try {
     let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1`;
-    
-    // Add country bias if provided
+
     if (countryCode) {
       url += `&countrycodes=${countryCode.toLowerCase()}`;
     }
-    
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'RentCalculator/1.0'
-      }
+      },
+      signal: controller.signal
     });
-    
+    clearTimeout(timeoutId);
+
     const data = await response.json();
     return data.map((item: any) => ({
       display_name: item.display_name,
@@ -186,7 +209,14 @@ export async function searchLocationSuggestions(query: string, countryCode?: str
 // Fetch domain data from API route
 export async function fetchDomainPricing(domainName: string) {
   try {
-    const response = await fetch(`/api/domain-pricing?domain=${encodeURIComponent(domainName)}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(`/api/domain-pricing?domain=${encodeURIComponent(domainName)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       throw new Error('Failed to fetch domain pricing');
     }
@@ -203,7 +233,7 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);

@@ -165,7 +165,7 @@ export default function RentCalculatingForm({
       } finally {
         setFetchingSuggestions(false);
       }
-    }, 300),
+    }, 500),
     [domainData?.location?.country_code, userCountry]
   );
 
