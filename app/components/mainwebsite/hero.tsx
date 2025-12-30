@@ -23,7 +23,7 @@ export function Hero(props: RentCalculatingFormProps) {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
 
           {/* Left Side: Typography & Value Prop */}
-          <div className="space-y-10 max-w-2xl">
+          <div className="space-y-10 max-w-2xl animate-in slide-in-from-left-10 duration-700 fade-in">
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
               <span className="relative flex h-2.5 w-2.5">
@@ -61,7 +61,7 @@ export function Hero(props: RentCalculatingFormProps) {
                 { label: 'Fleets', value: '500+', sub: 'Luxury Cars' },
                 { label: 'Support', value: '24/7', sub: 'Live Chat' },
               ].map((stat, i) => (
-                <div key={i} className="group cursor-default">
+                <div key={i} className="group cursor-default transition-all hover:translate-y-[-2px]">
                   <h4 className="text-3xl font-bold text-white mb-1 group-hover:text-[rgb(var(--primary))] transition-colors">{stat.value}</h4>
                   <p className="text-sm font-medium text-gray-300">{stat.label}</p>
                   <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
@@ -69,7 +69,7 @@ export function Hero(props: RentCalculatingFormProps) {
               ))}
             </div>
           </div>
-          <div className="md:ml-50">
+          <div className="md:ml-50 animate-in slide-in-from-right-10 duration-700 fade-in delay-200">
             {/* Right Side: Form Card */}
             <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
               {/* Glow Behind Form */}
@@ -104,43 +104,6 @@ export function Hero(props: RentCalculatingFormProps) {
           </div>
         </div>
       </div>
-
-      {/* Map Toggle Button - Premium Design */}
-      {props.onToggleMap && (
-        <button
-          onClick={props.onToggleMap}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 group"
-          aria-label={props.isMapVisible ? "Hide Map" : "Show Map"}
-        >
-          <div className="flex flex-col items-center gap-3 transition-all duration-300 transform group-hover:-translate-y-1">
-            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${props.isMapVisible ? 'text-[rgb(var(--primary))]' : 'text-gray-400 group-hover:text-white'}`}>
-              {props.isMapVisible ? 'Close Live Map' : 'View Live Map'}
-            </span>
-
-            <div className={`
-              relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500
-              ${props.isMapVisible
-                ? 'bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] shadow-[0_0_20px_rgba(var(--primary),0.5)] border-transparent rotate-180'
-                : 'bg-white/5 border border-white/10 backdrop-blur-md shadow-lg group-hover:bg-white/10 group-hover:border-[rgb(var(--primary))]/30'
-              }
-            `}>
-              {/* Inner Glow ring for unselected state */}
-              {!props.isMapVisible && (
-                <div className="absolute inset-0 rounded-full border border-white/5 animate-ping opacity-20 group-hover:opacity-40" />
-              )}
-
-              <svg
-                className={`w-5 h-5 transition-all duration-300 ${props.isMapVisible ? 'text-white' : 'text-gray-400 group-hover:text-[rgb(var(--primary))]'}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7" />
-              </svg>
-            </div>
-          </div>
-        </button>
-      )}
 
       {/* Results Popup Overlay */}
       {(props.distance !== null || props.rent !== null) && (

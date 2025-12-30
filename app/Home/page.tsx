@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from '../components/mainwebsite/header';
-import MapComponent from '../components/mainwebsite/MapComponent';
+
 import { Hero } from '../components/mainwebsite/hero';
 import { Footer } from '../components/mainwebsite/footer';
 import { BlogSection } from '../components/mainwebsite/blog-section';
@@ -89,7 +89,7 @@ export default function RentCalculatorPage() {
   const { isThemeLoading } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [hasTraffic, setHasTraffic] = useState<boolean>(false);
-  const [showMap, setShowMap] = useState(false);
+
   const [routeInstructions, setRouteInstructions] = useState<Array<{
     instruction: string;
     distance: number;
@@ -333,21 +333,7 @@ export default function RentCalculatorPage() {
     // The useEffect for mapRoute/routeInstructions triggers on coords change
   }, [pickupCoords, dropoffCoords, addMarker]);
 
-  const handleToggleMap = useCallback(() => {
-    setShowMap((prev) => {
-      const newState = !prev;
-      if (newState) {
-        // Smooth scroll to map section with a slight delay if we are opening it
-        setTimeout(() => {
-          const mapSection = document.getElementById('map-section');
-          if (mapSection) {
-            mapSection.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      }
-      return newState;
-    });
-  }, []);
+
 
   if ((isLoading || isThemeLoading || !minLoadingPassed) && !domainData) {
     return <PageSkeleton />;
@@ -386,11 +372,10 @@ export default function RentCalculatorPage() {
         getCurrentCountryName={getCurrentCountryName}
         onAddMarker={addMarker}
         onSwapLocations={handleSwapLocations}
-        onToggleMap={handleToggleMap}
-        isMapVisible={showMap}
+
       />
 
-// ... skipping map section ...
+
 
       <AboutSection />
       <ServicesSection />
