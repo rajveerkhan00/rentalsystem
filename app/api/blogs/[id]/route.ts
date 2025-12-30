@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function PUT(request: Request, context: { params: { id: string } }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = context.params;
+        const { id } = await context.params;
         const body = await request.json();
         const { db } = await connectToDatabase();
 
@@ -28,9 +28,9 @@ export async function PUT(request: Request, context: { params: { id: string } })
     }
 }
 
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = context.params;
+        const { id } = await context.params;
         const { db } = await connectToDatabase();
 
         const result = await db.collection('blogs').deleteOne({ _id: new ObjectId(id) });
