@@ -23,7 +23,7 @@ export function Hero(props: RentCalculatingFormProps) {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
 
           {/* Left Side: Typography & Value Prop */}
-          <div className="space-y-10 max-w-2xl animate-in slide-in-from-left-10 duration-700 fade-in">
+          <div className="space-y-10 max-w-2xl">
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
               <span className="relative flex h-2.5 w-2.5">
@@ -69,7 +69,7 @@ export function Hero(props: RentCalculatingFormProps) {
               ))}
             </div>
           </div>
-          <div className="md:ml-50 animate-in slide-in-from-right-10 duration-700 fade-in delay-200">
+          <div className="md:ml-50">
             {/* Right Side: Form Card */}
             <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
               {/* Glow Behind Form */}
