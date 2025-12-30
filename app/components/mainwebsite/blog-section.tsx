@@ -138,9 +138,8 @@ export function BlogSection({ domainData }: { domainData?: any }) {
           </Link>
         </div>
 
-        {/* Blog Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.map((post) => (
+          {blogs.slice(0, 3).map((post) => (
             <Link
               key={post._id}
               href={`/blog/${post.slug || '#'}`}
