@@ -88,6 +88,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       adminId: userId
     });
 
+    // Fetch theme from the dedicated collection
+    const themesCollection = db.collection('admindashboardthemes');
+    const themeDoc = await themesCollection.findOne({ adminId: userId });
+
+    // Determine the active theme: dedicated collection > dashboard data > default
+    const activeTheme = themeDoc?.themeId || dashboardData?.defaultTheme || 'default';
+
     if (!dashboardData) {
       // Return default structure if no data exists
       const defaultData: DashboardData & { adminId: string } = {
@@ -114,6 +121,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           workingHours: 'Mon - Sun: 24/7'
         },
         domains: [],
+        defaultTheme: activeTheme, // Set the theme from dedicated collection or fallback
         lastUpdated: new Date()
       };
 
@@ -124,6 +132,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const responseData = {
       ...dashboardData,
       _id: undefined, // Remove _id
+      defaultTheme: activeTheme, // Ensure we return the correct theme priority
       pricing: {
         ...dashboardData.pricing,
         currency: dashboardData.pricing?.currency || 0
@@ -181,6 +190,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { db, client } = await connectToDatabase();
     const dashboardCollection = db.collection('admindashboard');
     const domainsCollection = db.collection('domains');
+    const themesCollection = db.collection('admindashboardthemes');
 
     // Validate each domain for uniqueness across all users
     for (const domainData of data.domains) {
@@ -238,7 +248,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           pricing: pricingData,
           domains: data.domains,
           siteContent: data.siteContent, // Add site content
-          defaultTheme: data.defaultTheme,
+          // defaultTheme: data.defaultTheme, // Removed from here (optional, can keep for backup)
           adminId: userId,
           lastUpdated: new Date()
         };
@@ -249,7 +259,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { upsert: true, session: mongoSession }
         );
 
-        // 2. Update domains collection
+        // 2. Save theme to dedicated collection
+        if (data.defaultTheme) {
+          await themesCollection.updateOne(
+            { adminId: userId },
+            {
+              $set: {
+                themeId: data.defaultTheme,
+                updatedAt: new Date()
+              }
+            },
+            { upsert: true, session: mongoSession }
+          );
+        }
+
+        // 3. Update domains collection
         // First, remove old domains for this admin
         await domainsCollection.deleteMany(
           { adminId: userId },
