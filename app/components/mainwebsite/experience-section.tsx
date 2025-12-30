@@ -54,9 +54,9 @@ export default function ExperienceSection({ loading }: { loading?: boolean }) {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10" ref={sectionRef}>
-        <div className="grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-white/10 bg-[#0A0A0A]/40 backdrop-blur-md shadow-2xl ring-1 ring-white/5">
+        <div className="grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-white/10 bg-[#0A0A0A]/40 backdrop-blur-sm shadow-2xl ring-1 ring-white/5">
           {/* Left Side - Stats */}
-          <div className="bg-[#0A0A0A]/80 backdrop-blur-xl p-12 lg:p-20 flex flex-col justify-center border-r border-white/10 relative">
+          <div className="bg-[#0A0A0A]/80 backdrop-blur-sm p-12 lg:p-20 flex flex-col justify-center border-r border-white/10 relative">
             <div className="absolute -top-6 -left-6 text-7xl font-bold text-white/[0.01] pointer-events-none select-none">EXPERIENCE</div>
             <p className="text-[rgb(var(--primary))] font-semibold mb-4 tracking-[0.3em] uppercase text-xs">Since 2015</p>
             <h2 className="text-4xl md:text-5xl font-bold mb-8 text-white text-balance tracking-tight leading-tight">
@@ -101,13 +101,13 @@ export default function ExperienceSection({ loading }: { loading?: boolean }) {
               src="/modern-city-street-with-yellow-taxi-cab-at-dusk.jpg"
               alt="Professional airport transfer service"
               fill
-              className="object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-110 group-hover/side:scale-100"
-              priority={false}
+              className="object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-110 group-hover/side:scale-100 will-change-transform"
+              priority
             />
             <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-transparent to-black/80 group-hover/side:opacity-40 transition-opacity" />
 
             {/* Overlay Card — Glassmorphism with magnetic feel hint */}
-            <div className="absolute -bottom-10 -left-10 bg-[#0A0A0A]/95 backdrop-blur-2xl p-10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.8)] max-w-md border border-white/10 ring-1 ring-white/10 group-hover/side:-translate-y-4 transition-transform duration-700">
+            <div className="absolute -bottom-10 -left-10 bg-[#0A0A0A]/95 backdrop-blur-sm p-10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.8)] max-w-md border border-white/10 ring-1 ring-white/10 group-hover/side:-translate-y-4 transition-transform duration-700 will-change-transform">
               <div className="w-12 h-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] mb-6 rounded-full" />
               <h3 className="text-2xl font-bold text-white tracking-tight mb-4 uppercase">PREMIUM ROADSIDE <br /><span className="text-[rgb(var(--primary))]">EXCELLENCE</span></h3>
               <p className="text-gray-400 leading-relaxed font-light text-base mb-6">

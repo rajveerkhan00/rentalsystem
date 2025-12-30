@@ -35,13 +35,13 @@ export default function AboutSection({ loading }: { loading?: boolean }) {
                 alt="Professional driver assisting with luggage"
                 width={600}
                 height={700}
-                className="w-full h-full object-cover"
-                priority={false}
+                className="w-full h-full object-cover will-change-transform"
+                priority
               />
             </div>
 
             {/* Testimonial Card Overlay — Glassmorphism with Floating Animation */}
-            <div className="absolute -bottom-8 -right-8 lg:right-[-40px] bg-[#0A0A0A]/90 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-[0_20px_50px_rgba(var(--primary),0.2)] ring-1 ring-white/5 max-w-[320px] animate-float z-20">
+            <div className="absolute -bottom-8 -right-8 lg:right-[-40px] bg-[#0A0A0A]/90 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-[0_20px_50px_rgba(var(--primary),0.2)] ring-1 ring-white/5 max-w-[320px] animate-float z-20 will-change-transform">
               <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-full flex items-center justify-center shadow-lg shadow-[rgb(var(--primary))]/30">
                 <span className="text-white text-2xl">"</span>
               </div>
@@ -74,7 +74,7 @@ export default function AboutSection({ loading }: { loading?: boolean }) {
 
             <div className="space-y-6 mb-8">
               {/* Door-to-Door Service */}
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-2xl flex items-start gap-6 group hover:bg-white/10 transition-all duration-500 hover:shadow-[0_0_30px_rgba(var(--primary),0.1)] hover:-translate-y-1">
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl flex items-start gap-6 group hover:bg-white/10 transition-all duration-500 hover:shadow-[0_0_30px_rgba(var(--primary),0.1)] hover:-translate-y-1">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-[rgb(var(--primary))]/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="relative bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-[rgb(var(--primary))]/40 group-hover:rotate-12 transition-transform duration-500">

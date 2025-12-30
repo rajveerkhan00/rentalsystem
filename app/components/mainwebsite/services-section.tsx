@@ -75,7 +75,7 @@ export default function ServicesSection({ loading }: { loading?: boolean }) {
               className={`group relative p-10 rounded-[2.5rem] transition-all duration-700 border ${airport.featured
                 ? "bg-gradient-to-br from-white/10 to-white/5 border-[rgb(var(--primary))]/50 shadow-[0_20px_50px_rgba(var(--primary),0.1)]"
                 : "bg-white/5 border-white/10 hover:border-[rgb(var(--primary))]/40"
-                } backdrop-blur-xl overflow-hidden hover:shadow-[0_0_50px_rgba(var(--primary),0.15)] hover:-translate-y-2 perspective-1000`}
+                } backdrop-blur-sm overflow-hidden hover:shadow-[0_0_50px_rgba(var(--primary),0.15)] hover:-translate-y-2 perspective-1000`}
             >
               {/* Spotlight Glow Effect */}
               <div className="absolute -inset-24 bg-gradient-to-tr from-[rgb(var(--primary))]/10 via-[rgb(var(--secondary))]/10 to-transparent opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700" />
