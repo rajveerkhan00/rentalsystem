@@ -1,18 +1,23 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @layer utilities {
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
+
   .animate-shine {
     animation: shine 2s linear infinite;
   }
+
   .animate-shimmer {
     animation: shimmer 2s linear infinite;
   }
+
   .animate-pulse-slow {
     animation: pulse-slow 4s ease-in-out infinite;
   }
+
   .animate-gradient-x {
     animation: gradient-x 15s ease infinite;
     background-size: 200% 200%;
@@ -20,28 +25,61 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes shine {
-  from { transform: translateX(-100%) rotate(45deg); }
-  to { transform: translateX(200%) rotate(45deg); }
+  from {
+    transform: translateX(-100%) rotate(45deg);
+  }
+
+  to {
+    transform: translateX(200%) rotate(45deg);
+  }
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 0.1; transform: scale(1); }
-  50% { opacity: 0.2; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.2;
+    transform: scale(1.05);
+  }
 }
 
 @keyframes gradient-x {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -126,7 +164,7 @@
 
 :root {
   --radius: 0.625rem;
-  
+
   /* Theme Variables - Default to Midnight Rose values */
   --primary: 236 72 153;
   --primary-glow: rgba(236, 72, 153, 0.5);
@@ -162,46 +200,8 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-}
-
-/* Lenis Recommended Styles */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0a0a0a;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }

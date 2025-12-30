@@ -1,21 +1,15 @@
 import RentCalculatingForm, { RentCalculatingFormProps } from "./RentCalculatingForm"
 import RentResults from "./RentResults"
 import { ShieldCheck, Star, Clock } from "lucide-react";
-import NextImage from "next/image";
 
 export function Hero(props: RentCalculatingFormProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 lg:py-0 bg-black">
       {/* 1. Dynamic Background & Lighting */}
       <div className="absolute inset-0 z-0">
-
-        <NextImage
-          src="/luxury-airport-transfer-van.jpg"
-          alt="Luxury Transfer"
-          fill
-          priority
-          quality={90}
-          className="object-cover object-center opacity-60 transform scale-105 animate-subtle-zoom"
+        <div
+          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+          style={{ backgroundImage: `url('/luxury-airport-transfer-van.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_25%)]" />
