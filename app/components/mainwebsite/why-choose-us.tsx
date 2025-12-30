@@ -28,7 +28,7 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Card 1 */}
-          <div className="group relative bg-[#0A0A0A]/60 backdrop-blur-2xl border border-white/5 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/50 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100px_rgba(var(--primary),0.15)] overflow-hidden">
+          <div className="group relative bg-[#0A0A0A] border border-white/5 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/50 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100px_rgba(var(--primary),0.15)] overflow-hidden">
             <div className="absolute -inset-40 bg-gradient-to-tr from-[rgb(var(--primary))]/10 via-transparent to-[rgb(var(--secondary))]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-3xl" />
 
             <div className="relative z-10">
@@ -47,11 +47,11 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
           </div>
 
           {/* Card 2 Featured */}
-          <div className="group relative bg-gradient-to-br from-[rgb(var(--primary))]/20 to-[rgb(var(--secondary))]/20 backdrop-blur-2xl border border-[rgb(var(--primary))]/30 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/60 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100px_rgba(var(--primary),0.3)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+          <div className="group relative bg-[#0A0A0A] border border-[rgb(var(--primary))]/30 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/60 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100px_rgba(var(--primary),0.3)] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))] opacity-50" />
 
             <div className="relative z-10">
-              <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-10 border border-white/10 shadow-2xl group-hover:rotate-12 transition-transform duration-700">
+              <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-10 border border-white/10 shadow-2xl group-hover:rotate-12 transition-transform duration-700">
                 <Shield className="w-10 h-10 text-[rgb(var(--primary))]" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4 tracking-tight uppercase">Premium Safety</h3>
@@ -76,7 +76,7 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
           </div>
 
           {/* Card 3 */}
-          <div className="group relative bg-[#0A0A0A]/60 backdrop-blur-2xl border border-white/5 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/50 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100_rgba(var(--primary),0.15)] overflow-hidden">
+          <div className="group relative bg-[#0A0A0A] border border-white/5 p-10 rounded-[2.5rem] hover:border-[rgb(var(--primary))]/50 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_100_rgba(var(--primary),0.15)] overflow-hidden">
             <div className="relative z-10">
               <div className="bg-gradient-to-br from-[rgb(var(--secondary))] to-[rgb(var(--primary))] w-20 h-20 rounded-3xl flex items-center justify-center mb-10 shadow-2xl shadow-[rgb(var(--secondary))]/50 group-hover:scale-110 transition-all duration-700">
                 <Shield className="w-10 h-10 text-white" />

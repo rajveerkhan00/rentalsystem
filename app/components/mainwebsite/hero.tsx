@@ -25,7 +25,7 @@ export function Hero(props: RentCalculatingFormProps) {
           {/* Left Side: Typography & Value Prop */}
           <div className="space-y-10 max-w-2xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#0A0A0A]/80 border border-white/10 shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--accent))]"></span>
@@ -76,7 +76,7 @@ export function Hero(props: RentCalculatingFormProps) {
               <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
               {/* Glass Card */}
-              <div className="relative bg-[#0A0A0A]/80 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+              <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
                 {/* Header */}
                 <div className="bg-white/5 p-6 border-b border-white/5 flex items-center justify-between">
                   <div>

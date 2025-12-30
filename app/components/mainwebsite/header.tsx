@@ -28,7 +28,7 @@ export function Header(props: any) {
         className={`
           pointer-events-auto
           transition-all duration-500 ease-in-out
-          ${scrolled ? 'w-full max-w-5xl py-3 px-6 bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl rounded-full' : 'container mx-auto py-4 px-4 sm:px-6 lg:px-8 bg-transparent border-transparent'}
+          ${scrolled ? 'w-full max-w-5xl py-3 px-6 bg-[#0A0A0A]/95 border border-white/10 shadow-2xl rounded-full' : 'container mx-auto py-4 px-4 sm:px-6 lg:px-8 bg-transparent border-transparent'}
           flex items-center justify-between
         `}
       >

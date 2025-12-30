@@ -49,7 +49,7 @@ export function Testimonials({ loading }: { loading?: boolean }) {
         {/* Header */}
         <div className="text-center mb-16 space-y-6">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgb(var(--primary))]/10">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#0A0A0A]/80 border border-white/10 shadow-lg shadow-[rgb(var(--primary))]/10">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"></span>
@@ -71,7 +71,7 @@ export function Testimonials({ loading }: { loading?: boolean }) {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="group relative bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-[rgb(var(--primary))]/30 transition-all duration-500 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10"
+              className="group relative bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 hover:border-[rgb(var(--primary))]/30 transition-all duration-500 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10"
             >
               {/* Quote Icon */}
               <div className="absolute top-6 right-6">
