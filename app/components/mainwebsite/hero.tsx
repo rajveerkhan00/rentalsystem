@@ -6,9 +6,9 @@ export function Hero(props: RentCalculatingFormProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 lg:py-0 bg-black">
       {/* 1. Dynamic Background & Lighting */}
-      <div className="absolute inset-0 z-0 will-change-transform">
+      <div className="absolute inset-0 z-0">
         <div
-          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom will-change-transform"
+          className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat transform scale-105"
           style={{ backgroundImage: `url('/luxury-airport-transfer-van.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30" />
@@ -27,7 +27,7 @@ export function Hero(props: RentCalculatingFormProps) {
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgba(var(--primary),0.1)] hover:bg-white/10 transition-colors cursor-default group">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--accent))]"></span>
               </span>
               <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase group-hover:text-white transition-colors">Premium Chauffeur Service</span>
@@ -36,7 +36,7 @@ export function Hero(props: RentCalculatingFormProps) {
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
                 {props.domainData?.siteContent?.heroTitle || 'Ride with'} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))] animate-gradient-x">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--gradient-from))] via-[rgb(var(--primary))] to-[rgb(var(--gradient-to))]">
                   {props.domainData?.siteContent?.websiteName || 'Mr Transfers'}
                 </span>
               </h1>
@@ -82,7 +82,7 @@ export function Hero(props: RentCalculatingFormProps) {
                   <div>
                     <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
                     <p className="text-xs text-[rgb(var(--primary))] mt-1 font-medium flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))] animate-pulse"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))]"></span>
                       Best Price Guaranteed
                     </p>
                   </div>
@@ -108,7 +108,7 @@ export function Hero(props: RentCalculatingFormProps) {
       {/* Results Popup Overlay */}
       {(props.distance !== null || props.rent !== null) && (
         <div className="absolute bottom-0 left-0 right-0 z-50 px-4 pb-6 flex justify-center pointer-events-none">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
             <RentResults
               distance={props.distance}
               rent={props.rent}

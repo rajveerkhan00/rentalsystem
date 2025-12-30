@@ -17,11 +17,11 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-96 bg-gradient-to-r from-[rgb(var(--primary))]/5 via-[rgb(var(--secondary))]/5 to-[rgb(var(--primary))]/5 blur-[120px] rounded-full animate-pulse-slow pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-96 bg-gradient-to-r from-[rgb(var(--primary))]/5 via-[rgb(var(--secondary))]/5 to-[rgb(var(--primary))]/5 blur-[120px] rounded-full pointer-events-none" />
 
           <p className="text-[rgb(var(--primary))] font-bold mb-4 tracking-[0.6em] uppercase text-xs">Unmatched Value</p>
           <h2 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tighter mb-6">
-            TRUSTED <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-white bg-[length:200%_auto] animate-gradient-x">EXCELLENCE</span>
+            TRUSTED <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-white bg-[length:200%_auto]">EXCELLENCE</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] mx-auto rounded-full shadow-[0_0_20px_rgba(var(--primary),0.5)]" />
         </div>
@@ -52,7 +52,7 @@ export default function WhyChooseUs({ loading }: { loading?: boolean }) {
 
             <div className="relative z-10">
               <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-10 border border-white/10 shadow-2xl group-hover:rotate-12 transition-transform duration-700">
-                <Shield className="w-10 h-10 text-[rgb(var(--primary))] animate-pulse" />
+                <Shield className="w-10 h-10 text-[rgb(var(--primary))]" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4 tracking-tight uppercase">Premium Safety</h3>
               <p className="text-gray-200 font-light leading-relaxed mb-8">

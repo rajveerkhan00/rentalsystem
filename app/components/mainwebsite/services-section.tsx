@@ -44,7 +44,7 @@ export default function ServicesSection({ loading }: { loading?: boolean }) {
       {/* Background Effects - Hero Style */}
       <div className="absolute inset-0 z-0">
         <div
-          className="absolute inset-0 opacity-40 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+          className="absolute inset-0 opacity-40 bg-cover bg-center bg-no-repeat transform scale-105"
           style={{ backgroundImage: `url('/blogbg.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
@@ -60,7 +60,7 @@ export default function ServicesSection({ loading }: { loading?: boolean }) {
           </div>
           <p className="text-[rgb(var(--primary))] font-bold mb-4 tracking-[0.4em] uppercase text-xs">Unmatched Coverage</p>
           <h2 className="text-4xl md:text-6xl font-bold text-white text-balance tracking-tight leading-none mb-6">
-            AIRPORT <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))] animate-gradient-x">TRANSFERS</span>
+            AIRPORT <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))]">TRANSFERS</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] mx-auto mb-8 rounded-full shadow-[0_0_20px_rgba(var(--primary),0.5)]" />
           <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed text-lg font-light italic">

@@ -12,11 +12,11 @@ export default function AboutSection({ loading }: { loading?: boolean }) {
       {/* Background Effects - Hero Style */}
       <div className="absolute inset-0 z-0">
         <div
-          className="absolute inset-0 opacity-40 bg-cover bg-center bg-no-repeat transform scale-105 animate-subtle-zoom"
+          className="absolute inset-0 opacity-40 bg-cover bg-center bg-no-repeat transform scale-105"
           style={{ backgroundImage: `url('/blogbg.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_35%)] animate-pulse-slow" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_15%_50%,rgba(var(--primary),0.15),transparent_35%)]" />
         <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_85%_70%,rgba(var(--secondary),0.15),transparent_35%)]" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
         {/* Aggressive Background Decoration */}
@@ -35,13 +35,13 @@ export default function AboutSection({ loading }: { loading?: boolean }) {
                 alt="Professional driver assisting with luggage"
                 width={600}
                 height={700}
-                className="w-full h-full object-cover will-change-transform"
+                className="w-full h-full object-cover"
                 priority
               />
             </div>
 
             {/* Testimonial Card Overlay — Glassmorphism with Floating Animation */}
-            <div className="absolute -bottom-8 -right-8 lg:right-[-40px] bg-[#0A0A0A]/90 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-[0_20px_50px_rgba(var(--primary),0.2)] ring-1 ring-white/5 max-w-[320px] animate-float z-20 will-change-transform">
+            <div className="absolute -bottom-8 -right-8 lg:right-[-40px] bg-[#0A0A0A]/90 backdrop-blur-sm border border-white/10 p-8 rounded-2xl shadow-[0_20px_50px_rgba(var(--primary),0.2)] ring-1 ring-white/5 max-w-[320px] z-20">
               <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-full flex items-center justify-center shadow-lg shadow-[rgb(var(--primary))]/30">
                 <span className="text-white text-2xl">"</span>
               </div>
@@ -61,11 +61,11 @@ export default function AboutSection({ loading }: { loading?: boolean }) {
           <div className="relative z-10 space-y-8">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgb(var(--primary))]/10 border border-[rgb(var(--primary))]/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))] animate-pulse"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))]"></span>
                 <p className="text-[rgb(var(--primary))] font-bold tracking-[0.2em] uppercase text-[10px]">Over 10 Years Experience</p>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white text-balance tracking-tight leading-tight">
-                TAXI TRANSFERS TO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))] bg-[length:200%_auto] animate-gradient-x">ALL LONDON AIRPORTS</span>
+                TAXI TRANSFERS TO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--secondary))] to-[rgb(var(--primary))] bg-[length:200%_auto]">ALL LONDON AIRPORTS</span>
               </h2>
               <p className="text-gray-400 leading-relaxed text-lg font-light max-w-xl border-l border-white/10 pl-6">
                 We specialize in making your travels through the UK's busiest airports as smooth as possible. Headquartered at Gatwick, serving the nation.

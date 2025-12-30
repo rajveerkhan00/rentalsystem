@@ -64,7 +64,7 @@ export function BlogSection({ loading }: { loading?: boolean }) {
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg shadow-[rgb(var(--primary))]/10">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[rgb(var(--primary))] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))]"></span>
               </span>
               <span className="text-gray-200 font-medium text-xs tracking-[0.2em] uppercase">Our News</span>
