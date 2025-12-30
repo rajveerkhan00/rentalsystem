@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 
+import { cleanDomain } from '@/lib/db.utils';
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -9,12 +11,22 @@ export async function GET(request: Request) {
 
         const { db } = await connectToDatabase();
 
-        // If domain is provided, filter by it. otherwise return empty or all?
-        // Requirement says "blogs for ABC is different, blogs for DEF is different".
-        // If no domain param, maybe returns all (for admin overview) or empty.
-        // Let's support filtering.
-
-        const query = domain ? { domainName: domain } : {};
+        let query = {};
+        if (domain) {
+            const cleaned = cleanDomain(domain);
+            // Match strict or with protocols using regex for flexibility
+            // Escaping the dot for regex safety
+            const escaped = cleaned.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // Regex to match:
+            // ^(https?://)?(www\.)?cleaned(/)?$
+            // This covers: cleaned, www.cleaned, http://cleaned, https://cleaned, https://www.cleaned, etc.
+            // Case insensitive
+            query = {
+                domainName: {
+                    $regex: new RegExp(`^(https?:\\/\\/)?(www\\.)?${escaped}\\/?$`, 'i')
+                }
+            };
+        }
 
         const blogs = await db.collection('blogs').find(query).sort({ date: -1 }).toArray();
 
