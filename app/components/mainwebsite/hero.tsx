@@ -1,8 +1,42 @@
-import RentCalculatingForm, { RentCalculatingFormProps } from "./RentCalculatingForm"
 import RentResults from "./RentResults"
 import { ShieldCheck, Star, Clock } from "lucide-react";
+import { useEffect } from "react";
 
-export function Hero(props: RentCalculatingFormProps) {
+export function Hero(props: any) {
+  const domainName = props.domainData?.domain?.domainName || (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from your deployed Vercel domain
+      if (event.origin !== 'https://booking-system-rouge-phi.vercel.app') return;
+
+      if (event.data && event.data.type === 'resize') {
+        const iframe = document.getElementById('booking-iframe') as HTMLIFrameElement;
+        if (iframe) {
+          // We add a little extra padding for safety
+          iframe.style.height = (event.data.height) + 'px';
+        }
+      }
+
+      // Handle search button click from iframe
+      if (event.data && event.data.type === 'searchClicked') {
+        console.log('🔔 Received searchClicked message from iframe!');
+        console.log('📋 Form data:', event.data.formData);
+
+        // Store the form data in sessionStorage
+        sessionStorage.setItem('bookingFormData', JSON.stringify(event.data.formData));
+        console.log('💾 Saved to sessionStorage');
+
+        // Navigate to booking page
+        console.log('🚀 Navigating to /booking...');
+        window.location.href = '/booking';
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 lg:py-0 bg-black">
       {/* 1. Dynamic Background & Lighting */}
@@ -20,7 +54,7 @@ export function Hero(props: RentCalculatingFormProps) {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        <div className="grid lg:grid-cols-[1fr_2.5fr] gap-8 items-center">
 
           {/* Left Side: Typography & Value Prop */}
           <div className="space-y-10 max-w-2xl">
@@ -69,9 +103,9 @@ export function Hero(props: RentCalculatingFormProps) {
               ))}
             </div>
           </div>
-          <div className="md:ml-50">
+          <div className="md:ml-50 md:mt-30">
             {/* Right Side: Form Card */}
-            <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto">
+            <div className="relative w-full max-w-[1200px] mx-auto lg:ml-auto">
               {/* Glow Behind Form */}
               <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
@@ -91,8 +125,18 @@ export function Hero(props: RentCalculatingFormProps) {
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <RentCalculatingForm {...props} />
+                <div className="p-0">
+                  <div id="booking-container" style={{ width: '100%' }}>
+                    <iframe
+                      id="booking-iframe"
+                      src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&hide-bg=true&hide-header=true&redirectOnSearch=true`}
+                      width="100%"
+                      height="700"
+                      style={{ border: 'none', minHeight: '500px' }}
+                      scrolling="no"
+                      title="Booking Form"
+                    ></iframe>
+                  </div>
                 </div>
               </div>
 
@@ -106,25 +150,27 @@ export function Hero(props: RentCalculatingFormProps) {
       </div>
 
       {/* Results Popup Overlay */}
-      {(props.distance !== null || props.rent !== null) && (
-        <div className="absolute bottom-0 left-0 right-0 z-50 px-4 pb-6 flex justify-center pointer-events-none">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
-            <RentResults
-              distance={props.distance}
-              rent={props.rent}
-              hasTraffic={props.hasTraffic}
-              routeInstructions={props.routeInstructions}
-              formData={props.formData}
-              domainData={props.domainData}
-              onClose={() => {
-                props.onDistanceChange(null);
-                props.onRentChange(null);
-                props.onMapRouteChange(null);
-              }}
-            />
+      {
+        (props.distance !== null || props.rent !== null) && (
+          <div className="absolute bottom-0 left-0 right-0 z-50 px-4 pb-6 flex justify-center pointer-events-none">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
+              <RentResults
+                distance={props.distance}
+                rent={props.rent}
+                hasTraffic={props.hasTraffic}
+                routeInstructions={props.routeInstructions}
+                formData={props.formData}
+                domainData={props.domainData}
+                onClose={() => {
+                  props.onDistanceChange(null);
+                  props.onRentChange(null);
+                  props.onMapRouteChange(null);
+                }}
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </section>
+        )
+      }
+    </section >
   )
 }
