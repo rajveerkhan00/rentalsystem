@@ -129,49 +129,23 @@ export default function BookingPage() {
                     {/* Iframe Container */}
                     <div className="relative group">
                         {/* Glow Background */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
 
-                        <div className="">
-                            {/* Right Side: Form Card */}
-                            <div className="relative w-full max-w-[1200px] mx-auto lg:ml-auto">
-                                {/* Glow Behind Form */}
-                                <div className="absolute -inset-1 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-
-                                {/* Glass Card */}
-                                <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
-                                    {/* Header */}
-                                    <div className=" p-6 border-b border-white/5 flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-xl font-bold text-white tracking-tight">Get Instant Quote</h3>
-                                            <p className="text-xs text-[rgb(var(--primary))] mt-1 font-medium flex items-center gap-1.5">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--primary))]"></span>
-                                                Best Price Guaranteed
-                                            </p>
-                                        </div>
-                                        <div className="p-2 bg-gradient-to-br from-white/10 to-transparent rounded-lg border border-white/10">
-                                            <span className="text-xl">⚡</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="p-0">
-                                        <div id="booking-container" style={{ width: '100%' }}>
-                                            <iframe
-                                                id="booking-iframe"
-                                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&redirectOnSearch=true`}
-                                                width="100%"
-                                                height="700"
-                                                style={{ border: 'none', minHeight: '420px' }}
-                                                scrolling="no"
-                                                title="Booking Form"
-                                            ></iframe>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Trust Badges */}
-                                <div className="mt-6 flex justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                                    {/* Placeholder for trust badges/logos if needed (Visa, Stripe, etc) - visually represented by text for now */}
-                                </div>
-                            </div>
+                        {/* Glass Card */}
+                        <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5 min-h-[420px]">
+                            <iframe
+                                id="booking-iframe"
+                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&hide-bg=true&hide-header=true${prefilledData ? `&formData=${prefilledData}` : ''}`}
+                                width="100%"
+                                height="800"
+                                className="w-full border-none "
+                                style={{
+                                    minHeight: '420px',
+                                    background: 'transparent'
+                                }}
+                                scrolling="no"
+                                title="Booking Form"
+                            ></iframe>
                         </div>
                     </div>
 
@@ -206,3 +180,4 @@ export default function BookingPage() {
         </main>
     );
 }
+
