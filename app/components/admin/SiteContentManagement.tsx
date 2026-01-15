@@ -1,6 +1,6 @@
-'use client';
 import { ChangeEvent } from 'react';
 import { DomainData, SiteContent } from './types';
+import { LayoutTemplate, ChevronDown } from 'lucide-react';
 
 interface SiteContentManagementProps {
     siteContent: SiteContent;
@@ -31,9 +31,7 @@ export default function SiteContentManagement({
             <div className="flex items-center justify-between mb-6 relative z-10">
                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="p-2 bg-[rgb(var(--secondary))]/20 rounded-lg text-[rgb(var(--secondary))]">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                        <LayoutTemplate className="w-5 h-5" />
                     </div>
                     Site Content
                 </h2>
@@ -53,9 +51,7 @@ export default function SiteContentManagement({
                             ))}
                         </select>
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
+                            <ChevronDown className="w-3 h-3" />
                         </div>
                     </div>
                 )}

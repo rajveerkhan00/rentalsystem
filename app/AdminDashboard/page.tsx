@@ -29,6 +29,7 @@ import DomainManagement from '@/app/components/admin/DomainManagement';
 import InfoPanel from '@/app/components/admin/InfoPanel';
 import BlogManagement from '@/app/components/admin/BlogManagement';
 import SiteContentManagement from '@/app/components/admin/SiteContentManagement';
+import { MapPin, BadgeDollarSign, LayoutTemplate, MessageSquare, Globe, AlertCircle, CheckCircle } from 'lucide-react';
 
 // Import the shared currency mapping
 import { currencies, getCurrencyById, getCurrencyCodeById } from '@/lib/currency-mapping';
@@ -599,13 +600,9 @@ export default function AdminDashboard() {
               }`}>
               <div className={`p-2 rounded-lg ${error ? 'bg-red-500/20' : 'bg-emerald-500/20'}`}>
                 {error ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
+                  <AlertCircle className="w-5 h-5" />
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <CheckCircle className="w-5 h-5" />
                 )}
               </div>
               <span className="font-medium">{error || success}</span>
@@ -615,11 +612,11 @@ export default function AdminDashboard() {
           {/* Navigation Tabs */}
           <div className="flex flex-wrap items-center gap-4 mb-8 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md w-full overflow-x-auto">
             {[
-              { id: 'location', label: 'Location Control', icon: '📍' },
-              { id: 'pricing', label: 'Pricing Matrix', icon: '💰' },
-              { id: 'site', label: 'Site Control', icon: '⚡' },
-              { id: 'blog', label: 'Blog Manager', icon: '📝' },
-              { id: 'domain', label: 'Domain Network', icon: '🌐' }
+              { id: 'location', label: 'Location Control', icon: MapPin },
+              { id: 'pricing', label: 'Pricing Matrix', icon: BadgeDollarSign },
+              { id: 'site', label: 'Site Control', icon: LayoutTemplate },
+              { id: 'blog', label: 'Blog Manager', icon: MessageSquare },
+              { id: 'domain', label: 'Domain Network', icon: Globe }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -632,7 +629,7 @@ export default function AdminDashboard() {
                   }
                 `}
               >
-                <span className="text-xl">{tab.icon}</span>
+                <tab.icon className="w-5 h-5" />
                 <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             ))}

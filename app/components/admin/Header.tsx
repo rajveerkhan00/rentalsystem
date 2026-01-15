@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronDown, Loader2, Save, LogOut } from 'lucide-react';
 import { SessionUser } from './types';
 import { themes } from '@/lib/themes';
 
@@ -46,9 +47,7 @@ export default function Header({ user, dashboardData, saving, onSave, onLogout, 
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-white/10 shadow-lg"
                 style={{ background: `rgb(${themes.find(t => t.id === (dashboardData.defaultTheme || 'default'))?.colors['--primary'] || '236 72 153'})` }} />
               <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600">
-                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDown className="w-2.5 h-2.5" />
               </div>
             </div>
           </div>
@@ -61,14 +60,12 @@ export default function Header({ user, dashboardData, saving, onSave, onLogout, 
             <div className="relative z-10 flex items-center gap-2 text-xs font-black uppercase tracking-tight">
               {saving ? (
                 <>
-                  <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  <Loader2 className="w-3 h-3 animate-spin border-black/30 text-black" />
                   <span>Syncing</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
+                  <Save className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Commit Changes</span>
                   <span className="sm:hidden">Save</span>
                 </>
@@ -80,9 +77,7 @@ export default function Header({ user, dashboardData, saving, onSave, onLogout, 
             onClick={onLogout}
             className="p-2 md:px-4 md:py-2 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-all border border-transparent hover:border-white/10 text-xs font-black uppercase tracking-tight group h-[40px]"
           >
-            <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             <span className="hidden md:inline">Exit</span>
           </button>
         </div>

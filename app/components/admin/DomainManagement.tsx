@@ -4,6 +4,7 @@ import { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { themes } from '@/lib/themes';
 import { DomainData } from './types';
 import { useTheme } from '../ThemeProvider';
+import { Globe, PlusCircle, AlertTriangle, Info, ChevronDown, Trash2 } from 'lucide-react';
 
 interface DomainManagementProps {
   domains: DomainData[];
@@ -93,9 +94,7 @@ export default function DomainManagement({
       <div className="flex items-center justify-between mb-8 relative z-10">
         <h2 className="text-xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg text-[rgb(var(--primary))]">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3" />
-            </svg>
+            <Globe className="w-5 h-5" />
           </div>
           Domain Network
         </h2>
@@ -123,9 +122,7 @@ export default function DomainManagement({
                   disabled={isChecking || checkingDomain}
                 />
                 <div className="absolute left-4 top-3.5 text-gray-600 group-hover/input:text-[rgb(var(--primary))] transition-colors">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
+                  <Globe className="w-5 h-5" />
                 </div>
                 {(isChecking || checkingDomain) && (
                   <div className="absolute right-4 top-3.5">
@@ -147,9 +144,7 @@ export default function DomainManagement({
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <PlusCircle className="w-5 h-5" />
                     <span>Add Node</span>
                   </>
                 )}
@@ -162,9 +157,7 @@ export default function DomainManagement({
             {(localError || domainError) && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300">
                 <div className="p-1.5 bg-red-500/20 rounded-lg">
-                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
+                  <AlertTriangle className="w-4 h-4 text-red-400" />
                 </div>
                 <span className="text-xs font-bold text-red-200 uppercase tracking-tight">{localError || domainError}</span>
               </div>
@@ -172,9 +165,7 @@ export default function DomainManagement({
 
             <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-3">
               <div className="p-1.5 bg-indigo-500/20 rounded-lg">
-                <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <Info className="w-4 h-4 text-indigo-400" />
               </div>
               <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-[0.1em]">
                 Global distribution check enabled. Duplicate nodes across the network are restricted.
@@ -223,9 +214,7 @@ export default function DomainManagement({
                             style={{ background: `rgb(${(themes.find(t => t.id === (domain.themeId || 'default'))?.colors['--primary']) || '236 72 153'})` }}
                           />
                           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                            </svg>
+                            <ChevronDown className="w-3 h-3" />
                           </div>
                         </div>
                       </td>
@@ -247,9 +236,7 @@ export default function DomainManagement({
                           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[rgb(var(--secondary))]/10 border border-[rgb(var(--secondary))]/20 text-[rgb(var(--secondary))] hover:bg-[rgb(var(--secondary))] hover:text-white transition-all duration-300 text-[10px] font-black uppercase tracking-tighter group/btn"
                           disabled={isChecking || checkingDomain}
                         >
-                          <svg className="w-3.5 h-3.5 transition-transform group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          <Trash2 className="w-3.5 h-3.5 transition-transform group-hover/btn:scale-110" />
                           Decommission
                         </button>
                       </td>
@@ -268,9 +255,7 @@ export default function DomainManagement({
         ) : (
           <div className="text-center py-16 border border-dashed border-white/10 rounded-2xl relative z-10 bg-white/[0.02]">
             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
-              <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3" />
-              </svg>
+              <Globe className="w-8 h-8 text-gray-600" />
             </div>
             <h3 className="text-lg font-bold text-white mb-2">No Active Nodes</h3>
             <p className="text-sm text-gray-500 max-w-xs mx-auto">The domain network is currently empty. Initialize your first node deployment above.</p>

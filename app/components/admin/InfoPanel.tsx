@@ -2,6 +2,7 @@
 
 import { RentalPricing, Currency } from './types';
 import { useTheme } from '../ThemeProvider';
+import { Coins, ShieldCheck } from 'lucide-react';
 
 interface InfoPanelProps {
   pricing: RentalPricing;
@@ -30,12 +31,14 @@ export default function InfoPanel({ pricing, currencies }: InfoPanelProps) {
           </p>
           <div className="mt-4 flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
+              <Coins className="w-3 h-3 text-gray-500" />
               <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Active Currency:</span>
               <span className="text-[11px] font-black text-white bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg uppercase">
                 {selectedCurrency.name} ({selectedCurrency.code})
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <ShieldCheck className="w-3 h-3 text-gray-500" />
               <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Base Integrity:</span>
               <span className="text-[11px] font-black text-[rgb(var(--primary))] bg-[rgb(var(--primary))]/10 border border-[rgb(var(--primary))]/10 px-2.5 py-1 rounded-lg uppercase">
                 Verified

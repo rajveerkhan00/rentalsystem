@@ -3,13 +3,14 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { LocationData } from './types';
+import { MapPin, Search, Loader2 } from 'lucide-react';
 
 const TomTomMap = dynamic(() => import('@/app/components/mainwebsite/TomTomMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-64 bg-gray-900 rounded-lg flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto"></div>
+        <Loader2 className="animate-spin h-8 w-8 text-white mx-auto" />
         <p className="mt-2 text-gray-300 text-sm">Loading map...</p>
       </div>
     </div>
@@ -51,10 +52,7 @@ export default function LocationManagement({
       <div className="flex items-center justify-between mb-6 relative z-10">
         <h2 className="text-xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-[rgb(var(--primary))]/20 rounded-lg">
-            <svg className="w-5 h-5 text-[rgb(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <MapPin className="w-5 h-5 text-[rgb(var(--primary))]" />
           </div>
           Location Control
         </h2>
@@ -79,9 +77,7 @@ export default function LocationManagement({
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/50 focus:border-[rgb(var(--primary))]/50 transition-all duration-300 pl-11 group-hover/input:border-white/20"
               />
               <div className="absolute left-4 top-3.5 text-gray-500 group-hover/input:text-[rgb(var(--primary))] transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <Search className="w-5 h-5" />
               </div>
             </div>
             <button
@@ -90,12 +86,10 @@ export default function LocationManagement({
               className="px-6 py-3 bg-[rgb(var(--primary))] hover:brightness-110 disabled:bg-gray-800 disabled:text-gray-500 rounded-xl font-bold text-white transition-all duration-300 shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] active:scale-95 flex items-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin border-white/30 text-white" />
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                  <Search className="w-5 h-5" />
                   <span>Search</span>
                 </>
               )}
