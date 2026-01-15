@@ -135,7 +135,7 @@ export default function BookingPage() {
                         <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5 min-h-[420px]">
                             <iframe
                                 id="booking-iframe"
-                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&hide-bg=true&hide-header=true${prefilledData ? `&formData=${prefilledData}` : ''}`}
+                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&${prefilledData ? `&formData=${prefilledData}` : ''}`}
                                 width="100%"
                                 height="800"
                                 className="w-full border-none "
