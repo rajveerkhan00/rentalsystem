@@ -1,5 +1,5 @@
 import RentResults from "./RentResults"
-import { ShieldCheck, Star, Clock } from "lucide-react";
+import { ShieldCheck, Star, Clock, Zap } from "lucide-react";
 import { useEffect } from "react";
 
 export function Hero(props: any) {
@@ -110,7 +110,7 @@ export function Hero(props: any) {
               <div className="absolute -inset-1 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
               {/* Glass Card */}
-              <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+              <div className="relative bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5">
                 {/* Header */}
                 <div className=" p-6 border-b border-white/5 flex items-center justify-between">
                   <div>
@@ -120,8 +120,9 @@ export function Hero(props: any) {
                       Best Price Guaranteed
                     </p>
                   </div>
-                  <div className="p-2 bg-gradient-to-br from-white/10 to-transparent rounded-lg border border-white/10">
-                    <span className="text-xl">⚡</span>
+                  <div className="relative p-2.5 rounded-xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.2)] group overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(var(--primary),0.2),transparent_70%)]" />
+                    <Zap className="w-6 h-6 text-[rgb(var(--primary))] fill-[rgb(var(--primary))]/20 drop-shadow-[0_0_10px_rgba(var(--primary),0.4)] transition-transform duration-300 group-hover:scale-110 group-hover:brightness-125" />
                   </div>
                 </div>
 
@@ -129,10 +130,10 @@ export function Hero(props: any) {
                   <div id="booking-container" style={{ width: '100%' }}>
                     <iframe
                       id="booking-iframe"
-                      src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&redirectOnSearch=true`}
+                      src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&redirectOnSearch=true&hide-bg=true`}
                       width="100%"
                       height="700"
-                      style={{ border: 'none', minHeight: '420px' }}
+                      style={{ border: 'none', minHeight: '420px', backgroundColor: 'transparent' }}
                       scrolling="no"
                       title="Booking Form"
                     ></iframe>

@@ -114,8 +114,8 @@ export default function BookingPage() {
             {/* Spacer for fixed header */}
             <div className="h-24 md:h-32"></div>
 
-            <section className="relative px-4 pb-20">
-                <div className="container mx-auto max-w-5xl">
+            <section className="relative px-4">
+                <div className="container mx-auto max-w-7xl">
                     {/* Page Heading */}
                     <div className="text-center mb-12 space-y-4">
                         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
@@ -129,21 +129,25 @@ export default function BookingPage() {
                     {/* Iframe Container */}
                     <div className="relative group">
                         {/* Glow Background */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--primary))] to-[rgb(var(--secondary))] rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
 
                         {/* Glass Card */}
-                        <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/5 min-h-[420px]">
+                        <div className="relative w-full overflow-hidden" style={{ lineHeight: 0 }}>
                             <iframe
                                 id="booking-iframe"
-                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}&${prefilledData ? `&formData=${prefilledData}` : ''}`}
+                                src={`https://booking-system-rouge-phi.vercel.app/embed?domain=${domainName}${prefilledData ? `&formData=${prefilledData}` : ''}`}
                                 width="100%"
                                 height="800"
-                                className="w-full border-none "
+                                className="w-full border-none block"
                                 style={{
                                     minHeight: '420px',
-                                    background: 'transparent'
+                                    background: 'black',
+                                    border: 0,
+                                    margin: 0,
+                                    padding: 0,
+                                    display: 'block'
                                 }}
                                 scrolling="no"
+                                frameBorder="0"
                                 title="Booking Form"
                             ></iframe>
                         </div>
